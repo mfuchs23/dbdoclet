@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+### Copyright (C) 2001-2012 Michael Fuchs ###
+-->
+<project name="org.dbdoclet.doclet.docbook" default="build">
+
+	<taskdef name="srcpacker" classname="org.dbdoclet.tool.src.ProductManagerTask" />
+
+	<property file="../workspace.properties" />
+	<property file="module.properties" />
+	<import file="${build.config.dir}/defaultBuild.xml" />
+
+	<target name="build">
+
+		<antcall target="default.compile" />
+
+		<jar destfile="distrib/dbdoclet.jar">
+			<manifest>
+				<attribute name="Class-Path" value="../conf" />
+			</manifest>
+			<fileset dir="${build.main.classes.dir}" />
+			<zipgroupfileset dir="lib">
+				<include name="aopalliance_*.jar" />
+				<include name="guice_*.jar" />
+				<include name="javax.inject_*.jar" />
+				<include name="jcommon_*.jar" />
+				<include name="jfreechart_*.jar" />
+				<include name="org.antlr.runtime_*.jar" />
+				<include name="org.apache.commons.logging_*.jar" />
+				<include name="org.apache.batik_*.jar" />
+				<include name="org.apache.log4j_*.jar" />
+				<include name="org.apache.xmlgraphics_*.jar" />
+				<include name="org.dbdoclet.*.jar" />
+				<include name="xml-apis_*.jar" />
+				<include name="xml-apis-ext_*.jar" />
+			</zipgroupfileset>
+		</jar>
+
+		<antcall target="default.build" />
+
+	</target>
+</project>

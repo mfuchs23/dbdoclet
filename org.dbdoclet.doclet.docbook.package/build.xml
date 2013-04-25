@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+   <!DOCTYPE project PUBLIC "-//Apache Group//DTD Ant V1.0//EN" "ant.dtd">
+   -->
+<project name="org.dbdoclet.doclet.docbook.package" default="build">
+
+	<property file="../workspace.properties" />
+	<property file="module.properties" />
+	<import file="${build.config.dir}/defaultBuild.xml" />
+
+	<taskdef name="packman" classname="org.dbdoclet.ant.PackmanTask" />
+	<taskdef name="srcpacker" classname="org.dbdoclet.tool.src.ProductManagerTask" />
+
+	<property file="module.properties" />
+
+	<target name="build">
+		<antcall target="default.compile" />
+		<copy todir="distrib">
+			<fileset dir="lib">
+				<include name="dbdoclet_*.jar"/>
+			</fileset>
+		</copy>
+	</target>
+		
+	<target name="dist-src">
+		<srcpacker product="dbdoclet" workdir="/usr/share/dbdoclet/src" jarfile="distrib/dbdoclet.jar" zipfile="distrib/dbdoclet-src_${module.version}.zip" buildfile="root/src/build.xml">
+			<fileset dir="src/main/java" />
+			<fileset dir="../org.dbdoclet.commons/src/main/java" />
+			<fileset dir="../org.dbdoclet.getopts/src/main/java" />
+			<fileset dir="../org.dbdoclet.xiphias/src/main/java" />
+			<fileset dir="../org.dbdoclet.svg/src/main/java" />
+			<fileset dir="../org.dbdoclet.jive/src/main/java" />
+			<fileset dir="../org.dbdoclet.trafo/src/main/java" />
+			<fileset dir="../org.dbdoclet.trafo.html.docbook/src/main/java" />
+		</srcpacker>
+	</target>
+
+	<!-- ========================================== -->
+	<!-- INSTALL                                    -->
+	<!-- ========================================== -->
+	<target name="install" depends="build">
+	</target>
+	
+	<!-- ========================================== -->
+	<!-- DOC                                        -->
+	<!-- ========================================== -->
+	<target name="doc">
+		<ant dir="doc" antfile="build.xml" target="all" />
+	</target>
+
+	<!-- ========================================== -->
+	<!-- DIST                                       -->
+	<!-- ========================================== -->
+	<target name="dist">
+
+		<buildnumber />
+		<antcall target="install" />
+
+		<copy file="spec/dbdoclet.xml" tofile="spec/packman.xml" overwrite="yes">
+			<filterset>
+				<filter token="BUILDNUMBER" value="${build.number}" />
+				<filter token="VERSION" value="${module.version}" />
+			</filterset>
+		</copy>
+
+		<mkdir dir="${packman.dir}/main"/>
+		<copy todir="${packman.dir}/main" file="build.properties"/>
+		
+		<echo>Creating Windows Package...</echo>
+		<packman verbose="true" spec="spec/packman.xml" destdir="${packman.dir}/main" type="nsis" />
+
+		<echo>Creating RPM Package...</echo>
+		<packman spec="spec/packman.xml" destdir="${packman.dir}/main" type="rpm" />
+
+		<echo>Creating Debian Package...</echo>
+		<packman spec="spec/packman.xml" destdir="${packman.dir}/main" type="deb" />
+
+		<echo>Creating tar/gzip Package...</echo>
+		<packman spec="spec/packman.xml" destdir="${packman.dir}/main" type="tgz" />
+
+		<echo file="${packman.dir}/main/version.properties">
+      version=${project.version}
+      version.win=${project.version.style.win}
+      release=${build.number}</echo>
+
+	</target>
+
+</project>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry exported="true" kind="lib" path="lib/tools_1.6.0_31.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jfreechart_1.0.14.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcommon_1.0.17.jar"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=org.dbdoclet.doclet.docbook&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

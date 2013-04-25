@@ -1,0 +1,71 @@
+<!--
+ ### Copyright (C) 2001-2013 Michael Fuchs ###
+-->
+<package id="herold" relocatable="yes">
+
+  <name>herold</name>
+
+  <version>6.1.0</version>
+  <release>5</release>
+
+  <archives>
+  </archives>
+
+  <summary>HTML to DocBook XML conversion.</summary> 
+
+  <copyright>Copyright (c) 2001-2012 by Michael Fuchs.</copyright> 
+  <group>Productivity/File utilities</group>
+
+  <architectures>
+    <architecture>noarch</architecture>
+  </architectures>
+
+  <provides>dbdoclet</provides>
+
+  <prepare>
+
+  </prepare>
+
+
+  <build>
+  </build>
+
+  <install>
+
+rm -rf <buildroot/><install-dir/>/dbdoclet
+install -d <buildroot/><install-dir/>/dbdoclet
+install -d <buildroot/><install-dir/>/man/man1
+
+cp -r <prefix/>/dbdoclet <buildroot/><install-dir/>
+rm -rf <buildroot/><install-dir/>/dbdoclet/emacs
+rm -rf <buildroot/><install-dir/>/dbdoclet/licenses
+rm -rf <buildroot/><install-dir/>/dbdoclet/spec
+cp <buildroot/><install-dir/>/dbdoclet/doc/dbdoclet.1.gz <buildroot/><install-dir/>/man/man1
+  </install>
+  
+  <postinstall>
+
+rm -f /usr/bin/dbdoclet
+ln -s <prefix/>/dbdoclet/bin/dbdoclet /usr/bin/dbdoclet
+chmod 555 <prefix/>/dbdoclet/bin/*
+
+  </postinstall>
+  
+  <files>
+    <file recursive="yes">
+      <mode>0755</mode>
+      <user/>
+      <group/>
+      <type>dir</type> 
+      <path><prefix/>/dbdoclet</path>
+    </file>
+	<file>
+		<mode>0644</mode>
+		<user />
+		<group />
+		<type>file</type>
+		<path><prefix />/man/man1/dbdoclet.1.gz</path>
+	</file>
+  </files>
+
+</package>

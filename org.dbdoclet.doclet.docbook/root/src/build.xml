@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="build">
+
+	<target name="prepare">
+		<mkdir dir="classes" />
+	</target>
+
+	<target name="build" depends="prepare">
+		<javac includeantruntime="false" srcdir="java" destdir="classes" encoding="utf-8">
+			<include name="org/dbdoclet/doclet/**" />
+			<include name="org/dbdoclet/trafo/tag/docbook/*" />
+			<include name="org/dbdoclet/trafo/tag/html/*" />
+			<include name="org/dbdoclet/trafo/html/docbook/editor/**" />
+			<classpath>
+				<fileset dir="../jars">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="../bundle">
+					<include name="*.jar" />
+				</fileset>
+				<fileset dir="${java.home}/../lib">
+					<include name="tools.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+		<copy todir="classes">
+			<fileset dir="java">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<jar destfile="../jars/herold.jar" manifest="java/META-INF/MANIFEST.MF">
+			<fileset dir="classes" />
+		</jar>
+	</target>
+</project>

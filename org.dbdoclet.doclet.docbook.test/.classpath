@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.dbdoclet.commons"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.dbdoclet.doclet.docbook"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.dbdoclet.getopts"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.dbdoclet.xiphias"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.dbdoclet.trafo"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=org.dbdoclet.doclet.docbook.test&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

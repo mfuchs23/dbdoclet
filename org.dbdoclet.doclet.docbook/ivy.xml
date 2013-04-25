@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+  <info
+      organisation="org.dbdoclet"
+      module="org.dbdoclet.doclet.docbook"
+      status="integration"
+      revision="${module.version}">
+  </info>
+  <publications>
+  	<artifact name="org.dbdoclet.doclet.docbook" />
+  	<artifact name="dbdoclet" />
+  </publications>
+  <dependencies>
+    <dependency org="com.sun" name="jdk" rev="1.6.0_31" />
+    <dependency org="javax.inject" name="javax.inject" rev="1" />
+    <dependency org="com.google.inject" name="guice" rev="latest.integration" />
+    <dependency org="xml-apis" name="xml-apis" rev="latest.integration" />
+    <dependency org="org.apache" name="org.apache.commons.logging" rev="latest.integration" />
+    <dependency org="org.apache" name="org.apache.log4j" rev="latest.integration" />
+    <dependency org="org.jfree" name="jfreechart" rev="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.getopts" rev="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.xiphias" rev="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.jive" rev="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo" rev="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook" rev="latest.integration" />
+  </dependencies>
+</ivy-module>
