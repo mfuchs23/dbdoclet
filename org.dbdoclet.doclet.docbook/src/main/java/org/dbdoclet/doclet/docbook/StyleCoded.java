@@ -25,11 +25,11 @@ import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.DocletContext;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
-import org.dbdoclet.trafo.tag.docbook.DocBookElement;
-import org.dbdoclet.trafo.tag.docbook.FormalPara;
-import org.dbdoclet.trafo.tag.docbook.Para;
-import org.dbdoclet.trafo.tag.docbook.SimpleList;
-import org.dbdoclet.trafo.tag.docbook.Warning;
+import org.dbdoclet.tag.docbook.DocBookElement;
+import org.dbdoclet.tag.docbook.FormalPara;
+import org.dbdoclet.tag.docbook.Para;
+import org.dbdoclet.tag.docbook.SimpleList;
+import org.dbdoclet.tag.docbook.Warning;
 import org.dbdoclet.xiphias.XmlServices;
 
 import com.sun.javadoc.ClassDoc;

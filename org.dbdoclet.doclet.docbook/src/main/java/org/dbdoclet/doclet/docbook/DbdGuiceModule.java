@@ -8,8 +8,8 @@ import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.doclet.statistic.TotalsDiagram;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.trafo.script.Script;
-import org.dbdoclet.trafo.tag.docbook.DocBookTagFactory;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;

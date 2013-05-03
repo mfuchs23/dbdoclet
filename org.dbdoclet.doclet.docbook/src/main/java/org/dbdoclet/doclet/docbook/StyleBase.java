@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
-import org.dbdoclet.trafo.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
 
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.MemberDoc;

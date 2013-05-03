@@ -5,8 +5,8 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import org.dbdoclet.doclet.DocletException;
-import org.dbdoclet.trafo.tag.docbook.DocBookTagFactory;
-import org.dbdoclet.trafo.tag.docbook.Section;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.docbook.Section;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.junit.Test;
 

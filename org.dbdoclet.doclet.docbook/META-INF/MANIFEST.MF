@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DocBook Doclet
 Bundle-SymbolicName: org.dbdoclet.doclet.docbook
-Bundle-Version: 6.1.0
+Bundle-Version: 7.0.0
 Import-Package: com.google.inject,
  com.google.inject.binder,
  javax.inject,
@@ -30,3 +30,4 @@ Bundle-ClassPath: lib/tools_1.6.0_31.jar,
  lib/jcommon_1.0.17.jar
 Export-Package: org.dbdoclet.doclet,
  org.dbdoclet.doclet.docbook
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

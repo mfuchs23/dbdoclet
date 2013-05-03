@@ -3,8 +3,8 @@ package org.dbdoclet.doclet.docbook;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import org.dbdoclet.trafo.tag.docbook.DocBookDocument;
-import org.dbdoclet.trafo.tag.docbook.DocBookElement;
+import org.dbdoclet.tag.docbook.DocBookDocument;
+import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.xiphias.dom.DocumentTypeImpl;
 
 import com.sun.javadoc.AnnotationTypeDoc;

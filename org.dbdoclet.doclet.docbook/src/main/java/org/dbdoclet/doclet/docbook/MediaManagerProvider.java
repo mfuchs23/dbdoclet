@@ -9,7 +9,7 @@ import org.dbdoclet.doclet.DocletContext;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
-import org.dbdoclet.trafo.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
 
 public class MediaManagerProvider implements Provider<MediaManager> {
 

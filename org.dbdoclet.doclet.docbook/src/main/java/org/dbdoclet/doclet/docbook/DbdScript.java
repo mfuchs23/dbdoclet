@@ -7,9 +7,9 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import org.dbdoclet.doclet.XmlIdType;
+import org.dbdoclet.tag.docbook.DocBookVersion;
 import org.dbdoclet.trafo.internal.html.docbook.DbtConstants;
 import org.dbdoclet.trafo.script.Script;
-import org.dbdoclet.trafo.tag.docbook.DocBookVersion;
 import org.dbdoclet.xiphias.XmlServices.HyphenationChar;
 
 public class DbdScript {

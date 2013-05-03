@@ -7,11 +7,11 @@ import javax.inject.Inject;
 
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
-import org.dbdoclet.trafo.tag.docbook.Chapter;
-import org.dbdoclet.trafo.tag.docbook.DocBookDocument;
-import org.dbdoclet.trafo.tag.docbook.DocBookTagFactory;
-import org.dbdoclet.trafo.tag.docbook.FormalPara;
-import org.dbdoclet.trafo.tag.docbook.ProgramListing;
+import org.dbdoclet.tag.docbook.Chapter;
+import org.dbdoclet.tag.docbook.DocBookDocument;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.docbook.FormalPara;
+import org.dbdoclet.tag.docbook.ProgramListing;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.dom.DocumentImpl;
 import org.dbdoclet.xiphias.dom.DocumentTypeImpl;

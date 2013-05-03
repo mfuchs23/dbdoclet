@@ -17,13 +17,14 @@ import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
-import org.dbdoclet.trafo.html.docbook.DocBookTransformer;
+import org.dbdoclet.tag.docbook.DocBookElement;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.html.HtmlElement;
+import org.dbdoclet.trafo.html.docbook.DocumentElementType;
+import org.dbdoclet.trafo.html.docbook.HtmlDocBookTrafo;
 import org.dbdoclet.trafo.internal.html.docbook.DbtConstants;
 import org.dbdoclet.trafo.param.TextParam;
 import org.dbdoclet.trafo.script.Script;
-import org.dbdoclet.trafo.tag.docbook.DocBookElement;
-import org.dbdoclet.trafo.tag.docbook.DocBookTagFactory;
-import org.dbdoclet.trafo.tag.html.HtmlElement;
 import org.dbdoclet.xiphias.dom.NodeImpl;
 
 import com.sun.javadoc.ClassDoc;
@@ -162,36 +163,6 @@ public class DbdTransformer {
 	 *            a <code>String</code> value
 	 * @param parent
 	 *            a <code>DocBookElement</code> value
-	 * @return a <code>Element</code> value
-	 * @exception DocletException
-	 *                if an error occurs
-	 */
-	public NodeImpl transform(String comment, DocBookElement parent)
-			throws DocletException {
-
-		if (comment == null) {
-			throw new IllegalArgumentException("Parameter comment is null!");
-		}
-
-		if (parent == null) {
-			throw new IllegalArgumentException("Parameter parent is null!");
-		}
-
-		if (context == null) {
-			throw new IllegalArgumentException("Parameter context is null!");
-		}
-
-		return transform(comment, parent, null);
-	}
-
-	/**
-	 * The method <code>transform</code> transforms the content of a String
-	 * buffer into a DocBook tree.
-	 * 
-	 * @param comment
-	 *            a <code>String</code> value
-	 * @param parent
-	 *            a <code>DocBookElement</code> value
 	 * @param skipTo
 	 *            skip all lines until the the tag <code>skipTo</code> is found.
 	 * @return a <code>Element</code> value
@@ -199,8 +170,7 @@ public class DbdTransformer {
 	 * @exception DocletException
 	 *                if an error occurs
 	 */
-	public NodeImpl transform(String comment, DocBookElement parent,
-			HtmlElement skipTo) throws DocletException {
+	public NodeImpl transform(String comment, DocBookElement parent) throws DocletException {
 
 		if (comment == null) {
 			throw new IllegalArgumentException("Parameter comment is null!");
@@ -216,8 +186,7 @@ public class DbdTransformer {
 
 		try {
 
-			DocBookTransformer transformer = new DocBookTransformer();
-			transformer.setScript(script);
+			HtmlDocBookTrafo transformer = new HtmlDocBookTrafo();
 			transformer.setTagFactory(tagFactory);
 
 			script.selectSection(DbtConstants.SECTION_DOCBOOK);
@@ -253,16 +222,16 @@ public class DbdTransformer {
 			if (context.isOverview()) {
 				script.setTextParameter(
 						DbtConstants.PARAM_DOCUMENT_ELEMENT,
-						DocBookTransformer.DocumentElementType.OVERVIEW
+						DocumentElementType.OVERVIEW
 								.toString());
 			} else {
 				script.setTextParameter(
 						DbtConstants.PARAM_DOCUMENT_ELEMENT,
-						DocBookTransformer.DocumentElementType.PARAGRAPH
+						DocumentElementType.PARAGRAPH
 								.toString());
 			}
 
-			NodeImpl elem = transformer.transform(comment, parent, skipTo);
+			NodeImpl elem = transformer.transform(script, comment, parent);
 
 			if (elem == null) {
 

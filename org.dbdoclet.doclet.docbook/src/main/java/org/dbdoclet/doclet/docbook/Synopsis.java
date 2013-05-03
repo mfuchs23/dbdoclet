@@ -15,10 +15,10 @@ import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.DocletContext;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.DocletServices;
-import org.dbdoclet.trafo.tag.docbook.DocBookElement;
-import org.dbdoclet.trafo.tag.docbook.DocBookTagFactory;
-import org.dbdoclet.trafo.tag.docbook.Modifier;
-import org.dbdoclet.trafo.tag.docbook.OoClass;
+import org.dbdoclet.tag.docbook.DocBookElement;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.docbook.Modifier;
+import org.dbdoclet.tag.docbook.OoClass;
 import org.dbdoclet.xiphias.XmlServices;
 
 import com.sun.javadoc.AnnotationDesc;

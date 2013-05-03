@@ -30,7 +30,7 @@
 package org.dbdoclet.doclet.docbook;
 
 import org.dbdoclet.doclet.DocletException;
-import org.dbdoclet.trafo.tag.docbook.DocBookElement;
+import org.dbdoclet.tag.docbook.DocBookElement;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
