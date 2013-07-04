@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import org.dbdoclet.doclet.XmlIdType;
 import org.dbdoclet.tag.docbook.DocBookVersion;
-import org.dbdoclet.trafo.internal.html.docbook.DbtConstants;
+import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.script.Script;
 import org.dbdoclet.xiphias.XmlServices.HyphenationChar;
 
@@ -22,23 +22,23 @@ public class DbdScript {
 	private File outputFile;
 
 	public String getAbstract() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_ABSTRACT, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_ABSTRACT, "");
 	}
 
 	public String getAuthorEmail() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_AUTHOR_EMAIL, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_AUTHOR_EMAIL, "");
 	}
 
 	public String getAuthorFirstname() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_AUTHOR_FIRSTNAME, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_AUTHOR_FIRSTNAME, "");
 	}
 
 	public String getAuthorSurname() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_AUTHOR_SURNAME, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_AUTHOR_SURNAME, "");
 	}
 
 	/*
@@ -67,18 +67,18 @@ public class DbdScript {
 	}
 
 	public String getCopyrightHolder() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_COPYRIGHT_HOLDER, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_COPYRIGHT_HOLDER, "");
 	}
 
 	public String getCopyrightYear() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_COPYRIGHT_YEAR, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_COPYRIGHT_YEAR, "");
 	}
 
 	public String getCorporation() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_CORPORATION, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_CORPORATION, "");
 	}
 
 	public File getDestinationDirectory() {
@@ -91,8 +91,8 @@ public class DbdScript {
 	}
 
 	public String getDestinationEncoding() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_ENCODING, "UTF-8");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_ENCODING, "UTF-8");
 	}
 
 	public File getDestinationFile() {
@@ -106,8 +106,8 @@ public class DbdScript {
 
 	public DocBookVersion getDocBookVersion() {
 
-		String version = script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_DOCBOOK_VERSION, "5.0");
+		String version = script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_DOCBOOK_VERSION, "5.0");
 
 		if (version != null && version.trim().equals("4.5")) {
 			return DocBookVersion.V4_5;
@@ -118,21 +118,21 @@ public class DbdScript {
 
 	public String getDocumentationId() {
 		String documentationId = script.getTextParameter(
-				DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_DOCUMENTATION_ID, "dbdoclet");
+				TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_DOCUMENTATION_ID, "dbdoclet");
 		return documentationId;
 	}
 
 	public String getDocumentElement() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_DOCUMENT_ELEMENT, "book");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_DOCUMENT_ELEMENT, "book");
 	}
 
 	public HyphenationChar getHyphenationChar() {
 
 		String hyphenationChar = script.getTextParameter(
-				DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_HYPHENATION_CHAR, "soft-hyphen");
+				TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_HYPHENATION_CHAR, "soft-hyphen");
 
 		if (hyphenationChar != null && hyphenationChar.equals("soft-hyphen")) {
 			return HyphenationChar.SOFT_HYPHEN;
@@ -143,8 +143,8 @@ public class DbdScript {
 
 	public String getHyphenationCharAsText() {
 
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_HYPHENATION_CHAR, "soft-hyphen");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_HYPHENATION_CHAR, "soft-hyphen");
 	}
 
 	public XmlIdType getIdStyle() {
@@ -165,21 +165,21 @@ public class DbdScript {
 		defaultFormatList.add("PNG");
 
 		return script
-				.getTextParameterList(DbtConstants.SECTION_DOCBOOK,
-						DbtConstants.PARAM_IMAGEDATA_FORMATS,
+				.getTextParameterList(TrafoConstants.SECTION_DOCBOOK,
+						TrafoConstants.PARAM_IMAGEDATA_FORMATS,
 						defaultFormatList);
 	}
 
 	public String getImagePath() {
 
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_IMAGE_PATH, "./figures");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_IMAGE_PATH, "./figures");
 	}
 
 	public String getLanguage() {
 
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_LANGUAGE, Locale.getDefault()
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_LANGUAGE, Locale.getDefault()
 						.getLanguage());
 	}
 
@@ -194,8 +194,8 @@ public class DbdScript {
 	}
 
 	public String getReleaseInfo() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_RELEASE_INFO, "");
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_RELEASE_INFO, "");
 	}
 
 	public Script getScript() {
@@ -203,9 +203,9 @@ public class DbdScript {
 	}
 
 	public String getTableStyle() {
-		return script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_TABLE_STYLE,
-				DbtConstants.DEFAULT_TABLE_STYLE);
+		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_TABLE_STYLE,
+				TrafoConstants.DEFAULT_TABLE_STYLE);
 	}
 
 	public ArrayList<String> getTagList() {
@@ -215,19 +215,19 @@ public class DbdScript {
 
 	public String getTitle() {
 		String titleText = script.getTextParameter(
-				DbtConstants.SECTION_DOCBOOK, DbtConstants.PARAM_TITLE,
+				TrafoConstants.SECTION_DOCBOOK, TrafoConstants.PARAM_TITLE,
 				"JavaDoc Reference");
 		return titleText;
 	}
 
 	public boolean hasProlog() {
-		return script.isParameterOn(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_CREATE_PROLOG, true);
+		return script.isParameterOn(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_CREATE_PROLOG, true);
 	}
 
 	public boolean isAbsoluteImagePathEnabled() {
-		return script.isParameterOn(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_USE_ABSOLUTE_IMAGE_PATH, false);
+		return script.isParameterOn(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_USE_ABSOLUTE_IMAGE_PATH, false);
 	}
 
 	public boolean isChunkDocBookEnabled() {
@@ -365,21 +365,21 @@ public class DbdScript {
 	}
 
 	public void setAuthorEmail(String email) {
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_AUTHOR_EMAIL, email);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_AUTHOR_EMAIL, email);
 	}
 
 	public void setAuthorFirstname(String firstname) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_AUTHOR_FIRSTNAME,
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_AUTHOR_FIRSTNAME,
 				firstname);
 	}
 
 	public void setAuthorSurname(String surname) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_AUTHOR_SURNAME, surname);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_AUTHOR_SURNAME, surname);
 	}
 
 	public void setChunkDocBookEnabled(boolean enabled) {
@@ -389,20 +389,20 @@ public class DbdScript {
 	}
 
 	public void setCopyrightHolder(String copyrightHolder) {
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_COPYRIGHT_HOLDER,
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_COPYRIGHT_HOLDER,
 				copyrightHolder);
 	}
 
 	public void setCopyrightYear(String copyrightYear) {
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_COPYRIGHT_YEAR,
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_COPYRIGHT_YEAR,
 				copyrightYear);
 	}
 
 	public void setCorporation(String corporation) {
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_CORPORATION, corporation);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_CORPORATION, corporation);
 	}
 
 	public void setCreateAppendixEnabled(boolean enabled) {
@@ -490,33 +490,33 @@ public class DbdScript {
 	}
 
 	public boolean setCreateXrefLabelEnabled() {
-		return script.isParameterOn(DbtConstants.SECTION_DOCBOOK,
-				DbtConstants.PARAM_CREATE_XREF_LABEL, true);
+		return script.isParameterOn(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_CREATE_XREF_LABEL, true);
 	}
 
 	public void setDestinationEncoding(String encoding) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_ENCODING, encoding);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_ENCODING, encoding);
 	}
 
 	public void setDocBookVersion(String docBookVersion) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_DOCBOOK_VERSION, docBookVersion);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_DOCBOOK_VERSION, docBookVersion);
 	}
 
 	public void setDocumentationId(String documentationId) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_DOCUMENTATION_ID,
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_DOCUMENTATION_ID,
 				documentationId);
 	}
 
 	public void setDocumentElement(String documentElement) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_DOCUMENT_ELEMENT,
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
 				documentElement);
 	}
 
@@ -529,15 +529,15 @@ public class DbdScript {
 
 	public void setHyphenationChar(String selectedItem) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_HYPHENATION_CHAR,
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_HYPHENATION_CHAR,
 				"soft-hyphen");
 	}
 
 	public void setLanguage(String language) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_LANGUAGE, language);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_LANGUAGE, language);
 	}
 
 	public void setLogoPath(String logoPath) {
@@ -556,8 +556,8 @@ public class DbdScript {
 	}
 
 	public void setReleaseInfo(String releaseInfo) {
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_RELEASE_INFO,
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_RELEASE_INFO,
 				releaseInfo);
 	}
 
@@ -566,13 +566,13 @@ public class DbdScript {
 	}
 
 	public void setTableStyle(String tableStyle) {
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_TABLE_STYLE, tableStyle);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_TABLE_STYLE, tableStyle);
 	}
 
 	public void setTitle(String title) {
 
-		script.selectSection(DbtConstants.SECTION_DOCBOOK);
-		script.setTextParameter(DbtConstants.PARAM_TITLE, title);
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_TITLE, title);
 	}
 }

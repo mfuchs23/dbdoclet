@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -23,7 +24,7 @@ import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.svg.UmlClassDiagramCreator;
 import org.dbdoclet.svg.shape.Shape;
-import org.dbdoclet.trafo.internal.html.docbook.editor.ImgEditor;
+import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.ImageServices;
 
 import com.sun.javadoc.AnnotationTypeDoc;
@@ -126,8 +127,8 @@ public class ClassDiagramManager {
 			ucdc.setFontSize(script.getClassDiagramFontSize());
 			define(ucdc, cdoc);
 
-			ArrayList<String> formatList = new ImgEditor()
-					.createImageDataFormatList(script.getImageDataFormats(),
+			DocBookTagFactory tagFactory = new DocBookTagFactory();
+			List<String> formatList = tagFactory.createImageDataFormatList(script.getImageDataFormats(),
 							null);
 
 			ucdc.scaleToWidth(script.getClassDiagramWidth());
@@ -148,6 +149,7 @@ public class ClassDiagramManager {
 				imageFile = new File(fileName);
 				ucdc.saveAsPng(new File(fileName));
 				imageFormat = "PNG";
+
 
 			}
 

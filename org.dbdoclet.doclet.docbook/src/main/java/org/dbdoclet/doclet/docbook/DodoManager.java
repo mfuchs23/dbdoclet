@@ -420,7 +420,6 @@ public class DodoManager extends MediaManager {
 					qualifiedName = "Association(shared,"
 							+ String.valueOf(classId) + ","
 							+ String.valueOf(typeId) + ")";
-
 					association.setId(retrieveId(qualifiedName));
 					association.setQualifiedName(qualifiedName);
 					association.setAggregate(Integer.parseInt(classId));

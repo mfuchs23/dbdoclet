@@ -8,10 +8,13 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 
 import javax.inject.Inject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.DocletContext;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.TagManager;
@@ -19,10 +22,10 @@ import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
-import org.dbdoclet.tag.html.HtmlElement;
+import org.dbdoclet.trafo.TrafoConstants;
+import org.dbdoclet.trafo.TrafoResult;
 import org.dbdoclet.trafo.html.docbook.DocumentElementType;
 import org.dbdoclet.trafo.html.docbook.HtmlDocBookTrafo;
-import org.dbdoclet.trafo.internal.html.docbook.DbtConstants;
 import org.dbdoclet.trafo.param.TextParam;
 import org.dbdoclet.trafo.script.Script;
 import org.dbdoclet.xiphias.dom.NodeImpl;
@@ -41,6 +44,8 @@ import com.sun.javadoc.Tag;
  */
 public class DbdTransformer {
 
+	private static Log logger = LogFactory.getLog(DbdTransformer.class);
+	
 	@Inject
 	TagManager tagManager;
 
@@ -145,6 +150,10 @@ public class DbdTransformer {
 			throw new IllegalArgumentException("Parameter context is null!");
 		}
 
+		if (tags.length == 0) {
+			return null;
+		}
+		
 		String comment = "";
 
 		for (int i = 0; i < tags.length; i++) {
@@ -189,7 +198,7 @@ public class DbdTransformer {
 			HtmlDocBookTrafo transformer = new HtmlDocBookTrafo();
 			transformer.setTagFactory(tagFactory);
 
-			script.selectSection(DbtConstants.SECTION_DOCBOOK);
+			script.selectSection(TrafoConstants.SECTION_DOCBOOK);
 
 			PackageDoc pkgDoc = context.getPackageDoc();
 			ClassDoc classDoc = context.getClassDoc();
@@ -204,9 +213,9 @@ public class DbdTransformer {
 
 			if (pkgDoc != null) {
 
-				path = script.getTextParameter(DbtConstants.SECTION_DOCBOOK,
-						DbtConstants.PARAM_IMAGE_PATH,
-						DbtConstants.DEFAULT_IMAGE_PATH);
+				path = script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
+						TrafoConstants.PARAM_IMAGE_PATH,
+						TrafoConstants.DEFAULT_IMAGE_PATH);
 
 				str = StringServices
 						.replace(pkgDoc.name(), ".", File.separator);
@@ -216,25 +225,35 @@ public class DbdTransformer {
 				}
 
 				script.setVariable(new TextParam(
-						DbtConstants.PARAM_IMAGE_PATH, path));
+						TrafoConstants.PARAM_IMAGE_PATH, path));
 			}
 
 			if (context.isOverview()) {
 				script.setTextParameter(
-						DbtConstants.PARAM_DOCUMENT_ELEMENT,
+						TrafoConstants.PARAM_DOCUMENT_ELEMENT,
 						DocumentElementType.OVERVIEW
 								.toString());
 			} else {
 				script.setTextParameter(
-						DbtConstants.PARAM_DOCUMENT_ELEMENT,
+						TrafoConstants.PARAM_DOCUMENT_ELEMENT,
 						DocumentElementType.PARAGRAPH
 								.toString());
 			}
 
-			NodeImpl elem = transformer.transform(script, comment, parent);
+			transformer.setInputStream(new ByteArrayInputStream(comment.getBytes()));
+			TrafoResult result = transformer.transform(script);
 
-			if (elem == null) {
-
+			NodeImpl elem = null;
+			
+			if (result.isFailed() == false) {
+				elem = result.getRootNode();
+			} else {
+				logger.error("Transformation failed!", result.getThrowable());
+			}
+			
+			if (elem != null) {
+				parent.appendChild(elem);
+			} else {
 				throw new NullPointerException(
 						"Transformation failed. Root element is null!");
 			}

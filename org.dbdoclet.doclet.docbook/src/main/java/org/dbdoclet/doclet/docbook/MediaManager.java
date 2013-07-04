@@ -79,7 +79,6 @@ import org.dbdoclet.tag.docbook.VariableList;
 import org.dbdoclet.tag.docbook.XRef;
 import org.dbdoclet.tag.docbook.Year;
 import org.dbdoclet.tag.html.Img;
-import org.dbdoclet.trafo.internal.html.docbook.editor.ImgEditor;
 import org.dbdoclet.xiphias.ImageServices;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
@@ -378,10 +377,8 @@ public abstract class MediaManager {
 			img.setAttribute("align", "center");
 			img.setAttribute("src", fileName);
 
-			ImgEditor imgEditor = new ImgEditor();
-			imgEditor
-					.createHtmlImageData(media, tagFactory, formats, img, file);
-			imgEditor.createFoImageData(media, tagFactory, formats, img, file);
+			tagFactory.createHtmlImageData(media, tagFactory, formats, img, file);
+			tagFactory.createFoImageData(media, tagFactory, formats, img, file);
 
 		} catch (IOException oops) {
 			throw new DocletException(oops);
