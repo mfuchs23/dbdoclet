@@ -1,0 +1,10 @@
+transformation html2docbook;
+
+section dbdoclet {
+	author-visible = false;
+	create-section-constant-values = false;
+} 
+
+section DocBook {
+	title = "Musikeditor";
+} 

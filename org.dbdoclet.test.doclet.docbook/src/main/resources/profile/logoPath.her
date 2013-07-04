@@ -1,0 +1,5 @@
+transformation html2docbook;
+
+section dbdoclet {
+	logo-path = "../../src/main/resources/img/dbdoclet.png";
+} 
