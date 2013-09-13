@@ -2,6 +2,7 @@ package org.dbdoclet.doclet.docbook;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -159,7 +160,7 @@ public class DbdScript {
 		}
 	}
 
-	public ArrayList<String> getImageDataFormats() {
+	public List<String> getImageDataFormats() {
 
 		ArrayList<String> defaultFormatList = new ArrayList<String>();
 		defaultFormatList.add("PNG");

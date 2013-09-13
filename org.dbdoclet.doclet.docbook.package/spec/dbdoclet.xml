@@ -1,9 +1,9 @@
 <!--
  ### Copyright (C) 2001-2013 Michael Fuchs ###
 -->
-<package id="herold" relocatable="yes">
+<package id="dbdoclet-doclet" relocatable="yes">
 
-  <name>herold</name>
+  <name>dbdoclet-doclet</name>
 
   <version>@VERSION@</version>
   <release>@BUILDNUMBER@</release>
@@ -11,16 +11,16 @@
   <archives>
   </archives>
 
-  <summary>HTML to DocBook XML conversion.</summary> 
+  <summary>Javadoc doclet for DocBook XML generation.</summary> 
 
-  <copyright>Copyright (c) 2001-2012 by Michael Fuchs.</copyright> 
+  <copyright>Copyright (c) 2001-2013 by Michael Fuchs.</copyright> 
   <group>Productivity/File utilities</group>
 
   <architectures>
     <architecture>noarch</architecture>
   </architectures>
 
-  <provides>dbdoclet</provides>
+  <provides>dbdoclet-doclet</provides>
 
   <prepare>
 
@@ -32,22 +32,22 @@
 
   <install>
 
-rm -rf <buildroot/><install-dir/>/dbdoclet
-install -d <buildroot/><install-dir/>/dbdoclet
+rm -rf <buildroot/><install-dir/>/dbdoclet-doclet
+install -d <buildroot/><install-dir/>/dbdoclet-doclet
 install -d <buildroot/><install-dir/>/man/man1
 
-cp -r <prefix/>/dbdoclet <buildroot/><install-dir/>
-rm -rf <buildroot/><install-dir/>/dbdoclet/emacs
-rm -rf <buildroot/><install-dir/>/dbdoclet/licenses
-rm -rf <buildroot/><install-dir/>/dbdoclet/spec
-cp <buildroot/><install-dir/>/dbdoclet/doc/dbdoclet.1.gz <buildroot/><install-dir/>/man/man1
+cp -r <prefix/>/dbdoclet-doclet <buildroot/><install-dir/>
+rm -rf <buildroot/><install-dir/>/dbdoclet-doclet/emacs
+rm -rf <buildroot/><install-dir/>/dbdoclet-doclet/licenses
+rm -rf <buildroot/><install-dir/>/dbdoclet-doclet/spec
+cp <buildroot/><install-dir/>/dbdoclet-doclet/doc/dbdoclet.1.gz <buildroot/><install-dir/>/man/man1
   </install>
   
   <postinstall>
 
 rm -f /usr/bin/dbdoclet
-ln -s <prefix/>/dbdoclet/bin/dbdoclet /usr/bin/dbdoclet
-chmod 555 <prefix/>/dbdoclet/bin/*
+ln -s <prefix/>/dbdoclet-doclet/bin/dbdoclet /usr/bin/dbdoclet
+chmod 555 <prefix/>/dbdoclet-doclet/bin/*
 
   </postinstall>
   
@@ -57,7 +57,7 @@ chmod 555 <prefix/>/dbdoclet/bin/*
       <user/>
       <group/>
       <type>dir</type> 
-      <path><prefix/>/dbdoclet</path>
+      <path><prefix/>/dbdoclet-doclet</path>
     </file>
 	<file>
 		<mode>0644</mode>

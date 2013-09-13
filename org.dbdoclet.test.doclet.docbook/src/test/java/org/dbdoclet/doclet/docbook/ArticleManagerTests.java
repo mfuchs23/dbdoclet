@@ -31,4 +31,28 @@ public class ArticleManagerTests extends AbstractTestCase {
 
         DocBookDoclet.start(root);
     }
+
+    @Test
+    public void test_2() throws DocletException {
+
+    	String sourcePath = "../../common/org.dbdoclet.commons/src/main/java/";
+        String srcpath = sourcePath + "org/dbdoclet/progress/ProgressListener.java";
+        String classpath = sourcePath;
+
+        RootDocImpl root = javadoc(new String[] { srcpath }, classpath, null);
+
+        if (root == null) {
+            fail("RootDoc == null");
+            return;
+        }
+
+        ClassDoc[] classDocs = root.specifiedClasses();
+
+        if (classDocs.length != 1) {
+            fail("Die Anzahl der gefundenen ClassDoc-Instanzen muß 1 betragen.");
+        }
+
+        DocBookDoclet.start(root);
+    }
+
 }

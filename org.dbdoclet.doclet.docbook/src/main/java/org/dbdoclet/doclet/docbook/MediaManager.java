@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
@@ -305,7 +306,7 @@ public abstract class MediaManager {
 				logger.trace(String.format(
 						"(logoPath) The logo file %s is valid.", logoPath));
 
-				ArrayList<String> formatList = script.getImageDataFormats();
+				List<String> formatList = script.getImageDataFormats();
 
 				if (formatList.contains("BASE64")) {
 
@@ -871,7 +872,7 @@ public abstract class MediaManager {
 				new OutputStreamWriter(new FileOutputStream(fileName),
 						script.getDestinationEncoding()));
 		doc.setXmlEncoding(script.getDestinationEncoding());
-		writer.println(NodeSerializer.toXML(doc));
+		writer.println(new NodeSerializer().toXML(doc));
 		writer.close();
 	}
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">	
+			<param name="ConversionPattern" value="[%-5p] %m%n"/>
+		</layout>
+		<!-- 
+		<filter class="org.apache.log4j.varia.StringMatchFilter">
+			<param name="StringToMatch" value="logoPath"/>
+			<param name="AcceptOnMatch" value="true"/>
+		</filter>
+		<filter class="org.apache.log4j.varia.DenyAllFilter"/>
+		-->
+	</appender>
+	<logger name="org.dbdoclet.herold">
+		<level value="warn"/>
+	</logger>
+	<logger name="org.dbdoclet.trafo.html.parser">
+		<level value="warn"/>
+	</logger>
+	<logger name="org.dbdoclet.trafo.html.docbook.DocBookTransformer">
+		<level value="warn"/>
+	</logger>
+	<root>
+		<priority value="error"/>
+		<appender-ref ref="console"/>
+	</root>
+</log4j:configuration>

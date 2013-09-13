@@ -105,7 +105,7 @@ public abstract class Diagram {
 		ChartUtilities.saveChartAsPNG(imageFile, chart, IMAGE_WIDTH,
 				IMAGE_HEIGHT);
 
-		ArrayList<String> imageFormatList = script.getImageDataFormats();
+		List<String> imageFormatList = script.getImageDataFormats();
 
 		imageWidth = String.valueOf(ImageServices.getWidth(imageFile)) + "px";
 		imageHeight = String.valueOf(ImageServices.getHeight(imageFile)) + "px";

@@ -9,6 +9,7 @@
   </info>
   <publications>
   	<artifact name="org.dbdoclet.doclet.docbook.package" />
+  	<artifact name="dbdoclet" />
   </publications>
   <dependencies>
     <dependency org="com.sun" name="jdk" rev="1.6.0_31" />

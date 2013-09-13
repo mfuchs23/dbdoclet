@@ -33,9 +33,9 @@ Import-Package: com.google.inject,
  org.dbdoclet.trafo.tag.javadoc,
  org.dbdoclet.xiphias,
  org.dbdoclet.xiphias.dom
-Bundle-ClassPath: lib/tools_1.6.0_31.jar,
- lib/jfreechart_1.0.14.jar,
- lib/jcommon_1.0.17.jar
+Bundle-ClassPath: lib/jfreechart_1.0.14.jar,
+ lib/jcommon_1.0.17.jar,
+ lib/tools_1.7.0_25.jar
 Export-Package: org.dbdoclet.doclet,
  org.dbdoclet.doclet.docbook
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

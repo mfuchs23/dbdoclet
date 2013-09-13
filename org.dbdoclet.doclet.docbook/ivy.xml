@@ -12,7 +12,7 @@
   	<artifact name="dbdoclet" />
   </publications>
   <dependencies>
-    <dependency org="com.sun" name="jdk" rev="1.6.0_31" />
+    <dependency org="com.sun" name="jdk" rev="1.7.0_25" />
     <dependency org="javax.inject" name="javax.inject" rev="1" />
     <dependency org="com.google.inject" name="guice" rev="latest.integration" />
     <dependency org="xml-apis" name="xml-apis" rev="latest.integration" />

@@ -39,7 +39,7 @@ public class StrictSynopsisTests extends AbstractTestCase {
 
         StrictSynopsis synop = new StrictSynopsis();
         synop.process(classDocs[0], section);
-        pln(NodeSerializer.toXML(section));
+        pln(new NodeSerializer().toXML(section));
     }
 
     @Test
@@ -67,6 +67,6 @@ public class StrictSynopsisTests extends AbstractTestCase {
 
         StrictSynopsis synop = new StrictSynopsis();
         synop.process(classDocs[1], section);
-        pln(NodeSerializer.toXML(section));
+        pln(new NodeSerializer().toXML(section));
     }
 }

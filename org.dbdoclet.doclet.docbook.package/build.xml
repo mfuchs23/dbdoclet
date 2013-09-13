@@ -24,7 +24,7 @@
 	</target>
 		
 	<target name="dist-src">
-		<srcpacker product="dbdoclet" workdir="/usr/share/dbdoclet/src" jarfile="distrib/dbdoclet.jar" zipfile="distrib/dbdoclet-src_${module.version}.zip" buildfile="root/src/build.xml">
+		<srcpacker product="dbdoclet" workdir="/usr/share/dbdoclet-doclet/src" jarfile="distrib/dbdoclet.jar" zipfile="distrib/dbdoclet-src_${module.version}.zip" buildfile="root/src/build.xml">
 			<fileset dir="src/main/java" />
 			<fileset dir="../org.dbdoclet.commons/src/main/java" />
 			<fileset dir="../org.dbdoclet.getopts/src/main/java" />
@@ -39,7 +39,30 @@
 	<!-- ========================================== -->
 	<!-- INSTALL                                    -->
 	<!-- ========================================== -->
-	<target name="install" depends="build">
+	<target name="install" depends="build.all">
+		<property name="instdir" value="/usr/share/dbdoclet-doclet" />
+		<echo>%%% Installationsverzeichnis [${instdir}]</echo>
+		<mkdir dir="${instdir}" />
+		<delete>
+			<fileset dir="${instdir}"/>
+		</delete>
+		<copy todir="${instdir}">
+			<fileset dir="root">
+				<include name="bin/**" />
+				<include name="conf/**" />
+				<include name="doc/**" />
+				<include name="icons/**" />
+				<include name="profiles/**" />
+				<include name="README" />
+				<include name="COPYING" />
+			</fileset>
+		</copy>
+		<mkdir dir="${instdir}/jars"/>
+		<copy todir="${instdir}/jars">
+			<fileset dir="distrib">
+				<include name="*.jar"/>
+			</fileset>
+		</copy>
 	</target>
 	
 	<!-- ========================================== -->
@@ -67,9 +90,6 @@
 		<mkdir dir="${packman.dir}/main"/>
 		<copy todir="${packman.dir}/main" file="build.properties"/>
 		
-		<echo>Creating Windows Package...</echo>
-		<packman verbose="true" spec="spec/packman.xml" destdir="${packman.dir}/main" type="nsis" />
-
 		<echo>Creating RPM Package...</echo>
 		<packman spec="spec/packman.xml" destdir="${packman.dir}/main" type="rpm" />
 
@@ -78,6 +98,9 @@
 
 		<echo>Creating tar/gzip Package...</echo>
 		<packman spec="spec/packman.xml" destdir="${packman.dir}/main" type="tgz" />
+
+		<echo>Creating Windows Package...</echo>
+		<packman verbose="true" spec="spec/packman.xml" destdir="${packman.dir}/main" type="nsis" />
 
 		<echo file="${packman.dir}/main/version.properties">
       version=${project.version}

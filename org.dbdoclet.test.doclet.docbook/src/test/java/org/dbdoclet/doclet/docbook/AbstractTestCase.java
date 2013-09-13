@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ResourceBundle;
 
 import org.apache.commons.jxpath.CompiledExpression;
@@ -15,6 +16,7 @@ import org.apache.commons.jxpath.JXPathContext;
 import org.dbdoclet.progress.InfoListener;
 import org.dbdoclet.service.ExecResult;
 import org.dbdoclet.service.ExecServices;
+import org.dbdoclet.service.StringServices;
 import org.dbdoclet.xiphias.XmlServices;
 import org.dbdoclet.xiphias.XmlValidationResult;
 import org.dbdoclet.xiphias.XsdServices;
@@ -35,7 +37,9 @@ public class AbstractTestCase implements InfoListener {
 	private final String docbookXsdFileName = "src/main/resources/xsd/docbook.xsd";
 
 	protected String destPath = "build/test";
-	protected String sourcePath = "src/test/java/";
+	protected String sourcePath = "src/main/java/";
+    protected String docbookDocletJarFileName = "lib/dbdoclet_7.0.0.jar";
+
 
 	@Override
 	public void info(String text) {
@@ -44,6 +48,26 @@ public class AbstractTestCase implements InfoListener {
 
 	@Before
 	public void startUp() {
+		
+		URL url = AbstractTestCase.class
+				.getResource("/org/dbdoclet/music/Note.java");
+
+		if (url != null) {
+			String path = url.getPath();
+			sourcePath = StringServices.cutSuffix(path,
+					"org/dbdoclet/music/Note.java");
+			destPath = StringServices.cutSuffix(sourcePath, "src/main/java/")
+					+ "/build/test/";
+			docbookDocletJarFileName = StringServices.cutSuffix(sourcePath, "src/main/java/")
+					+ "/lib/dbdoclet_7.0.0.jar";
+		}
+
+		/*
+		System.out.println("Arbeitsverzeichnis: "
+				+ new File(".").getAbsolutePath());
+		System.out.println("sourcePath: " + sourcePath);
+		System.out.println("destPath: " + destPath);
+		*/
 	}
 
 	protected RootDocImpl javadoc(String[] sources, String classpath,

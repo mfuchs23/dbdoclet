@@ -1,0 +1,88 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>herold</title><link rel="stylesheet" type="text/css" href="dbdoclet.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"><link rel="home" href="index.html" title="herold"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">herold</th></tr></table><hr></div><div class="refentry" title="herold"><a name="d0e1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>herold &#8212; HTML to DocBook converter</p></div><div class="refsynopsisdiv" title="Synopsis"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">herold</code>  [OPTIONS]</p></div></div><div class="refsection" title="Description"><a name="d0e29"></a><h2>Description</h2><p>The reuse of HTML content in presentation-neutral form is a frequent
+    problem. One possible solution is to convert HTML to DocBook XML, because
+    DocBook is a semantic markup language for documentation, which enables its
+    users to create document content that captures the logical structure of
+    the content. The command line tool <span class="productname">herold</span> can
+    be used to convert HTML to DocBook. Because HTML elements are often used
+    not as intended, the possibilities for such a transformation are somewhat
+    limited. herold is part of the dbdoclet suite of tools. For more
+    information visit <a class="ulink" href="http://www.dbdoclet.org" target="_top">http://www.dbdoclet.org</a>.</p></div><div class="refsection" title="Options"><a name="d0e40"></a><h2>Options</h2><div class="variablelist"><dl><dt><span class="term">--docbook-add-index, -x</span></dt><dd><p>Automatically add an index element at the end of the
+          document.</p></dd><dt><span class="term">--docbook-decompose-tables, -T</span></dt><dd><p>Decomposes the tables from the HTML code into single
+          paragraphs. This can be useful, if a document contains a lot of
+          tables for formatting reasons.</p></dd><dt><span class="term">--docbook-encoding, -d</span></dt><dd><p>Specifies the encoding of the generated DocBook XML
+          files.</p></dd><dt><span class="term">--docbook-root-element, -r</span></dt><dd><p>The root element of the document. Possible values are: book,
+          article and reference. The default value for this option is
+          'article'</p></dd><dt><span class="term">--docbook-title, -t</span></dt><dd><p>The title for the resulting document.</p></dd><dt><span class="term">--in, -i</span></dt><dd><p>Specifies the HTML input file.</p></dd><dt><span class="term">--help, -h</span></dt><dd><p>Prints a help page on the console.</p></dd><dt><span class="term">--html-encoding, -s</span></dt><dd><p>Specifies the encoding of the HTML source files, such as
+          ISO-8859-1.</p></dd><dt><span class="term">--out, -o</span></dt><dd><p>Specifies the DocBook XML destination file.</p></dd><dt><span class="term">--profile, -p</span></dt><dd><p>A profile file with predefined settings.</p></dd><dt><span class="term">--verbose, v</span></dt><dd><p>Enables the verbosity for the console output.</p></dd><dt><span class="term">--version, -V</span></dt><dd><p>Displays the version of herold.</p></dd></dl></div></div><div class="refsection" title="Configuration"><a name="d0e116"></a><h2>Configuration</h2><p>The details of a transformation can controlled by a profile file. A
+    profile offer more possibilities to influence the transformation than the
+    command line arguments. The following example shows a typical
+    profile.file.</p><pre class="programlisting">&nbsp;&nbsp;1: transformation html2docbook;
+&nbsp;&nbsp;2: 
+&nbsp;&nbsp;3: 
+&nbsp;&nbsp;4: input {
+&nbsp;&nbsp;5: }
+&nbsp;&nbsp;6: 
+&nbsp;&nbsp;7: output {
+&nbsp;&nbsp;8: }
+&nbsp;&nbsp;9: 
+&nbsp;10: section HTML {
+&nbsp;11:     encoding = "windows-1252";
+&nbsp;12:     exclude = [ "//p[starts-with(@class, 'MsoToc')]", "" ];
+&nbsp;13:     section-numbering-pattern = "(((\d\.)+)?\d?\.?\p{Z}*).*";
+&nbsp;14: }
+&nbsp;15: 
+&nbsp;16: section DocBook {
+&nbsp;17:     add-index = true;
+&nbsp;18:     create-xref-label = false;
+&nbsp;19:     decompose-tables = false;
+&nbsp;20:     document-element = "book";
+&nbsp;21:     encoding = "UTF-8";
+&nbsp;22:     image-data-formats = [ "gif", "base64" ];
+&nbsp;23:     title = "Tutorial";
+&nbsp;24:     use-absolute-image-path = false;
+&nbsp;25: }</pre><div class="refsection" title="Syntax"><a name="d0e123"></a><h3>Syntax</h3><p>A profile file consists mainly of sections. Sections are used to
+      group parameters which share the same context. Every section must start
+      with the keyword <code class="varname">section</code> followed by the name of the
+      section. After the name comes the block of parameters, which is
+      surrounded by curly braces. Parameters can be of type String, Number,
+      Boolean or Array. Strings must be framed with double quotes, Arrays with
+      square brackets. Inside an array, the elements must be comma separated.
+      Every assignment must be finished by a semicolon. Multi line comments
+      have the form <code class="varname">/* my comment */</code> , single line comments
+      look like <code class="varname">// my comment\n</code>.</p></div><div class="refsection" title="Mandatory Elements"><a name="d0e137"></a><h3>Mandatory Elements</h3><p>A profile for herold must start with the line
+      <code class="literal">transformation html2docbook;</code>. After this line the two
+      mandatory sections, <code class="literal">input</code> and
+      <code class="literal">output</code>, are following. These sections can be used to
+      define fixed input and out files. Use the param file to define a path
+      inside these sections, eg file = "./index.html";. Normally input and
+      output files are set via command line arguments.</p></div><div class="refsection" title="Section HTML"><a name="d0e151"></a><h3>Section HTML</h3><p>The section HTML defines parameters, which control the loading and
+      parsing of the HTML input data.</p><div class="variablelist"><dl><dt><span class="term">encoding</span></dt><dd><p>The character set used to read the input stream.</p></dd><dt><span class="term">exclude</span></dt><dd><p>Defines an array of xpath expressions. All matches are
+              removed from the HTML DOM tree before transformation.</p></dd><dt><span class="term">section-numbering-pattern</span></dt><dd><p>Normally you want to get rid of the section numbering that
+              comes with the HTML data, because it becomes part of the title
+              text in DocBook. The section numbers will the appear twice in
+              your target media. One from HTML and one from the DocBook XSL
+              processing. The parameter section-numbering-pattern defines a
+              regular expression, which is matched against the beginning of
+              every section title. If it matches, this part is removed.</p></dd></dl></div></div><div class="refsection" title="Section DocBook"><a name="d0e175"></a><h3>Section DocBook</h3><div class="variablelist"><dl><dt><span class="term">add-index</span></dt><dd><p>If set to true, an index element is inserted at the end of
+              the DocBook XML.</p></dd><dt><span class="term">create-xref-label</span></dt><dd><p>if set to false, anchor elements doesn't get a xreflabel
+              attribute.</p></dd><dt><span class="term">decompose-tables</span></dt><dd><p>If set to true, tables structures will be ignored. The
+              content of the table cells will be inserted into the DocBook XML
+              as a sequence of paragraphs. This parameter can be useful if
+              your HTML contains tables for formatting purposes. Normally you
+              want to get rid of them, because they tamper the logical
+              structure.</p></dd><dt><span class="term">document-element</span></dt><dd><p>The document element you want to use. Must be one of
+              article, book, part or reference.</p></dd><dt><span class="term">encoding</span></dt><dd><p>The character set which will be used for writing the
+              output file.</p></dd><dt><span class="term">image-data-formats</span></dt><dd><p>An array of image formats. These formats will be inserted
+              as imageobject elements, additionally to the format found in the
+              src attribute of the corresponding img element. The original
+              format is inserted twice with the roles "html" and "fo". The
+              other formats are inserted as "html-&lt;FORMAT&gt;" and
+              "fo-&lt;FORMAT&gt;".</p></dd><dt><span class="term">title</span></dt><dd><p>The title of the resulting document. If this parameter is
+              undefined, herold tries to dected the title from the head
+              section of the HTML data.</p></dd><dt><span class="term">use-absolute-image-path</span></dt><dd><p>If you want absolute image paths in the fileref attribute
+              of the imagedata element, set this parameter to true.</p></dd></dl></div></div></div><div class="refsection" title="Copyright"><a name="d0e228"></a><h2>Copyright</h2><p>Copyright 2001-2013 Michael Fuchs. License GPLv3+: GNU GPL version 3
+    or later <a class="ulink" href="http://gnu.org/licenses/gpl.html" target="_top">http://gnu.org/licenses/gpl.html</a>.
+    This is free software: you are free to change and redistribute it. There
+    is NO WARRANTY, to the extent permitted by law.</p></div></div><div class="navfooter"><hr></div></body></html>

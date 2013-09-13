@@ -4,8 +4,6 @@ import org.junit.Test;
 
 public class DocBookDocletTests extends AbstractTestCase {
 
-    private String docbookDocletJarFileName;
-
 	@Test
     public void testDoclet_1() {
 

@@ -1,0 +1,7 @@
+version=7.0.0
+Bundle-Name=org.dbdoclet.test.doclet.docbook
+Bundle-SymbolicName=org.dbdoclet.test.doclet.docbook
+Bundle-Version=${version}
+Export-Package: \
+  org.dbdoclet.test.doclet.docbook.*;version=${version}, \
+Import-Package: org.dbdoclet.*, *;resolution:=optional

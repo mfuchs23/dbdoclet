@@ -63,7 +63,7 @@ public class LinkSourceManager {
 
             // FileServices.copyFileToFile(sourceFile, createOutputFile(destDir,
             // cdoc));
-            FileServices.writeFromString(createOutputFile(cdoc), NodeSerializer.toXML(doc));
+            FileServices.writeFromString(createOutputFile(cdoc), new NodeSerializer().toXML(doc));
         }
 
         createTargetDocumentDatabase(rootDoc);
@@ -115,7 +115,7 @@ public class LinkSourceManager {
 
         String fileName = FileServices.appendFileName(script.getDestinationDirectory(), "olinkdb.xml");
         File file = new File(fileName);
-        FileServices.writeFromString(file, NodeSerializer.toXML(tdd));
+        FileServices.writeFromString(file, new NodeSerializer().toXML(tdd));
     }
 
     private File createOutputFile(ClassDoc cdoc) throws IOException {
