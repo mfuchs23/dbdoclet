@@ -1,4 +1,4 @@
-; dbdoclet.nsi
+; dbdoclet-doclet.nsi
 ;--------------------------------
 
 ;Include Modern UI
@@ -12,7 +12,7 @@ Name "dbdoclet"
 OutFile @OutFile@
 
 ; The default installation directory
-InstallDir "$PROGRAMFILES\dbdoclet"
+InstallDir "$PROGRAMFILES\DocBook Doclet\doclet"
 
 ;--------------------------------
 ;Interface Settings
@@ -86,9 +86,9 @@ Section dbdoclet
 
   CreateDirectory "$SMPROGRAMS\dbdoclet"
 
-  CreateShortCut '$DESKTOP\dbdoclet.lnk' "$INSTDIR\doc\html\index.html" "" '$INSTDIR\icons\48x48\dbdoclet.ico'
-  CreateShortCut '$SMPROGRAMS\dbdoclet\dbdoclet (HTML).lnk' "$INSTDIR\doc\html\index.html" "" '$INSTDIR\icons\48x48\dbdoclet.ico'
-  CreateShortCut '$SMPROGRAMS\dbdoclet\dbdoclet (PDF).lnk' "$INSTDIR\doc\tutorial.pdf" "" '$INSTDIR\icons\48x48\dbdoclet.ico'
+  ; CreateShortCut '$DESKTOP\dbdoclet.lnk' "$INSTDIR\doc\html\index.html" "" '$INSTDIR\icons\48x48\dbdoclet.ico'
+  CreateShortCut '$SMPROGRAMS\dbdoclet\dbdoclet (HTML).lnk' "$INSTDIR\doc\manpage.html" "" '$INSTDIR\icons\48x48\dbdoclet.ico'
+  CreateShortCut '$SMPROGRAMS\dbdoclet\dbdoclet (PDF).lnk' "$INSTDIR\doc\manpage.pdf" "" '$INSTDIR\icons\48x48\dbdoclet.ico'
   CreateShortCut "$SMPROGRAMS\dbdoclet\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
 
   File /r "root\Programme\dbdoclet\*.*"
@@ -96,15 +96,13 @@ Section dbdoclet
   FileOpen  $0 "$INSTDIR\bin\dbdoclet.bat" w
   FileWrite $0 "@echo off$\r$\n"
   FileWrite $0 "set DBDOCLET_HOME=$INSTDIR$\r$\n"
-  FileWrite $0 "REM mode con:cols=80 lines=25$\r$\n"
-  FileWrite $0 "java -Xmx1024m -Ddbdoclet.home=$\"%DBDOCLET_HOME%$\" -Dconsole.lineWidth=80 -jar $\"%DBDOCLET_HOME%\jars\dbdoclet.jar$\" %*$\r$\n"
+  FileWrite $0 "javadoc -J-Xmx1024m -docletpath $\"%DBDOCLET_HOME%\jars\dbdoclet_@Version@.jar$\" -doclet org.dbdoclet.doclet.docbook.DocBookDoclet %*$\r$\n"
   FileClose $0
 
   FileOpen  $1 "$SYSDIR\dbdoclet.bat" w
   FileWrite $1 "@echo off$\r$\n"
   FileWrite $1 "set DBDOCLET_HOME=$INSTDIR$\r$\n"
-  FileWrite $0 "REM mode con:cols=80 lines=25$\r$\n"
-  FileWrite $0 "java -Xmx1024m -Ddbdoclet.home=$\"%DBDOCLET_HOME%$\" -Dconsole.lineWidth=80 -jar $\"%DBDOCLET_HOME%\jars\dbdoclet.jar$\" %*$\r$\n"
+  FileWrite $0 "java -J-Xmx1024m -docletpath $\"%DBDOCLET_HOME%\jars\dbdoclet_@Version@.jar$\" -doclet org.dbdoclet.doclet.docbook.DocBookDoclet %*$\r$\n"
   FileClose $1
  
   WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\dbdoclet" "DisplayName" "dbdoclet"

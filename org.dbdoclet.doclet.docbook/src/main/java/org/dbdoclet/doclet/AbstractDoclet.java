@@ -58,6 +58,19 @@ public class AbstractDoclet extends Doclet {
 		return rc;
 	}
 
+	/**
+	 * Any doclet that uses custom options must have a method called
+	 * optionLength(String option) that returns an int. For each custom option
+	 * that you want your doclet to recognize, optionLength must return the
+	 * number of separate pieces or tokens in the option. For our example, we
+	 * want to be able to use the custom option of the form -tag mytag. This
+	 * option has two pieces, the -tag option itself and its value, so the
+	 * optionLength method in our doclet must return 2 for the -tag option. The
+	 * optionsLength method should return 0 for unrecognized options.
+	 * 
+	 * @param option
+	 * @return int - number of tokens
+	 */
 	public static int optionLength(String option) {
 
 		if (option.equals("-d") || option.equals("-profile")
@@ -65,7 +78,7 @@ public class AbstractDoclet extends Doclet {
 			return 2;
 		}
 
-		return 1;
+		return 0;
 	}
 
 	public void println(String str) {

@@ -38,14 +38,9 @@ public class ClassDiagramManager {
 	@Inject
 	private DbdScript script;
 
-	private String imageFormat;
 	private int imageHeight;
 	private int imageWidth;
 	private final boolean showFullQualifiedName = false;
-
-	public ClassDiagramManager() {
-		imageFormat = "png";
-	}
 
 	public static ArrayList<Type> getInheritancePath(ClassDoc doc) {
 
@@ -127,40 +122,17 @@ public class ClassDiagramManager {
 			ucdc.setFontSize(script.getClassDiagramFontSize());
 			define(ucdc, cdoc);
 
-			DocBookTagFactory tagFactory = new DocBookTagFactory();
-			List<String> formatList = tagFactory.createImageDataFormatList(script.getImageDataFormats(),
-							null);
-
 			ucdc.scaleToWidth(script.getClassDiagramWidth());
 			ucdc.drawImage();
 
-			if (formatList.contains("SVG")) {
+			fileName = FileServices.appendFileName(path, "ClassDiagram.svg");
+			imageFile = new File(fileName);
+			ucdc.save(imageFile);
 
-				fileName = FileServices
-						.appendFileName(path, "ClassDiagram.svg");
-				imageFile = new File(fileName);
-				ucdc.save(imageFile);
-				imageFormat = "SVG";
-
-			} else {
-
-				fileName = FileServices
-						.appendFileName(path, "ClassDiagram.png");
-				imageFile = new File(fileName);
-				ucdc.saveAsPng(new File(fileName));
-				imageFormat = "PNG";
-
-
-			}
-
-			if (formatList.contains("BASE64")) {
-
-				String xml = ImageServices.toXml(imageFile);
-				fileName = FileServices.appendFileName(path,
-						"ClassDiagram.base64");
-				FileServices.writeFromString(fileName, xml);
-				imageFormat = "BASE64";
-			}
+			fileName = FileServices
+					.appendFileName(path, "ClassDiagram.png");
+			imageFile = new File(fileName);
+				ucdc.saveAsPng(imageFile);
 
 			imageWidth = ImageServices.getWidth(imageFile);
 			imageHeight = ImageServices.getHeight(imageFile);
@@ -400,15 +372,6 @@ public class ClassDiagramManager {
 			index++;
 		}
 
-	}
-
-	/**
-	 * Liefert das Format des zuletzt erzeugten Klassendiagramms.
-	 * 
-	 * @return String
-	 */
-	public String getImageFormat() {
-		return imageFormat;
 	}
 
 	/**

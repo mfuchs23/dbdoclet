@@ -1,16 +1,20 @@
 transformation html2docbook;
 
 section dbdoclet {
-	author-visible = true;
-	create-section-constant-values = true;
+	chunk-docbook = true;
 } 
 
 section DocBook {
 	abstract = """ 
 <emphasis>Largo</emphasis> dient der Erzeugung von Notenpapier in historischen Formaten. Er
 ermöglicht vielfältige Einstellungesmöglichkeiten.
-""";  
+""";
+	add-index = true;  
+	author-email = "michael.fuchs@dbdoclet.org";
+	author-firstname = "Michael";
+	author-surname = "Fuchs";
 	title = "Musikeditor";
 	document-element = "book";
-	
+	corporation = "Ingenieurbüro Michael Fuchs";
+	image-data-formats = [ "svg:fo", "png:html" ];
 } 

@@ -9,13 +9,16 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.jxpath.JXPathException;
 import org.dbdoclet.progress.InfoListener;
 import org.dbdoclet.service.ExecResult;
 import org.dbdoclet.service.ExecServices;
+import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.xiphias.XmlServices;
 import org.dbdoclet.xiphias.XmlValidationResult;
@@ -26,6 +29,7 @@ import org.w3c.dom.Document;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javadoc.JavadocTool;
+import com.sun.tools.javadoc.Main;
 import com.sun.tools.javadoc.Messager;
 import com.sun.tools.javadoc.ModifierFilter;
 import com.sun.tools.javadoc.RootDocImpl;
@@ -36,7 +40,7 @@ public class AbstractTestCase implements InfoListener {
 			.getBundle("org/dbdoclet/doclet/docbook/Resources");
 	private final String docbookXsdFileName = "src/main/resources/xsd/docbook.xsd";
 
-	protected String destPath = "build/test";
+	protected String destPath = "build/test/";
 	protected String sourcePath = "src/main/java/";
     protected String docbookDocletJarFileName = "lib/dbdoclet_7.0.0.jar";
 
@@ -47,7 +51,7 @@ public class AbstractTestCase implements InfoListener {
 	}
 
 	@Before
-	public void startUp() {
+	public void startUp() throws IOException {
 		
 		URL url = AbstractTestCase.class
 				.getResource("/org/dbdoclet/music/Note.java");
@@ -62,6 +66,12 @@ public class AbstractTestCase implements InfoListener {
 					+ "/lib/dbdoclet_7.0.0.jar";
 		}
 
+		File destDir = new File(destPath);
+		
+		if (destDir.exists()) {
+			FileServices.delete(destDir);
+		}
+		
 		/*
 		System.out.println("Arbeitsverzeichnis: "
 				+ new File(".").getAbsolutePath());
@@ -159,10 +169,22 @@ public class AbstractTestCase implements InfoListener {
 			obj = expr.getValue(context);
 
 			if (obj == null) {
-				return "";
+				return null;
 			}
 
 			return obj.toString();
+
+		} catch (JXPathException oops) {
+			
+			String msg = oops.getMessage();
+			
+			if (msg != null && msg.startsWith("No value for xpath")) {
+				return null;
+				
+			}
+			
+			oops.printStackTrace();
+			fail(oops.getMessage());
 
 		} catch (Exception oops) {
 
@@ -171,6 +193,25 @@ public class AbstractTestCase implements InfoListener {
 		}
 
 		return "";
+	}
+
+	protected void javadoc(String... options) {
+	
+		String[] mandatoryOptions = { "-d", destPath, "-sourcepath",
+				sourcePath, "org.dbdoclet.music" };
+	
+		ArrayList<String> optionList = new ArrayList<String>();
+	
+		for (String option : options) {
+			optionList.add(option);
+		}
+	
+		for (String option : mandatoryOptions) {
+			optionList.add(option);
+		}
+	
+		String[] cmd = optionList.toArray(new String[optionList.size()]);
+		Main.execute("Test", "org.dbdoclet.doclet.docbook.DocBookDoclet", cmd);
 	}
 
 }

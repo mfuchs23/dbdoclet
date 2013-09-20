@@ -22,6 +22,7 @@ import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.TrafoResult;
 import org.dbdoclet.trafo.html.docbook.DocumentElementType;
@@ -29,6 +30,9 @@ import org.dbdoclet.trafo.html.docbook.HtmlDocBookTrafo;
 import org.dbdoclet.trafo.param.TextParam;
 import org.dbdoclet.trafo.script.Script;
 import org.dbdoclet.xiphias.dom.NodeImpl;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
@@ -45,7 +49,7 @@ import com.sun.javadoc.Tag;
 public class DbdTransformer {
 
 	private static Log logger = LogFactory.getLog(DbdTransformer.class);
-	
+
 	@Inject
 	TagManager tagManager;
 
@@ -153,7 +157,7 @@ public class DbdTransformer {
 		if (tags.length == 0) {
 			return null;
 		}
-		
+
 		String comment = "";
 
 		for (int i = 0; i < tags.length; i++) {
@@ -179,7 +183,8 @@ public class DbdTransformer {
 	 * @exception DocletException
 	 *                if an error occurs
 	 */
-	public NodeImpl transform(String comment, DocBookElement parent) throws DocletException {
+	public NodeImpl transform(String comment, DocBookElement parent)
+			throws DocletException {
 
 		if (comment == null) {
 			throw new IllegalArgumentException("Parameter comment is null!");
@@ -229,30 +234,66 @@ public class DbdTransformer {
 			}
 
 			if (context.isOverview()) {
-				script.setTextParameter(
-						TrafoConstants.PARAM_DOCUMENT_ELEMENT,
-						DocumentElementType.OVERVIEW
-								.toString());
+				script.setTextParameter(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
+						DocumentElementType.OVERVIEW.toString());
 			} else {
-				script.setTextParameter(
-						TrafoConstants.PARAM_DOCUMENT_ELEMENT,
-						DocumentElementType.PARAGRAPH
-								.toString());
+				script.setTextParameter(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
+						DocumentElementType.PARAGRAPH.toString());
 			}
 
-			transformer.setInputStream(new ByteArrayInputStream(comment.getBytes()));
+			transformer.setInputStream(new ByteArrayInputStream(comment
+					.getBytes()));
 			TrafoResult result = transformer.transform(script);
 
 			NodeImpl elem = null;
-			
+
 			if (result.isFailed() == false) {
 				elem = result.getRootNode();
 			} else {
 				logger.error("Transformation failed!", result.getThrowable());
 			}
-			
+
 			if (elem != null) {
-				parent.appendChild(elem);
+
+				if (elem instanceof DocumentFragment) {
+
+					NodeList childList = elem.getChildNodes();
+
+					for (int i = 0; i < childList.getLength(); i++) {
+
+						NodeImpl child = (NodeImpl) childList.item(i);
+
+						/*
+						 * Paragraphen dürfen nicht ineinander verschachtelt
+						 * werden.
+						 */
+						if (child instanceof Para && parent instanceof Para) {
+							parent = (DocBookElement) parent.getParentNode();
+						}
+
+						/*
+						 * Alle Elemente, die nicht vom Typ para sind, werden in
+						 * einen Absatz verpackt.
+						 */
+						if (child instanceof Para == false
+								&& parent instanceof Para == false
+								&& parent.findParent(Para.class) == null) {
+							
+							Para para = tagFactory.createPara();
+							if (para.isValidParent(parent)) {
+								parent.appendChild(para);
+								parent = para;
+							}
+						}
+
+						parent.appendChild(child);
+					}
+
+				} else {
+					parent.appendChild("!!!XXXXXXXX!!!");
+					parent.appendChild(elem);
+				}
+
 			} else {
 				throw new NullPointerException(
 						"Transformation failed. Root element is null!");

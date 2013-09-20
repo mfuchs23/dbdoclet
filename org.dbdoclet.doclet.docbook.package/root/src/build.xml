@@ -2,25 +2,40 @@
 
 <project name="dbdoclet" default="build">
 
-	<target name="prepare">
-		<mkdir dir="classes" />
-	</target>
+  <target name="prepare">
+    <mkdir dir="classes" />
+  </target>
 
-	<target name="build" depends="prepare">
-		<javac includeantruntime="false" srcdir="java" destdir="classes" encoding="utf-8">
-			<classpath>
-				<fileset dir="../jars">
-					<include name="*.jar" />
-				</fileset>
-			</classpath>
-		</javac>
-		<copy todir="classes">
-			<fileset dir="java">
-				<exclude name="**/*.java" />
-			</fileset>
-		</copy>
-		<jar destfile="distrib/dbdoclet.jar">
-			<fileset dir="classes" />
-		</jar>
-	</target>
+  <target name="build" depends="prepare">
+    <delete quiet="true">
+      <fileset dir="java/META-INF"/>
+      <fileset dir="java/OSGI-INF"/>
+      <fileset dir="java/distrib"/>
+      <fileset dir="java/fonts"/>
+      <fileset dir="java/images"/>
+      <fileset dir="java/lib"/>
+      <fileset dir="java/license"/>
+    </delete>
+    <javac includeantruntime="false" srcdir="java" destdir="classes" encoding="utf-8">
+      <classpath>
+	<fileset dir="../jars">
+	  <include name="*.jar" />
+	</fileset>
+	<fileset dir="./jars">
+	  <include name="*.jar" />
+	</fileset>
+	<fileset dir="${java.home}/../lib">
+	  <include name="tools.jar"/>
+	</fileset>
+      </classpath>
+    </javac>
+    <copy todir="classes">
+      <fileset dir="java">
+	<exclude name="**/*.java" />
+      </fileset>
+    </copy>
+    <jar destfile="distrib/dbdoclet.jar">
+      <fileset dir="classes" />
+    </jar>
+  </target>
 </project>

@@ -1,9 +1,9 @@
 <!--
  ### Copyright (C) 2001-2013 Michael Fuchs ###
 -->
-<package id="dbdoclet-doclet" relocatable="yes">
+<package id="dbdoclet" relocatable="yes">
 
-  <name>dbdoclet-doclet</name>
+  <name>dbdoclet</name>
 
   <version>@VERSION@</version>
   <release>@BUILDNUMBER@</release>
@@ -20,7 +20,7 @@
     <architecture>noarch</architecture>
   </architectures>
 
-  <provides>dbdoclet-doclet</provides>
+  <provides>dbdoclet</provides>
 
   <prepare>
 
@@ -32,22 +32,22 @@
 
   <install>
 
-rm -rf <buildroot/><install-dir/>/dbdoclet-doclet
-install -d <buildroot/><install-dir/>/dbdoclet-doclet
+rm -rf <buildroot/><install-dir/>/dbdoclet
+install -d <buildroot/><install-dir/>/dbdoclet
 install -d <buildroot/><install-dir/>/man/man1
 
-cp -r <prefix/>/dbdoclet-doclet <buildroot/><install-dir/>
-rm -rf <buildroot/><install-dir/>/dbdoclet-doclet/emacs
-rm -rf <buildroot/><install-dir/>/dbdoclet-doclet/licenses
-rm -rf <buildroot/><install-dir/>/dbdoclet-doclet/spec
-cp <buildroot/><install-dir/>/dbdoclet-doclet/doc/dbdoclet.1.gz <buildroot/><install-dir/>/man/man1
+cp -r <prefix/>/dbdoclet <buildroot/><install-dir/>
+rm -rf <buildroot/><install-dir/>/dbdoclet/emacs
+rm -rf <buildroot/><install-dir/>/dbdoclet/licenses
+rm -rf <buildroot/><install-dir/>/dbdoclet/spec
+cp <buildroot/><install-dir/>/dbdoclet/doc/dbdoclet.1.gz <buildroot/><install-dir/>/man/man1
   </install>
   
   <postinstall>
 
 rm -f /usr/bin/dbdoclet
-ln -s <prefix/>/dbdoclet-doclet/bin/dbdoclet /usr/bin/dbdoclet
-chmod 555 <prefix/>/dbdoclet-doclet/bin/*
+ln -s <prefix/>/dbdoclet/bin/dbdoclet /usr/bin/dbdoclet
+chmod 555 <prefix/>/dbdoclet/bin/*
 
   </postinstall>
   
@@ -57,7 +57,7 @@ chmod 555 <prefix/>/dbdoclet-doclet/bin/*
       <user/>
       <group/>
       <type>dir</type> 
-      <path><prefix/>/dbdoclet-doclet</path>
+      <path><prefix/>/dbdoclet</path>
     </file>
 	<file>
 		<mode>0644</mode>

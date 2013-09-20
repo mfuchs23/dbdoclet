@@ -128,7 +128,7 @@ public abstract class MediaManager {
 			writeStatistics(pkgMap, parent);
 		}
 
-		if (script.isCreateIndexEnabled()) {
+		if (script.isAddIndexEnabled()) {
 			parent.appendChild(tagFactory.createIndex());
 		}
 	}
@@ -200,42 +200,55 @@ public abstract class MediaManager {
 		String releaseInfo = script.getReleaseInfo();
 		String logoPath = script.getLogoPath();
 
-		if (authorFirstname != null && authorFirstname.length() > 0
-				&& authorSurname != null && authorSurname.length() > 0) {
+		if ((isDefined(authorFirstname) || isDefined(authorSurname) || isDefined(authorEmail))) {
 
 			Author author = tagFactory.createAuthor();
 			parent.appendChild(author);
 
 			if (isDocBook5()) {
 
-				Personname personname = tagFactory.createPersonname();
-				author.appendChild(personname);
+				if (isDefined(authorFirstname) || isDefined(authorSurname)) {
+					
+					Personname personname = tagFactory.createPersonname();
+					author.appendChild(personname);
 
-				FirstName firstName = tagFactory
-						.createFirstName(authorFirstname);
-				personname.appendChild(firstName);
-
-				Surname surname = tagFactory.createSurname(authorSurname);
-				personname.appendChild(surname);
+					if (isDefined(authorFirstname)) {
+						FirstName firstName = tagFactory
+							.createFirstName(authorFirstname);
+						personname.appendChild(firstName);
+					}
+					
+					if (isDefined(authorSurname)) {
+						Surname surname = tagFactory.createSurname(authorSurname);
+						personname.appendChild(surname);
+					}
+				}
 
 			} else {
 
-				FirstName firstName = tagFactory
-						.createFirstName(authorFirstname);
-				author.appendChild(firstName);
+				if (isDefined(authorFirstname)) {
+					FirstName firstName = tagFactory
+							.createFirstName(authorFirstname);
+					author.appendChild(firstName);
+				}
 
-				Surname surname = tagFactory.createSurname(authorSurname);
-				author.appendChild(surname);
+				if (isDefined(authorSurname)) {
+					Surname surname = tagFactory.createSurname(authorSurname);
+					author.appendChild(surname);
+				}
 			}
 
-			Affiliation affiliation = tagFactory.createAffiliation();
-			author.appendChild(affiliation);
+			if (isDefined(authorEmail)) {
 
-			Address address = tagFactory.createAddress();
-			affiliation.appendChild(address);
+				Affiliation affiliation = tagFactory.createAffiliation();
+				author.appendChild(affiliation);
 
-			Email email = tagFactory.createEmail(authorEmail);
-			address.appendChild(email);
+				Address address = tagFactory.createAddress();
+				affiliation.appendChild(address);
+
+				Email email = tagFactory.createEmail(authorEmail);
+				address.appendChild(email);
+			}
 		}
 
 		if (copyrightYear != null && copyrightYear.length() > 0
@@ -347,6 +360,15 @@ public abstract class MediaManager {
 
 	}
 
+	private boolean isDefined(String value) {
+
+		if (value == null || value.trim().length() == 0) {
+			return false;
+		}
+		
+		return true;
+	}
+
 	protected void createInheritanceDiagram(ClassDoc classDoc,
 			DocBookElement parent) throws DocletException {
 
@@ -357,29 +379,34 @@ public abstract class MediaManager {
 
 		String filebase = classDiagramManager.createClassDiagram(classDoc,
 				script.getDestinationDirectory());
-		String format = classDiagramManager.getImageFormat();
 
 		logger.debug("filebase ='" + filebase + "'");
 
-		InformalFigure figure = tagFactory
-				.createInformalFigure();
+		InformalFigure figure = tagFactory.createInformalFigure();
 		media = tagFactory.createMediaObject();
 		media.setParentNode(figure);
 		figure.appendChild(media);
 
-		String fileName = filebase + "." + format.toLowerCase();
-		File file = new File(fileName);
 
 		try {
 
-			ArrayList<String> formats = new ArrayList<String>();
-			formats.add(format);
+			String fileName = filebase + ".png";
+			File file = new File(fileName);
+
 			Img img = new Img();
 			img.setAttribute("align", "center");
 			img.setAttribute("src", fileName);
 
-			tagFactory.createHtmlImageData(media, tagFactory, formats, img, file);
-			tagFactory.createFoImageData(media, tagFactory, formats, img, file);
+			tagFactory.createHtmlImageData(media, tagFactory, img, file);
+
+			fileName = filebase + ".svg";
+			file = new File(fileName);
+
+			img = new Img();
+			img.setAttribute("align", "center");
+			img.setAttribute("src", fileName);
+
+			tagFactory.createFoImageData(media, tagFactory, img, file);
 
 		} catch (IOException oops) {
 			throw new DocletException(oops);

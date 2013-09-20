@@ -36,7 +36,7 @@ public class ArticleManagerTests extends AbstractTestCase {
     public void test_2() throws DocletException {
 
     	String sourcePath = "../../common/org.dbdoclet.commons/src/main/java/";
-        String srcpath = sourcePath + "org/dbdoclet/progress/ProgressListener.java";
+        String srcpath = sourcePath + "org/dbdoclet/service/ArrayServices.java";
         String classpath = sourcePath;
 
         RootDocImpl root = javadoc(new String[] { srcpath }, classpath, null);

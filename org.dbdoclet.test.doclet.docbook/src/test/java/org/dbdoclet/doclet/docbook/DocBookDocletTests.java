@@ -21,7 +21,7 @@ public class DocBookDocletTests extends AbstractTestCase {
         String cmd = "javadoc " + "-d " + destPath
         + " -docletpath " + docbookDocletJarFileName
         + " -doclet org.dbdoclet.doclet.docbook.DocBookDoclet "
-        + " -nostatistics "
+        + " -profile standard.dbd "
         + sourcePath + "sample/Sample.java";
 
         runForked(cmd);
@@ -33,8 +33,6 @@ public class DocBookDocletTests extends AbstractTestCase {
         String cmd = "javadoc " + "-d " + destPath
         + " -docletpath " + docbookDocletJarFileName
         + " -doclet org.dbdoclet.doclet.docbook.DocBookDoclet "
-        + " -corporation Michael_Fuchs "
-        + " -nostatistics "
         + sourcePath + "sample/Sample.java";
 
         runForked(cmd);

@@ -91,11 +91,6 @@ public class StyleVariableList extends StyleCoded implements Style {
 			for (int j = 0; j < paramTags.length; j++) {
 
 				ListItem listItem = dbfactory.createListItem();
-				Para para = dbfactory.createPara();
-
-				listItem.appendChild(para);
-
-				htmlDocBookTrafo.transform(paramTags[j].inlineTags(), para);
 
 				varlist.appendChild(dbfactory
 						.createVarListEntry()
@@ -104,23 +99,25 @@ public class StyleVariableList extends StyleCoded implements Style {
 										dbfactory.createVarName(paramTags[j]
 												.parameterName())))
 						.appendChild(listItem));
+				
+				Para para = dbfactory.createPara();
+				listItem.appendChild(para);
+				htmlDocBookTrafo.transform(paramTags[j].inlineTags(), para);
 			}
 
 			if (returnTag != null) {
 
 				ListItem listItem = dbfactory.createListItem();
-				Para para = dbfactory.createPara();
-
-				listItem.appendChild(para);
-
-				htmlDocBookTrafo.transform(returnTag.inlineTags(), para);
-
 				varlist.appendChild(dbfactory
 						.createVarListEntry()
 						.appendChild(
 								dbfactory.createTerm().appendChild(
 										dbfactory.createEmphasis("return")))
 						.appendChild(listItem));
+				
+				Para para = dbfactory.createPara();
+				listItem.appendChild(para);
+				htmlDocBookTrafo.transform(returnTag.inlineTags(), para);
 			}
 		}
 
@@ -145,8 +142,16 @@ public class StyleVariableList extends StyleCoded implements Style {
 			for (int i = 0; i < tags.length; i++) {
 
 				ExceptionName exceptionName = dbfactory.createExceptionName();
-
 				Para commentPara = dbfactory.createPara();
+
+				varlist.appendChild(dbfactory
+						.createVarListEntry()
+						.appendChild(
+								dbfactory.createTerm().appendChild(
+										exceptionName))
+						.appendChild(
+								dbfactory.createListItem().appendChild(
+										commentPara)));
 
 				htmlDocBookTrafo.transform(tags[i].exceptionName(),
 						exceptionName);
@@ -154,7 +159,6 @@ public class StyleVariableList extends StyleCoded implements Style {
 				Tag[] inlineTags = tags[i].inlineTags();
 
 				if (inlineTags.length > 0) {
-
 					htmlDocBookTrafo.transform(tags[i].inlineTags(),
 							commentPara);
 				}
@@ -162,7 +166,6 @@ public class StyleVariableList extends StyleCoded implements Style {
 				if (commentPara.hasChildNodes() == false) {
 
 					ClassDoc doc = tags[i].exception();
-
 					if (doc != null) {
 						htmlDocBookTrafo.transform(doc.firstSentenceTags(),
 								commentPara);
@@ -174,22 +177,11 @@ public class StyleVariableList extends StyleCoded implements Style {
 					ClassDoc doc = tags[i].exception();
 
 					if (doc != null) {
-						commentPara = dbfactory.createPara(doc.qualifiedName());
+						commentPara.appendChild(doc.qualifiedName());
+					} else {
+						commentPara.appendChild("");
 					}
 				}
-
-				if (commentPara.hasChildNodes() == false) {
-					commentPara = dbfactory.createPara("");
-				}
-
-				varlist.appendChild(dbfactory
-						.createVarListEntry()
-						.appendChild(
-								dbfactory.createTerm().appendChild(
-										exceptionName))
-						.appendChild(
-								dbfactory.createListItem().appendChild(
-										commentPara)));
 			}
 		}
 
@@ -216,9 +208,6 @@ public class StyleVariableList extends StyleCoded implements Style {
 				Type type = dbfactory.createType();
 				Para description = dbfactory.createPara();
 
-				htmlDocBookTrafo.transform(tags[i].fieldName(), varName);
-				htmlDocBookTrafo.transform(tags[i].fieldType(), type);
-				htmlDocBookTrafo.transform(tags[i].description(), description);
 
 				varlist.appendChild(dbfactory
 						.createVarListEntry()
@@ -228,7 +217,11 @@ public class StyleVariableList extends StyleCoded implements Style {
 						.appendChild(
 								dbfactory.createListItem().appendChild(
 										description)));
-			} // end of for ()
+
+				htmlDocBookTrafo.transform(tags[i].fieldName(), varName);
+				htmlDocBookTrafo.transform(tags[i].fieldType(), type);
+				htmlDocBookTrafo.transform(tags[i].description(), description);
+			}
 		}
 
 		return true;
@@ -253,6 +246,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 		}
 
 		VariableList varlist = dbfactory.createVariableList();
+		parent.appendChild(varlist);
 
 		// varlist.appendChild("<?dbfo list-presentation=\"blocks\"?>");
 		// varlist.appendChild(new
@@ -280,7 +274,6 @@ public class StyleVariableList extends StyleCoded implements Style {
 				if (kind.equals("@see")) {
 
 					if (addSeeAlsoInfo(doc, label, varlist)) {
-
 						foundSomething = true;
 					}
 
@@ -294,13 +287,11 @@ public class StyleVariableList extends StyleCoded implements Style {
 			}
 		}
 
-		if (foundSomething == true) {
-
-			parent.appendChild(varlist);
+		if (foundSomething == false) {
+			parent.removeChild(varlist);
 		}
 
 		if (addDeprecatedInfo(doc, parent)) {
-
 			foundSomething = true;
 		}
 
@@ -311,35 +302,16 @@ public class StyleVariableList extends StyleCoded implements Style {
 			VariableList varlist) throws DocletException {
 
 		Member member;
-		Tag tag = null;
-
 		SimpleList list = dbfactory.createSimpleList(SimpleList.FORMAT_INLINE);
 
 		logger.debug("Adding tags size = " + tagList.size() + ".");
 
 		if (tagList.size() == 0) {
-
 			return false;
 		}
 
-		for (Iterator<Tag> i = tagList.iterator(); i.hasNext();) {
-
-			tag = i.next();
-
-			logger.debug("Adding tag " + tag + ".");
-			member = dbfactory.createMember();
-
-			htmlDocBookTrafo.transform(tag, member);
-
-			list.appendChild(member);
-		}
-
 		if ((label == null) || (label.length() == 0)) {
-
-			if (tag != null) {
-
-				label = tag.name();
-			}
+			label = tagList.get(0).name();
 		}
 
 		varlist.appendChild(dbfactory
@@ -351,6 +323,17 @@ public class StyleVariableList extends StyleCoded implements Style {
 						dbfactory.createListItem().appendChild(
 								dbfactory.createPara().appendChild(list))));
 
+
+		for (Iterator<Tag> i = tagList.iterator(); i.hasNext();) {
+
+			Tag tag = i.next();
+
+			logger.debug("Adding tag " + tag + ".");
+			member = dbfactory.createMember();
+			list.appendChild(member);
+
+			htmlDocBookTrafo.transform(tag, member);
+		}
 		return true;
 	}
 
@@ -360,7 +343,6 @@ public class StyleVariableList extends StyleCoded implements Style {
 		String label;
 		String ref;
 
-		SimpleList list = dbfactory.createSimpleList(SimpleList.FORMAT_INLINE);
 
 		if (script.isCreateSeeAlsoInfoEnabled() == false) {
 			return false;
@@ -371,6 +353,15 @@ public class StyleVariableList extends StyleCoded implements Style {
 		if (tags.length == 0) {
 			return false;
 		}
+
+		SimpleList list = dbfactory.createSimpleList(SimpleList.FORMAT_INLINE);
+
+		varlist.appendChild(dbfactory
+				.createVarListEntry()
+				.appendChild(
+						dbfactory.createTerm().appendChild(
+								dbfactory.createEmphasis(name)))
+				.appendChild(dbfactory.createListItem().appendChild(list)));
 
 		for (int i = 0; i < tags.length; i++) {
 
@@ -392,26 +383,19 @@ public class StyleVariableList extends StyleCoded implements Style {
 							dbfactory.createLiteral().appendChild(
 									dbfactory.createLink(label, ref))));
 				}
+			
 			} else {
 
 				label = referenceManager.createReferenceLabel(tags[i]);
 
 				Member member = dbfactory.createMember();
-				htmlDocBookTrafo.transform(label, member);
 				list.appendChild(member);
+				htmlDocBookTrafo.transform(label, member);
 
 				logger.debug("label = " + label);
 				logger.debug("member = " + member);
 			}
 		}
-
-		varlist.appendChild(dbfactory
-				.createVarListEntry()
-				.appendChild(
-						dbfactory.createTerm().appendChild(
-								dbfactory.createEmphasis(name)))
-				.appendChild(dbfactory.createListItem().appendChild(list)));
-
 		return true;
 	}
 }

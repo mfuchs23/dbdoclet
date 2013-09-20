@@ -42,13 +42,13 @@ public class DbdScript {
 				TrafoConstants.PARAM_AUTHOR_SURNAME, "");
 	}
 
-	/*
+	/**
 	 * Bestimmt die Größe der Schriftart für die Klassendiagramme in Pixel. Der
 	 * minimale Wert ist 4. Als Standardwert ist 12 vorgegeben.
 	 */
 	public int getClassDiagramFontSize() {
 		int fontSize = script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CLASS_DIAGRAM_FONT_SIZE, 12);
+				DbdConstants.PARAM_CLASS_DIAGRAM_FONT_SIZE, 12);
 
 		if (fontSize < 4) {
 			fontSize = 4;
@@ -233,12 +233,12 @@ public class DbdScript {
 
 	public boolean isChunkDocBookEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CHUNK_DOCBOOK_ENABLED, false);
+				DbdConstants.PARAM_CHUNK_DOCBOOK_ENABLED, false);
 	}
 
 	public boolean isCreateAppendixEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_APPENDIX_ENABLED, true);
+				DbdConstants.PARAM_DBDOCLET_CREATE_APPENDIX, true);
 	}
 
 	public boolean isCreateAuthorInfoEnabled() {
@@ -294,9 +294,9 @@ public class DbdScript {
 						false);
 	}
 
-	public boolean isCreateIndexEnabled() {
-		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_INDEX, true);
+	public boolean isAddIndexEnabled() {
+		return script.isParameterOn(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_ADD_INDEX, true);
 	}
 
 	public boolean isCreateInheritanceInfoEnabled() {
@@ -385,7 +385,7 @@ public class DbdScript {
 
 	public void setChunkDocBookEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CHUNK_DOCBOOK_ENABLED,
+		script.setBoolParameter(DbdConstants.PARAM_CHUNK_DOCBOOK_ENABLED,
 				enabled);
 	}
 
@@ -408,7 +408,7 @@ public class DbdScript {
 
 	public void setCreateAppendixEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_APPENDIX_ENABLED,
+		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_APPENDIX,
 				enabled);
 	}
 
@@ -431,9 +431,9 @@ public class DbdScript {
 				enabled);
 	}
 
-	public void setCreateIndexEnabled(boolean enabled) {
-		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_INDEX, enabled);
+	public void setAddIndexEnabled(boolean enabled) {
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setBoolParameter(TrafoConstants.PARAM_ADD_INDEX, enabled);
 	}
 
 	public void setCreateInheritanceInfoEnabled(boolean enabled) {

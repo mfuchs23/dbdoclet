@@ -156,11 +156,12 @@ public final class DocBookDoclet extends AbstractDoclet {
 			DbdScript dbdScript = InstanceFactory.getInstance(DbdScript.class);
 
 			File destDir = options.getDestinationDirectory();
+			logger.info(String.format("destination directory=" + destDir));
+			
 			dbdScript.setOutputFile(new File(destDir, "Reference.xml"));
 
 			File scriptFile = options.getProfile();
-
-			logger.debug("scriptFile = " + scriptFile);
+			logger.info("profile file=" + scriptFile);
 
 			if (scriptFile != null) {
 

@@ -1,19 +1,19 @@
 <!--
  ### Copyright (C) 2001-2013 Michael Fuchs ###
 -->
-<package id="herold" relocatable="yes">
+<package id="dbdoclet" relocatable="yes">
 
-  <name>herold</name>
+  <name>dbdoclet</name>
 
   <version>7.0.0</version>
-  <release>12</release>
+  <release>24</release>
 
   <archives>
   </archives>
 
-  <summary>HTML to DocBook XML conversion.</summary> 
+  <summary>Javadoc doclet for DocBook XML generation.</summary> 
 
-  <copyright>Copyright (c) 2001-2012 by Michael Fuchs.</copyright> 
+  <copyright>Copyright (c) 2001-2013 by Michael Fuchs.</copyright> 
   <group>Productivity/File utilities</group>
 
   <architectures>
