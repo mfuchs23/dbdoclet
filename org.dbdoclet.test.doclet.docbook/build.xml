@@ -1,10 +1,58 @@
 <!--
- ### Copyright (C) 2001-2009 Michael Fuchs ###
+    ### Copyright (C) 2001-2009 Michael Fuchs ###
 -->
 <project name="org.dbdoclet.test.doclet.docbook" default="build">
 
   <property file="../workspace.properties" />
   <property file="module.properties" />
   <import file="${build.config.dir}/defaultBuild.xml" />
+
+  <target name="test">
+
+    <mkdir dir="${build.test.classes.dir}" />
+    <mkdir dir="${src.test.dir}" />
+
+    <javac destdir="${build.test.classes.dir}" debug="true" includeantruntime="true" encoding="UTF-8">
+      <classpath>
+	<pathelement path="./build/main/classes" />
+	<fileset dir="./lib">
+	  <include name="**/*.jar" />
+	</fileset>
+      </classpath>
+      <compilerarg value="${javac.args}" />
+      <src>
+	<pathelement path="./src/test/java" />
+      </src>
+    </javac>
+    
+    <mkdir dir="src/test/resources" />
+    <copy todir="${build.test.classes.dir}">
+      <fileset dir="src/test/resources">
+	<include name="*/**" />
+      </fileset>
+    </copy>
+    <mkdir dir="${test.report.dir}" />
+    <junit printsummary="yes">
+      <classpath>
+	<pathelement path="build/test/classes" />
+	<pathelement path="build/main/classes" />
+	<pathelement path="src/main/java" />
+	<pathelement path="src/main/resources" />
+	<pathelement path="src/test/java" />
+	<pathelement path="src/test/resources" />
+	<fileset dir="./lib">
+	  <include name="**/*.jar" />
+	</fileset>
+    </classpath>
+      <formatter type="xml" />
+      <batchtest fork="yes" todir="${test.report.dir}">
+	<fileset dir="src/test/java">
+	  <include name="**/*Tests.java" />
+	  <include name="**/*Test.java" />
+	  <exclude name="**/Abstract*.java"/>
+	</fileset>
+      </batchtest>
+    </junit>
+  </target>
 
 </project>

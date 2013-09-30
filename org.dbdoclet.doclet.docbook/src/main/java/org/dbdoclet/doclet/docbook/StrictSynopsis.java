@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.dbdoclet.doclet.DocletException;
-import org.dbdoclet.doclet.DocletServices;
 import org.dbdoclet.tag.docbook.ClassName;
 import org.dbdoclet.tag.docbook.ClassSynopsis;
 import org.dbdoclet.tag.docbook.ClassSynopsisInfo;
@@ -318,7 +317,7 @@ public class StrictSynopsis extends Synopsis {
 		Type type = dbfactory.createType();
 		synopsis.appendChild(type);
 
-		String typeName = DocletServices.typeToString(doc.type(),
+		String typeName = typeToString(doc.type(),
 				script.isCreateFullyQualifiedNamesEnabled(), 1);
 		type.appendChild(typeName);
 
@@ -403,7 +402,8 @@ public class StrictSynopsis extends Synopsis {
 		createType(((MethodDoc) doc).returnType(), type,
 				script.isCreateFullyQualifiedNamesEnabled());
 
-		synopsis.appendChild(dbfactory.createMethodName(doc.name()));
+		String name = hyphenation.hyphenateCamelCase(doc.name());
+		synopsis.appendChild(dbfactory.createMethodName(name));
 
 		addParameters(synopsis, doc);
 		addExceptions(synopsis, doc);
@@ -428,7 +428,7 @@ public class StrictSynopsis extends Synopsis {
 			Type type = dbfactory.createType();
 			param.appendChild(type);
 
-			String typeName = DocletServices.typeToString(parameters[i].type(),
+			String typeName = typeToString(parameters[i].type(),
 					script.isCreateFullyQualifiedNamesEnabled(), 1);
 			type.appendChild(typeName);
 			param.appendChild(dbfactory.createParameter(parameters[i].name()));
@@ -448,11 +448,6 @@ public class StrictSynopsis extends Synopsis {
 		if (parent == null) {
 			throw new IllegalArgumentException(
 					"The argument parent must not be null!");
-		}
-
-		if (context == null) {
-			throw new IllegalArgumentException(
-					"The argument context must not be null!");
 		}
 
 		String name;

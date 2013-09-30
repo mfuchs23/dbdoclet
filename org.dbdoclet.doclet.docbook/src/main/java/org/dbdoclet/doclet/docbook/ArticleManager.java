@@ -124,8 +124,6 @@ public class ArticleManager extends MediaManager {
 					continue;
 				}
 
-				context.setPackageDoc(pkgDoc);
-
 				sect1 = tagFactory.createSection();
 				sect1.setId(getReference(pkgDoc));
 
@@ -136,9 +134,8 @@ public class ArticleManager extends MediaManager {
 				sect1.appendChild(tagFactory.createTitle(ResourceServices
 						.getString(res, "C_PACKAGE")
 						+ " "
-						+ XmlServices.makeWrapable(pkgDoc.name(), ".")));
+						+ hyphenation.hyphenateAfter(pkgDoc.name(), ".")));
 
-				context.setComment(pkgDoc.name() + " package.html");
 				htmlDocBookTrafo.transform(pkgDoc, sect1);
 
 				Section section = tagFactory.createSection(ResourceServices
@@ -187,8 +184,6 @@ public class ArticleManager extends MediaManager {
 
 			String prefix = getClassTypeAsText(classDoc);
 			String indexCategory = getIndexCategory(classDoc);
-
-			context.setClassDoc(classDoc);
 
 			sect2 = tagFactory.createSection();
 			sect2.setId(getReference(classDoc));
@@ -339,8 +334,6 @@ public class ArticleManager extends MediaManager {
 				memberDoc = memberInfo.getExecutableMember();
 				implementedDoc = memberInfo.getImplemented();
 
-				context.setMethodDoc(classDoc, memberDoc);
-
 				section = tagFactory.createSection();
 				section.setId(getReference(memberDoc));
 
@@ -471,7 +464,6 @@ public class ArticleManager extends MediaManager {
 				hasCommentedFields = true;
 
 				fieldDoc = iterator.next();
-				context.setFieldDoc(classDoc, fieldDoc);
 
 				section = tagFactory.createSection();
 				section.setId(getReference(fieldDoc));

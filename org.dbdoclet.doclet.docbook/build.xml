@@ -27,6 +27,7 @@
 				<include name="jfreechart_*.jar" />
 				<include name="org.antlr.runtime_*.jar" />
 				<include name="org.apache.commons.logging_*.jar" />
+				<include name="org.apache.commons.jxpath_*.jar" />
 				<include name="org.apache.batik_*.jar" />
 				<include name="org.apache.log4j_*.jar" />
 				<include name="org.apache.xmlgraphics_*.jar" />
@@ -35,8 +36,10 @@
 				<include name="xml-apis-ext_*.jar" />
 			</zipgroupfileset>
 		</jar>
-
 		<antcall target="default.build" />
-
+	</target>
+	
+	<target name="release">
+		
 	</target>
 </project>

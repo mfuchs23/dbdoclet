@@ -6,13 +6,13 @@ public class DbdConstants {
 
 	public static final String PARAM_CHUNK_DOCBOOK_ENABLED = "chunk-docbook";
 	public static final String PARAM_CLASS_DIAGRAM_FONT_SIZE = "class-diagram-font-size";
-	public static final String PARAM_DBDOCLET_CLASS_DIAGRAM_WIDTH = "class-diagram-width";
-	public static final String PARAM_DBDOCLET_CREATE_APPENDIX = "create-appendix";
-	public static final String PARAM_DBDOCLET_CREATE_AUTHOR_INFO = "create-author-info";
-	public static final String PARAM_DBDOCLET_CREATE_CLASS_DIAGRAM = "create-class-diagram";
-	public static final String PARAM_DBDOCLET_CREATE_DEPRECATED_INFO = "create-deprecated-info";
-	public static final String PARAM_DBDOCLET_CREATE_DEPRECATED_LIST = "create-deprecated-list";
-	public static final String PARAM_DBDOCLET_CREATE_EXCEPTION_INFO = "create-exception-info";
+	public static final String PARAM_CLASS_DIAGRAM_WIDTH = "class-diagram-width";
+	public static final String PARAM_CREATE_APPENDIX = "create-appendix";
+	public static final String PARAM_CREATE_AUTHOR_INFO = "create-author-info";
+	public static final String PARAM_CREATE_CLASS_DIAGRAM = "create-class-diagram";
+	public static final String PARAM_CREATE_DEPRECATED_INFO = "create-deprecated-info";
+	public static final String PARAM_CREATE_DEPRECATED_LIST = "create-deprecated-list";
+	public static final String PARAM_CREATE_EXCEPTION_INFO = "create-exception-info";
 	public static final String PARAM_DBDOCLET_CREATE_FIELD_INFO = "create-field-info";
 	public static final String PARAM_DBDOCLET_CREATE_FULLY_QUALIFIED_NAMES = "create-fully-qualified-names";
 	public static final String PARAM_DBDOCLET_CREATE_INHERITED_FROM_INFO = "create-inherited-from-info";

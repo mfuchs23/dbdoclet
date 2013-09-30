@@ -16,8 +16,10 @@ public class Motiv {
 
     /**
      * Fügt dem Motiv eine Note {@link Note} hinzu.
+     *
+     * @exception WrongNoteException - Ein falscher Ton wurde hinzugefügt!
      */
-    public void addNote(Note note) {
+    public void addNote(Note note) throws WrongNoteException {
 
     }
 

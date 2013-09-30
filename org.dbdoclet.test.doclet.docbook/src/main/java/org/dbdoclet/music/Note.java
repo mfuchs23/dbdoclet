@@ -53,4 +53,10 @@ public class Note extends AbstractElement<String, Integer> {
 	public String toElement() {
 		return "Element";
 	}
+
+	@Override
+	public void play() {
+		// TODO Auto-generated method stub
+		
+	}
 }

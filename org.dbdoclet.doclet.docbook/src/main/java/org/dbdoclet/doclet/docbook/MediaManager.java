@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.DeprecatedManager;
-import org.dbdoclet.doclet.DocletContext;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.InstanceFactory;
 import org.dbdoclet.doclet.ReferenceManager;
@@ -61,6 +60,7 @@ import org.dbdoclet.tag.docbook.ImageObject;
 import org.dbdoclet.tag.docbook.InformalFigure;
 import org.dbdoclet.tag.docbook.InformalTable;
 import org.dbdoclet.tag.docbook.LegalNotice;
+import org.dbdoclet.tag.docbook.Link;
 import org.dbdoclet.tag.docbook.ListItem;
 import org.dbdoclet.tag.docbook.MediaObject;
 import org.dbdoclet.tag.docbook.Para;
@@ -77,9 +77,9 @@ import org.dbdoclet.tag.docbook.Tgroup;
 import org.dbdoclet.tag.docbook.Title;
 import org.dbdoclet.tag.docbook.VarListEntry;
 import org.dbdoclet.tag.docbook.VariableList;
-import org.dbdoclet.tag.docbook.XRef;
 import org.dbdoclet.tag.docbook.Year;
 import org.dbdoclet.tag.html.Img;
+import org.dbdoclet.xiphias.Hyphenation;
 import org.dbdoclet.xiphias.ImageServices;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
@@ -99,7 +99,6 @@ public abstract class MediaManager {
 
 	private static Log logger = LogFactory.getLog(MediaManager.class.getName());
 
-	protected DocletContext context;
 	protected DbdTransformer htmlDocBookTrafo;
 	protected TreeMap<String, TreeMap<String, ClassDoc>> pkgMap;
 	protected ReferenceManager referenceManager;
@@ -109,7 +108,8 @@ public abstract class MediaManager {
 	protected Style style;
 	protected DocBookTagFactory tagFactory;
 	protected TagManager tagManager;
-
+	protected Hyphenation hyphenation;
+	
 	protected void createAdditionalSections(DocBookElement parent)
 			throws IOException, DocletException {
 
@@ -360,15 +360,6 @@ public abstract class MediaManager {
 
 	}
 
-	private boolean isDefined(String value) {
-
-		if (value == null || value.trim().length() == 0) {
-			return false;
-		}
-		
-		return true;
-	}
-
 	protected void createInheritanceDiagram(ClassDoc classDoc,
 			DocBookElement parent) throws DocletException {
 
@@ -487,8 +478,8 @@ public abstract class MediaManager {
 		return typeName;
 	}
 
-	protected DocletContext getContext() {
-		return context;
+	public Hyphenation getHyphenation() {
+		return hyphenation;
 	}
 
 	protected String getIndexCategory(ClassDoc doc) {
@@ -588,7 +579,18 @@ public abstract class MediaManager {
 	}
 
 	protected Title getTitle() {
-		return tagFactory.createTitle(script.getTitle());
+
+		String title = script.getTitle();
+		
+		if (title == null && pkgMap.size() > 0) {
+			title = pkgMap.firstKey();
+		}
+		
+		if (title == null) {
+			title = "JavaDoc";
+		}
+
+		return tagFactory.createTitle(title);
 	}
 
 	protected String getVisibilityAsText(ProgramElementDoc doc) {
@@ -613,6 +615,15 @@ public abstract class MediaManager {
 		return "unknown";
 	}
 
+	private boolean isDefined(String value) {
+
+		if (value == null || value.trim().length() == 0) {
+			return false;
+		}
+		
+		return true;
+	}
+
 	protected boolean isDocBook5() {
 
 		DocBookVersion version = script.getDocBookVersion();
@@ -627,12 +638,12 @@ public abstract class MediaManager {
 
 	protected abstract void process(RootDoc rootDoc) throws DocletException;
 
-	public void setDocletContext(DocletContext context) {
-		this.context = context;
-	}
-
 	public void setHtmlDocBookTrafo(DbdTransformer transformer) {
 		this.htmlDocBookTrafo = transformer;
+	}
+
+	public void setHyphenation(Hyphenation hyphenation) {
+		this.hyphenation = hyphenation;
 	}
 
 	public void setReferenceManager(ReferenceManager referenceManager) {
@@ -869,9 +880,9 @@ public abstract class MediaManager {
 
 				if (doc instanceof ProgramElementDoc) {
 
-					XRef xref = tagFactory.createXRef(referenceManager
+					Link link = tagFactory.createLink(doc.toString(), referenceManager
 							.findReference((ProgramElementDoc) doc));
-					term.appendChild(xref);
+					term.appendChild(link);
 
 				} else {
 
@@ -919,12 +930,7 @@ public abstract class MediaManager {
 				section = tagFactory.createBook();
 			}
 
-			context.setComment("Overview");
-			context.setContextName("Overview");
-
-			context.isOverview(true);
 			htmlDocBookTrafo.transform(doc, section);
-			context.isOverview(false);
 
 			for (Element element : section.getChildElementList()) {
 
@@ -980,8 +986,6 @@ public abstract class MediaManager {
 				}
 			}
 		}
-
-		context.isOverview(false);
 	}
 
 	protected void writeStatistics(
@@ -1066,4 +1070,5 @@ public abstract class MediaManager {
 			section.appendChild(table);
 		}
 	}
+
 }

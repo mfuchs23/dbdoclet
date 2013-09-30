@@ -479,6 +479,8 @@ public class TagManager {
 			name = link.name();
 
 			label = referenceManager.createReferenceLabel(link);
+			label = HtmlServices.textToHtml(label);
+			
 			reference = referenceManager.findReference(link);
 
 			if ((reference != null) && (reference.length() > 0)) {

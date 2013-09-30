@@ -12,7 +12,6 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -20,11 +19,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
 import org.dbdoclet.doclet.docbook.DbdScript;
+import org.dbdoclet.doclet.docbook.StrictSynopsis;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.svg.UmlClassDiagramCreator;
 import org.dbdoclet.svg.shape.Shape;
-import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.ImageServices;
 
 import com.sun.javadoc.AnnotationTypeDoc;
@@ -37,7 +36,9 @@ public class ClassDiagramManager {
 
 	@Inject
 	private DbdScript script;
-
+	@Inject
+	private StrictSynopsis synopsis;
+	
 	private int imageHeight;
 	private int imageWidth;
 	private final boolean showFullQualifiedName = false;
@@ -210,7 +211,7 @@ public class ClassDiagramManager {
 
 		for (Type type : inheritanceList) {
 
-			String className = DocletServices.typeToString(type,
+			String className = synopsis.typeToString(type,
 					showFullQualifiedName);
 
 			ClassDoc cdoc = type.asClassDoc();
@@ -253,7 +254,7 @@ public class ClassDiagramManager {
 					offset *= -1;
 				}
 
-				String interfaceName = DocletServices.typeToString(
+				String interfaceName = synopsis.typeToString(
 						interfaceType, showFullQualifiedName);
 
 				ClassDoc tcdoc = type.asClassDoc();
@@ -287,7 +288,7 @@ public class ClassDiagramManager {
 			index++;
 		}
 	}
-
+	
 	private void defineInterface(UmlClassDiagramCreator ucdc, ClassDoc doc) {
 
 		int row = 0;
@@ -321,7 +322,7 @@ public class ClassDiagramManager {
 		Shape fromShape = null;
 		Shape toShape = null;
 
-		String interfaceName = DocletServices.typeToString(doc,
+		String interfaceName = synopsis.typeToString(doc,
 				showFullQualifiedName);
 
 		fromShape = ucdc
@@ -338,7 +339,7 @@ public class ClassDiagramManager {
 
 			for (Type interfaceType : interfaceTypes) {
 
-				interfaceName = DocletServices.typeToString(interfaceType,
+				interfaceName = synopsis.typeToString(interfaceType,
 						showFullQualifiedName);
 
 				if (typeIndex == 1) {

@@ -12,14 +12,13 @@ import javax.inject.Inject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dbdoclet.doclet.DocletContext;
+import org.dbdoclet.Sfv;
 import org.dbdoclet.doclet.DocletException;
-import org.dbdoclet.doclet.DocletServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.tag.docbook.Modifier;
 import org.dbdoclet.tag.docbook.OoClass;
-import org.dbdoclet.xiphias.XmlServices;
+import org.dbdoclet.xiphias.Hyphenation;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
@@ -28,9 +27,11 @@ import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
+import com.sun.javadoc.WildcardType;
 
 public abstract class Synopsis {
 
@@ -38,16 +39,11 @@ public abstract class Synopsis {
 
 	@Inject
 	protected DocBookTagFactory dbfactory;
-
 	@Inject
-	protected DocletContext context;
-
+	protected Hyphenation hyphenation;
 	@Inject
 	protected DbdScript script;
-
-	public abstract boolean process(ClassDoc doc, DocBookElement parent)
-			throws DocletException;
-
+	
 	protected final void createAnnotationElements(AnnotationDesc desc,
 			DocBookElement parent) {
 
@@ -163,7 +159,12 @@ public abstract class Synopsis {
 		StringBuilder buffer = new StringBuilder();
 
 		if (showFullQualifiedName == true) {
-			buffer.append(XmlServices.makeWrapable(doc.qualifiedName(), "."));
+			
+			hyphenation.setHyphenationChar(script.getHyphenationChar());
+			String qname = hyphenation.hyphenateAfter(doc.qualifiedName(), ".");
+			qname = hyphenation.hyphenateCamelCase(qname);
+			buffer.append(qname);
+		
 		} else {
 			buffer.append(doc.name());
 		}
@@ -171,76 +172,6 @@ public abstract class Synopsis {
 		createTypeParameters(buffer, doc.typeParameters(),
 				showFullQualifiedName);
 		return buffer.toString();
-	}
-
-	protected final String createSuperClassName(Type superDoc,
-			boolean showFullQualifiedName) {
-
-		if (superDoc == null) {
-			throw new IllegalArgumentException(
-					"The argument superDdoc must not be null!");
-		}
-
-		StringBuilder buffer = new StringBuilder();
-
-		buffer.append(DocletServices.typeToString(superDoc,
-				showFullQualifiedName));
-
-		// buffer.append(createTypeName(superDoc, showFullQualifiedName));
-
-		/*
-		 * TypeVariable[] types = superDoc.typeParameters();
-		 * 
-		 * if (types != null && types.length > 0) {
-		 * 
-		 * buffer.append("<");
-		 * 
-		 * boolean first = true;
-		 * 
-		 * for (Type type : types) {
-		 * 
-		 * if (first == false) { buffer.append(", "); }
-		 * 
-		 * buffer.append(superDoc.asParameterizedType());
-		 * 
-		 * first = false; }
-		 * 
-		 * buffer.append(">"); }
-		 */
-
-		return buffer.toString();
-	}
-
-	protected final String createTypeName(Type type,
-			boolean showFullQualifiedName) {
-
-		if (type == null) {
-			throw new IllegalArgumentException(
-					"The argument type must not be null!");
-		}
-
-		return DocletServices.typeToString(type, showFullQualifiedName);
-	}
-
-	protected String getPackageName(ClassDoc doc) {
-
-		PackageDoc pdoc = doc.containingPackage();
-
-		if (pdoc == null) {
-			return "";
-		}
-
-		String pname = pdoc.name();
-
-		if (pname == null || pname.length() == 0) {
-			return "";
-		}
-
-		if (pname.endsWith(".") == false) {
-			pname = pname + ".";
-		}
-
-		return pname;
 	}
 
 	public final void createMemberModifier(MemberDoc doc, DocBookElement parent) {
@@ -259,6 +190,21 @@ public abstract class Synopsis {
 		createVisibility(doc, parent);
 	}
 
+	protected final String createSuperClassName(Type superDoc,
+			boolean showFullQualifiedName) {
+
+		if (superDoc == null) {
+			throw new IllegalArgumentException(
+					"The argument superDdoc must not be null!");
+		}
+
+		StringBuilder buffer = new StringBuilder();
+
+		buffer.append(typeToString(superDoc,
+				showFullQualifiedName));
+		return buffer.toString();
+	}
+
 	public final void createType(Type type, DocBookElement parent,
 			boolean showFullQualifiedName) {
 
@@ -272,10 +218,20 @@ public abstract class Synopsis {
 					"The argument parent must not be null!");
 		}
 
-		String buffer = DocletServices
-				.typeToString(type, showFullQualifiedName);
+		String buffer = typeToString(type, showFullQualifiedName);
 		buffer = buffer.replace(".", ".&#x200b;");
 		parent.appendChild(buffer);
+	}
+
+	protected final String createTypeName(Type type,
+			boolean showFullQualifiedName) {
+
+		if (type == null) {
+			throw new IllegalArgumentException(
+					"The argument type must not be null!");
+		}
+
+		return typeToString(type, showFullQualifiedName);
 	}
 
 	private void createTypeParameters(StringBuilder buffer,
@@ -287,7 +243,7 @@ public abstract class Synopsis {
 
 			for (int i = 0; i < typeList.length; i++) {
 
-				buffer.append(DocletServices.typeToString(typeList[i],
+				buffer.append(typeToString(typeList[i],
 						showFullQualifiedName));
 
 				if (i < typeList.length - 1) {
@@ -412,4 +368,180 @@ public abstract class Synopsis {
 		return null;
 	}
 
+	protected String getPackageName(ClassDoc doc) {
+
+		PackageDoc pdoc = doc.containingPackage();
+
+		if (pdoc == null) {
+			return "";
+		}
+
+		String pname = pdoc.name();
+
+		if (pname == null || pname.length() == 0) {
+			return "";
+		}
+
+		if (pname.endsWith(".") == false) {
+			pname = pname + ".";
+		}
+
+		return pname;
+	}
+
+	public String getTypeNameWithDimension(Type type,
+			boolean showFullQualifiedName) {
+
+		StringBuilder buffer = new StringBuilder();
+
+		if (showFullQualifiedName == true) {
+			buffer.append(type.qualifiedTypeName());
+		} else {
+			buffer.append(type.simpleTypeName());
+		}
+
+		buffer.append(type.dimension());
+
+		return buffer.toString();
+	}
+
+	public void printType(Type type) {
+
+		StringBuilder buffer = new StringBuilder();
+
+		buffer.append("============================================" + Sfv.LSEP);
+
+		buffer.append("Type=");
+		buffer.append(type);
+		buffer.append(Sfv.LSEP);
+
+		ClassDoc classDoc = type.asClassDoc();
+		buffer.append("ClassDoc=");
+		buffer.append(classDoc);
+		buffer.append(Sfv.LSEP);
+
+		if (classDoc != null) {
+
+			buffer.append("isAbstract=");
+			buffer.append(classDoc.isAbstract());
+			buffer.append(Sfv.LSEP);
+		}
+
+		buffer.append("TypeVariable=");
+		buffer.append(type.asTypeVariable());
+		buffer.append(Sfv.LSEP);
+
+		buffer.append("ParameterizedType=");
+		buffer.append(type.asParameterizedType());
+		buffer.append(Sfv.LSEP);
+
+		buffer.append("WildcardType=");
+		buffer.append(type.asWildcardType());
+		buffer.append(Sfv.LSEP);
+
+		buffer.append("AnnotationTypeDoc=");
+		buffer.append(type.asAnnotationTypeDoc());
+		buffer.append(Sfv.LSEP);
+
+		System.out.println(buffer.toString());
+	}
+
+	public abstract boolean process(ClassDoc doc, DocBookElement parent)
+			throws DocletException;
+
+	private void processBounds(StringBuilder buffer, Type[] bounds,
+			String kind, boolean showFullQualifiedName, int level) {
+
+		if (kind == null) {
+			throw new IllegalArgumentException(
+					"The argument kind must not be null!");
+		}
+
+		kind = kind.trim();
+
+		if (bounds != null && bounds.length > 0) {
+
+			boolean first = true;
+
+			for (Type bound : bounds) {
+
+				buffer.append(first ? " " + kind + " " : " & ");
+
+				if (kind.equals("extends") && level == 0) {
+					buffer.append(typeToString(bound, showFullQualifiedName,
+							level + 1));
+				} else {
+					buffer.append(getTypeNameWithDimension(bound,
+							showFullQualifiedName));
+				}
+
+				first = false;
+			}
+		}
+	}
+
+	public String typeToString(Type type, boolean showFullQualifiedName) {
+		return typeToString(type, showFullQualifiedName, 0);
+	}
+
+	public String typeToString(Type type, boolean showFullQualifiedName,
+			int level) {
+
+		if (type == null) {
+			return "";
+		}
+
+		StringBuilder buffer = new StringBuilder();
+
+		TypeVariable typeVariable = type.asTypeVariable();
+
+		buffer.append(getTypeNameWithDimension(type, showFullQualifiedName));
+
+		if (typeVariable != null && level == 0) {
+			processBounds(buffer, typeVariable.bounds(), "extends",
+					showFullQualifiedName, level);
+		}
+
+		ParameterizedType pType = type.asParameterizedType();
+
+		if (pType != null) {
+
+			Type[] arguments = pType.typeArguments();
+
+			if (arguments != null && arguments.length > 0) {
+
+				buffer.append('<');
+
+				boolean first = true;
+
+				for (Type argument : arguments) {
+
+					if (first == false) {
+						buffer.append(", ");
+					}
+
+					buffer.append(typeToString(argument, showFullQualifiedName,
+							level + 1));
+					first = false;
+				}
+
+				buffer.append('>');
+			}
+		}
+
+		WildcardType wType = type.asWildcardType();
+
+		if (wType != null) {
+			processBounds(buffer, wType.superBounds(), "super",
+					showFullQualifiedName, level);
+			processBounds(buffer, wType.extendsBounds(), "extends",
+					showFullQualifiedName, level);
+		}
+
+		String typeName = buffer.toString();
+		hyphenation.setHyphenationChar(script.getHyphenationChar());
+		typeName = hyphenation.hyphenateAfter(typeName, ".");
+
+		return typeName;
+	}
 }

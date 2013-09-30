@@ -5,41 +5,33 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import org.dbdoclet.doclet.DocletContext;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.xiphias.Hyphenation;
 
 public class MediaManagerProvider implements Provider<MediaManager> {
 
 	@Inject
-	DbdTransformer transformer;
-
-	@Inject
-	DocBookTagFactory tagFactory;
-
-	@Inject
-	ResourceBundle res;
-
+	Hyphenation hyphenation;
 	@Inject
 	ReferenceManager referenceManager;
-
+	@Inject
+	ResourceBundle res;
 	@Inject
 	DbdScript script;
-
-	@Inject
-	Style style;
-
 	@Inject
 	StatisticData statisticData;
-
+	@Inject
+	Style style;
+	@Inject
+	DocBookTagFactory tagFactory;
 	@Inject
 	TagManager tagManager;
-
 	@Inject
-	DocletContext context;
-
+	DbdTransformer transformer;
+	
 	@Override
 	public MediaManager get() {
 
@@ -56,7 +48,8 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 		} else {
 			mediaManager = new BookManager();
 		}
-
+		
+		mediaManager.setHyphenation(hyphenation);
 		mediaManager.setResourceBundle(res);
 		mediaManager.setReferenceManager(referenceManager);
 		mediaManager.setScript(script);
@@ -65,7 +58,6 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 		mediaManager.setTagFactory(tagFactory);
 		mediaManager.setTagManager(tagManager);
 		mediaManager.setHtmlDocBookTrafo(transformer);
-		mediaManager.setDocletContext(context);
 
 		return mediaManager;
 	}

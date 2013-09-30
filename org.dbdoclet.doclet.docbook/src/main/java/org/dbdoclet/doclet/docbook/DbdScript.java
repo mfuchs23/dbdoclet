@@ -5,23 +5,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-
 import org.dbdoclet.doclet.XmlIdType;
 import org.dbdoclet.tag.docbook.DocBookVersion;
 import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.script.Script;
-import org.dbdoclet.xiphias.XmlServices.HyphenationChar;
+import org.dbdoclet.xiphias.Hyphenation.HyphenationChar;
 
 public class DbdScript {
 
 	public static final File DEFAULT_DESTINATION_FILE = new File(
 			"./dbdoclet/Reference.xml");
 
-	@Inject
 	private Script script;
 	private File outputFile;
 
+	public DbdScript() {
+		script = new Script();
+	}
+	
 	public String getAbstract() {
 		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
 				TrafoConstants.PARAM_ABSTRACT, "");
@@ -64,7 +65,7 @@ public class DbdScript {
 	 */
 	public int getClassDiagramWidth() {
 		return script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CLASS_DIAGRAM_WIDTH, 700);
+				DbdConstants.PARAM_CLASS_DIAGRAM_WIDTH, 700);
 	}
 
 	public String getCopyrightHolder() {
@@ -174,7 +175,7 @@ public class DbdScript {
 	public String getImagePath() {
 
 		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
-				TrafoConstants.PARAM_IMAGE_PATH, "./figures");
+				TrafoConstants.PARAM_IMAGE_PATH, TrafoConstants.DEFAULT_IMAGE_PATH);
 	}
 
 	public String getLanguage() {
@@ -217,7 +218,7 @@ public class DbdScript {
 	public String getTitle() {
 		String titleText = script.getTextParameter(
 				TrafoConstants.SECTION_DOCBOOK, TrafoConstants.PARAM_TITLE,
-				"JavaDoc Reference");
+				null);
 		return titleText;
 	}
 
@@ -238,12 +239,12 @@ public class DbdScript {
 
 	public boolean isCreateAppendixEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_APPENDIX, true);
+				DbdConstants.PARAM_CREATE_APPENDIX, true);
 	}
 
 	public boolean isCreateAuthorInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_AUTHOR_INFO, true);
+				DbdConstants.PARAM_CREATE_AUTHOR_INFO, true);
 	}
 
 	/**
@@ -252,7 +253,7 @@ public class DbdScript {
 	 */
 	public boolean isCreateClassDiagramEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_CLASS_DIAGRAM, true);
+				DbdConstants.PARAM_CREATE_CLASS_DIAGRAM, true);
 	}
 
 	/**
@@ -268,17 +269,17 @@ public class DbdScript {
 
 	public boolean isCreateDeprecatedInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_DEPRECATED_INFO, true);
+				DbdConstants.PARAM_CREATE_DEPRECATED_INFO, true);
 	}
 
 	public boolean isCreateDeprecatedListEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_DEPRECATED_LIST, true);
+				DbdConstants.PARAM_CREATE_DEPRECATED_LIST, true);
 	}
 
 	public boolean isCreateExceptionInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_EXCEPTION_INFO, true);
+				DbdConstants.PARAM_CREATE_EXCEPTION_INFO, true);
 	}
 
 	public boolean isCreateFieldInfoEnabled() {
@@ -408,13 +409,13 @@ public class DbdScript {
 
 	public void setCreateAppendixEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_APPENDIX,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_APPENDIX,
 				enabled);
 	}
 
 	public void setCreateExceptionInfoEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_EXCEPTION_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_EXCEPTION_INFO,
 				enabled);
 	}
 

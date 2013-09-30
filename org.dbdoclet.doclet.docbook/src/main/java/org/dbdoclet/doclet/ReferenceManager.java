@@ -133,18 +133,16 @@ public class ReferenceManager {
 		mdoc = tag.referencedMember();
 
 		if (mdoc != null) {
-			label = mdoc.qualifiedName();
+			label = mdoc.toString();
 		}
 
 		str = tag.label();
 
 		if ((str != null) && (str.length() > 0)) {
-
 			label = str;
 		}
 
 		if ((label == null) || (label.length() == 0)) {
-
 			label = tag.text();
 		}
 

@@ -10,7 +10,10 @@ public interface MusicElement extends Serializable, Cloneable {
      * 
      * @return String
      */
-    @Deprecated
     public String element();
+    
     public String toElement();
+    
+    @Deprecated
+    public void play();
 }

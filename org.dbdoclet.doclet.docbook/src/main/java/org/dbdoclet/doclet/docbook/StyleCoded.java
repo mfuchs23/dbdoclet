@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.dbdoclet.doclet.ClassDiagramManager;
-import org.dbdoclet.doclet.DocletContext;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
@@ -91,7 +90,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				ref = referenceManager.findReference(cdoc.asClassDoc());
 
 				name = XmlServices.textToXml(cdoc.qualifiedTypeName());
-				name = XmlServices.makeWrapable(name, ".");
+				name = hyphenation.hyphenateAfter(name, ".");
 
 				if ((ref != null) && (ref.length() > 0)) {
 					list.appendChild(dbfactory.createMember().appendChild(
@@ -110,10 +109,6 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		}
 
 		return rc;
-	}
-
-	private String getEmphasisBoldRole() {
-		return "bold";
 	}
 
 	protected boolean addDeprecatedInfo(Doc doc, DocBookElement parent)
@@ -365,6 +360,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			if (methodCount > 0) {
 
 				para = dbfactory.createPara();
+				para.setRole("method-inherited-from");
 				parent.appendChild(para);
 
 				para.appendChild(dbfactory.createEmphasis(
@@ -387,6 +383,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			throws DocletException {
 
 		Para para = dbfactory.createPara();
+		para.setRole("method-specified-by");
 		parent.appendChild(para);
 
 		para.appendChild(dbfactory.createEmphasis(
@@ -423,23 +420,15 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		return true;
 	}
 
-	public boolean addParamInfo(ExecutableMemberDoc memberDoc,
-			DocBookElement parent, DocletContext context)
-			throws DocletException {
-		return false;
-	}
+	public abstract boolean addParamInfo(ExecutableMemberDoc memberDoc,
+			DocBookElement parent) throws DocletException;
 
-	public boolean addSerialFieldsInfo(FieldDoc fieldDoc,
-			DocBookElement parent, DocletContext context)
-			throws DocletException {
+	public abstract boolean addSerialFieldsInfo(FieldDoc fieldDoc,
+			DocBookElement parent) throws DocletException;
 
-		return false;
-	}
+	public abstract boolean addThrowsInfo(ExecutableMemberDoc memberDoc,
+			DocBookElement parent) throws DocletException;
 
-	public boolean addThrowsInfo(ExecutableMemberDoc memberDoc,
-			DocBookElement parent, DocletContext context)
-			throws DocletException {
-
-		return false;
-	}
-}
+	private String getEmphasisBoldRole() {
+		return "bold";
+	}}

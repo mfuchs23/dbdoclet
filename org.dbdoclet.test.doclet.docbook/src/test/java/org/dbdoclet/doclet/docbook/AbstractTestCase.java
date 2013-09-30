@@ -40,10 +40,9 @@ public class AbstractTestCase implements InfoListener {
 			.getBundle("org/dbdoclet/doclet/docbook/Resources");
 	private final String docbookXsdFileName = "src/main/resources/xsd/docbook.xsd";
 
-	protected String destPath = "build/test/";
+	protected String destPath = "build/test/docbook/";
 	protected String sourcePath = "src/main/java/";
-    protected String docbookDocletJarFileName = "lib/dbdoclet_7.0.0.jar";
-
+	protected String docbookDocletJarFileName = "lib/dbdoclet_7.0.0.jar";
 
 	@Override
 	public void info(String text) {
@@ -52,7 +51,7 @@ public class AbstractTestCase implements InfoListener {
 
 	@Before
 	public void startUp() throws IOException {
-		
+
 		URL url = AbstractTestCase.class
 				.getResource("/org/dbdoclet/music/Note.java");
 
@@ -61,23 +60,22 @@ public class AbstractTestCase implements InfoListener {
 			sourcePath = StringServices.cutSuffix(path,
 					"org/dbdoclet/music/Note.java");
 			destPath = StringServices.cutSuffix(sourcePath, "src/main/java/")
-					+ "/build/test/";
-			docbookDocletJarFileName = StringServices.cutSuffix(sourcePath, "src/main/java/")
-					+ "/lib/dbdoclet_7.0.0.jar";
+					+ "/build/test/docbook/";
+			docbookDocletJarFileName = StringServices.cutSuffix(sourcePath,
+					"src/main/java/") + "/lib/dbdoclet_7.0.0.jar";
 		}
 
 		File destDir = new File(destPath);
-		
+
 		if (destDir.exists()) {
 			FileServices.delete(destDir);
 		}
-		
-		/*
+
 		System.out.println("Arbeitsverzeichnis: "
 				+ new File(".").getAbsolutePath());
 		System.out.println("sourcePath: " + sourcePath);
 		System.out.println("destPath: " + destPath);
-		*/
+
 	}
 
 	protected RootDocImpl javadoc(String[] sources, String classpath,
@@ -154,11 +152,15 @@ public class AbstractTestCase implements InfoListener {
 	}
 
 	protected String xpath(String query) {
+		return xpath(query, "Reference.xml");
+	}
+
+	protected String xpath(String query, String fileName) {
 
 		try {
 
-			Document doc = XmlServices.parse(new File(destPath
-					+ "/Reference.xml"));
+			Document doc = XmlServices
+					.parse(new File(destPath + "/" + fileName));
 
 			Object obj = null;
 
@@ -175,14 +177,14 @@ public class AbstractTestCase implements InfoListener {
 			return obj.toString();
 
 		} catch (JXPathException oops) {
-			
+
 			String msg = oops.getMessage();
-			
+
 			if (msg != null && msg.startsWith("No value for xpath")) {
 				return null;
-				
+
 			}
-			
+
 			oops.printStackTrace();
 			fail(oops.getMessage());
 
@@ -196,20 +198,20 @@ public class AbstractTestCase implements InfoListener {
 	}
 
 	protected void javadoc(String... options) {
-	
+
 		String[] mandatoryOptions = { "-d", destPath, "-sourcepath",
 				sourcePath, "org.dbdoclet.music" };
-	
+
 		ArrayList<String> optionList = new ArrayList<String>();
-	
+
 		for (String option : options) {
 			optionList.add(option);
 		}
-	
+
 		for (String option : mandatoryOptions) {
 			optionList.add(option);
 		}
-	
+
 		String[] cmd = optionList.toArray(new String[optionList.size()]);
 		Main.execute("Test", "org.dbdoclet.doclet.docbook.DocBookDoclet", cmd);
 	}

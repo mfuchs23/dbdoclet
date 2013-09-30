@@ -28,7 +28,6 @@ import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.trafo.TrafoScriptManager;
-import org.dbdoclet.xiphias.XmlServices;
 
 import com.google.inject.Guice;
 import com.sun.javadoc.ClassDoc;
@@ -197,21 +196,13 @@ public final class DocBookDoclet extends AbstractDoclet {
 				lsm.createDocBook(rootDoc);
 			}
 
-			XmlServices.hyphenationChar = dbdScript.getHyphenationChar();
-
 			mediaManager = InstanceFactory.getInstance(MediaManager.class);
 			mediaManager.writeContents(rootDoc);
 
 			doclet.println(ResourceServices.getString(res, "C_FINISHED"));
 
 		} catch (Throwable oops) {
-
-			if (mediaManager != null) {
-				ExceptionHandler.handleException(mediaManager.getContext(),
-						oops);
-			} else {
-				ExceptionHandler.handleException(null, oops);
-			}
+			ExceptionHandler.handleException(oops);
 		}
 
 		return true;

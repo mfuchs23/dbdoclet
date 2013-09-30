@@ -4,7 +4,7 @@ package org.dbdoclet.doclet.util;
 public class ReleaseServices {
 
     public static String getVersion() {
-        return "6.1.0";
+        return "7.0.0";
     }
 
     public static String getBuild() {

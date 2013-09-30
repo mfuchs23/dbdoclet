@@ -12,6 +12,7 @@
     <dependency org="org.apache" name="org.apache.commons.jxpath" rev="latest.integration" />
     <dependency org="xml-apis" name="xml-apis" rev="latest.integration" />
     <dependency org="org.junit" name="junit" rev="4.7" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="latest.integration" />
     <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook" rev="latest.integration" />
   </dependencies>
 </ivy-module>

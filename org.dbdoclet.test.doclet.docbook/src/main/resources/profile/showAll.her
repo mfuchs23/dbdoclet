@@ -1,7 +1,14 @@
-transformation html2docbook;
+transformation dbdoclet;
 
 section dbdoclet {
-	chunk-docbook = true;
+	create-appendix = true;
+	class-diagram-font-size = 10;
+	class-diagram-width = 800;
+	create-author-info = true;
+	create-class-diagram = true;
+	create-deprecated-info = true;
+	create-deprecated-list = true;
+	create-exception-info = true;
 } 
 
 section DocBook {
@@ -16,5 +23,4 @@ ermöglicht vielfältige Einstellungesmöglichkeiten.
 	title = "Musikeditor";
 	document-element = "book";
 	corporation = "Ingenieurbüro Michael Fuchs";
-	image-data-formats = [ "svg:fo", "png:html" ];
 } 

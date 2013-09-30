@@ -26,131 +26,38 @@ import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.xiphias.Hyphenation;
 
 import com.sun.javadoc.Doc;
-import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.Tag;
 
 public class StyleBase {
 
-	protected static final String RSEP = "/";
 	protected static final String FSEP = System.getProperty("file.separator");
-	protected static final String LSEP = System.getProperty("line.separator");
 	protected static final String INDENT = "  ";
+	protected static final String LSEP = System.getProperty("line.separator");
+	protected static final String RSEP = "/";
 
 	@Inject
 	protected DocBookTagFactory dbfactory;
-
 	@Inject
 	protected DbdTransformer htmlDocBookTrafo;
-
 	@Inject
-	protected ResourceBundle res;
-
+	protected Hyphenation hyphenation;
 	@Inject
 	protected ReferenceManager referenceManager;
-
+	@Inject
+	protected ResourceBundle res;
 	@Inject
 	protected DbdScript script;
-
+	@Inject
+	protected StatisticData statisticData;
+	@Inject
+	protected StrictSynopsis synopsis;
 	@Inject
 	protected TagManager tagManager;
 
-	@Inject
-	protected StatisticData statisticData;
-
-	@Inject
-	protected StrictSynopsis synopsis;
-
-	public static final ArrayList<MemberDoc> getPrivateMembers(
-			MemberDoc[] members) {
-
-		if (members == null) {
-
-			throw new IllegalArgumentException("Parameter members is null!");
-		}
-
-		ArrayList<MemberDoc> list = new ArrayList<MemberDoc>();
-
-		if ((members != null) && (members.length > 0)) {
-
-			for (int i = 0; i < members.length; i++)
-
-				if (members[i].isPrivate()) {
-					list.add(members[i]);
-				}
-		}
-
-		return list;
-	}
-
-	public static final ArrayList<MemberDoc> getPackageMembers(
-			MemberDoc[] members) {
-
-		if (members == null) {
-
-			throw new IllegalArgumentException("Parameter members is null!");
-		}
-
-		ArrayList<MemberDoc> list = new ArrayList<MemberDoc>();
-
-		if ((members != null) && (members.length > 0)) {
-
-			for (int i = 0; i < members.length; i++)
-
-				if (members[i].isPackagePrivate()) {
-					list.add(members[i]);
-				}
-		}
-
-		return list;
-	}
-
-	public static final ArrayList<MemberDoc> getProtectedMembers(
-			MemberDoc[] members) {
-
-		if (members == null) {
-
-			throw new IllegalArgumentException("Parameter members is null!");
-		}
-
-		ArrayList<MemberDoc> list = new ArrayList<MemberDoc>();
-
-		if ((members != null) && (members.length > 0)) {
-
-			for (int i = 0; i < members.length; i++)
-
-				if (members[i].isProtected()) {
-					list.add(members[i]);
-				}
-		}
-
-		return list;
-	}
-
-	public static final ArrayList<MemberDoc> getPublicMembers(
-			MemberDoc[] members) {
-
-		if (members == null) {
-
-			throw new IllegalArgumentException("Parameter members is null!");
-		}
-
-		ArrayList<MemberDoc> list = new ArrayList<MemberDoc>();
-
-		if ((members != null) && (members.length > 0)) {
-
-			for (int i = 0; i < members.length; i++)
-
-				if (members[i].isPublic()) {
-					list.add(members[i]);
-				}
-		}
-
-		return list;
-	}
-
-	public static final LinkedHashMap<String, ArrayList<Tag>> createTagMap(
+	protected final LinkedHashMap<String, ArrayList<Tag>> createTagMap(
 			Doc doc) {
 
 		ArrayList<Tag> list;

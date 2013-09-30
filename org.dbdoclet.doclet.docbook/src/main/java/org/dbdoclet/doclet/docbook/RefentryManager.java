@@ -168,8 +168,6 @@ public class RefentryManager extends MediaManager {
 					continue;
 				}
 
-				context.setPackageDoc(pkgDoc);
-
 				reference = tagFactory.createReference();
 				parent.appendChild(reference);
 
@@ -183,10 +181,9 @@ public class RefentryManager extends MediaManager {
 				reference.appendChild(tagFactory.createTitle(ResourceServices
 						.getString(res, "C_PACKAGE")
 						+ " "
-						+ XmlServices.makeWrapable(pkgDoc.name(), ".")));
+						+ hyphenation.hyphenateAfter(pkgDoc.name(), ".")));
 
 				PartIntro partIntro = tagFactory.createPartIntro();
-				context.setComment(pkgDoc.name() + " package.html");
 
 				htmlDocBookTrafo.transform(pkgDoc, partIntro);
 
@@ -243,8 +240,6 @@ public class RefentryManager extends MediaManager {
 
 			String indexCategory = getIndexCategory(classDoc);
 			String prefix = getClassTypeAsText(classDoc);
-
-			context.setClassDoc(classDoc);
 
 			RefEntry refEntry = tagFactory.createRefEntry();
 
@@ -460,8 +455,6 @@ public class RefentryManager extends MediaManager {
 				memberDoc = memberInfo.getExecutableMember();
 				implementedDoc = memberInfo.getImplemented();
 
-				context.setMethodDoc(classDoc, memberDoc);
-
 				section = tagFactory.createRefSect2();
 				section.setId(getReference(memberDoc));
 
@@ -606,7 +599,6 @@ public class RefentryManager extends MediaManager {
 				hasCommentedFields = true;
 
 				fieldDoc = iterator.next();
-				context.setFieldDoc(classDoc, fieldDoc);
 
 				section = tagFactory.createRefSect2();
 				section.setId(getReference(fieldDoc));

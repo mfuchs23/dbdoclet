@@ -158,8 +158,6 @@ public class BookManager extends MediaManager {
 					continue;
 				}
 
-				context.setPackageDoc(pkgDoc);
-
 				chapter = tagFactory.createChapter();
 				chapter.setId(getReference(pkgDoc));
 
@@ -170,9 +168,8 @@ public class BookManager extends MediaManager {
 				chapter.appendChild(tagFactory.createTitle(ResourceServices
 						.getString(res, "C_PACKAGE")
 						+ " "
-						+ XmlServices.makeWrapable(pkgDoc.name(), ".")));
+						+ hyphenation.hyphenateAfter(pkgDoc.name(), ".")));
 
-				context.setComment(pkgDoc.name() + " package.html");
 				htmlDocBookTrafo.transform(pkgDoc, chapter);
 
 				Sect1 section = tagFactory.createSect1(ResourceServices
@@ -219,8 +216,6 @@ public class BookManager extends MediaManager {
 
 			String prefix = getClassTypeAsText(classDoc);
 			String indexCategory = getIndexCategory(classDoc);
-
-			context.setClassDoc(classDoc);
 
 			sect1 = tagFactory.createSect1();
 			sect1.setId(getReference(classDoc));
@@ -371,8 +366,6 @@ public class BookManager extends MediaManager {
 				memberDoc = memberInfo.getExecutableMember();
 				implementedDoc = memberInfo.getImplemented();
 
-				context.setMethodDoc(classDoc, memberDoc);
-
 				section = tagFactory.createSect2();
 				section.setId(getReference(memberDoc));
 
@@ -503,7 +496,6 @@ public class BookManager extends MediaManager {
 				hasCommentedFields = true;
 
 				fieldDoc = iterator.next();
-				context.setFieldDoc(classDoc, fieldDoc);
 
 				section = tagFactory.createSect2();
 				section.setId(getReference(fieldDoc));
