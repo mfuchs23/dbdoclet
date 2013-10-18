@@ -45,4 +45,15 @@ public abstract class AbstractElement<E extends Comparable<? super E> & Serializ
 	public String element() {
 		return toString();
 	}
+	
+	public void sound() {
+		play();
+	}
+	
+	/**
+	 * Die Methode play() macht das musikalische Element hörbar.
+	 */
+	public void play() {
+		
+	}
 }

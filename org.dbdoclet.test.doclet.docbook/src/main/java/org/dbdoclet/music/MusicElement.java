@@ -15,5 +15,7 @@ public interface MusicElement extends Serializable, Cloneable {
     public String toElement();
     
     @Deprecated
+    public void sound();
+    
     public void play();
 }

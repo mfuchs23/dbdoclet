@@ -54,6 +54,11 @@ public class Note extends AbstractElement<String, Integer> {
 		return "Element";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Abspielen einer Note
+	 */
 	@Override
 	public void play() {
 		// TODO Auto-generated method stub

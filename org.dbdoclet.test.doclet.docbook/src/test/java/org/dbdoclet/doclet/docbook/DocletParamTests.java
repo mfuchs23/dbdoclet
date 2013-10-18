@@ -1,9 +1,6 @@
 package org.dbdoclet.doclet.docbook;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,14 +8,17 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.dbdoclet.service.FileServices;
+import org.dbdoclet.xiphias.Hyphenation;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class DocletParamTests extends AbstractTestCase {
 
-	private static final String PROFILE_CHUNK = "src/main/resources/profile/chunk.her";
-	private static final String PROFILE_MAXIMAL = "src/main/resources/profile/showAll.her";
-	private static final String PROFILE_MINIMAL = "src/main/resources/profile/showMinimal.her";
+	private static final String PROFILE_DIR = "src/main/resources/profile/";
+	private static final String PROFILE_CHUNK = PROFILE_DIR + "chunk.her";
+	private static final String PROFILE_MAXIMAL = PROFILE_DIR + "showAll.her";
+	private static final String PROFILE_MINIMAL = PROFILE_DIR + "showMinimal.her";
+	private static final String PROFILE_CREATE_META_INFO_DISABLED = PROFILE_DIR + "createMetaInfoDisabled.her";
 
 	@Test
 	public void chunkDocBookDisabled() throws IOException, SAXException,
@@ -168,4 +168,63 @@ public class DocletParamTests extends AbstractTestCase {
 		assertNotNull(value);
 	}
 
+	@Test
+	public void createFullyQualifiedNamesDisabled() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_MINIMAL);
+		String value = xpath("//db:classsynopsis/db:ooclass[1]/db:classname[text()='Note']");
+		assertNotNull("Note", value);
+	}
+
+	@Test
+	public void createFullyQualifiedNamesEnabled() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_MAXIMAL);
+		String classname = "org.dbdoclet.music.Note";
+		Hyphenation hyphenation = new Hyphenation();
+		classname = hyphenation.hyphenateAfter(classname, "\\.");
+		classname = classname.replace("&#x00ad;", "\u00ad");
+		String value = xpath("//db:classsynopsis/db:ooclass/db:classname[text()='" + classname + "']");
+		assertNotNull("org.dbdoclet.music.Note", value);
+	}
+
+	@Test
+	public void createInheritedFromInfoDisabled() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_MINIMAL);
+		String value = xpath("//db:para/db:emphasis[contains(text(),'Methoden geerbt von')]");
+		assertNull(value);
+	}
+
+	@Test
+	public void createInheritedFromEnabled() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_MAXIMAL);
+		String value = xpath("//db:para/db:emphasis[contains(text(),'Methoden geerbt von')]");
+		assertNotNull(value);
+	}
+
+	@Test
+	public void createMetaInfoDisabled() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_CREATE_META_INFO_DISABLED);
+		String value = xpath("//db:varlistentry/db:term/db:emphasis[text()='Autor']");
+		assertNull(value);
+		value = xpath("//db:varlistentry/db:term/db:emphasis[text()='Siehe auch']");
+		assertNull(value);
+	}
+
+	@Test
+	public void createMetaInfoEnabled() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_MAXIMAL);
+		String value = xpath("//db:varlistentry/db:term/db:emphasis[text()='Autor']");
+		assertNotNull(value);
+	}
 }

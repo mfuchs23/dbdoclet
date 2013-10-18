@@ -2,6 +2,7 @@ transformation html2docbook;
 
 section dbdoclet {
 	chunk-docbook = false;
+	
 	class-diagram-font-size = 6;
 	class-diagram-width = 350;
 	create-appendix = false;
@@ -10,9 +11,13 @@ section dbdoclet {
 	create-deprecated-info = false;
 	create-deprecated-list = false;
 	create-exception-info = false;
+	create-fully-qualified-names = false;
+	create-inherited-from-info = false;
+	create-meta-info = false;
 } 
 
 section DocBook {
 	add-index = false;
+	document-element = "article";
 	image-data-formats = [ "png", "svg", "jpeg" ];
 } 

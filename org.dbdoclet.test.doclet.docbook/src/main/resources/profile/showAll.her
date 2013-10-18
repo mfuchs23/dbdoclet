@@ -9,6 +9,8 @@ section dbdoclet {
 	create-deprecated-info = true;
 	create-deprecated-list = true;
 	create-exception-info = true;
+	create-fully-qualified-names = true;
+	create-inherited-from-info = true;
 } 
 
 section DocBook {
