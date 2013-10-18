@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<refentry version="5.0" xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:svg="http://www.w3.org/2000/svg"
+          xmlns:m="http://www.w3.org/1998/Math/MathML"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:db="http://docbook.org/ns/docbook">
+  <info>
+    <author>
+      <personname>Michael Fuchs</personname>
+
+      <personblurb>
+        <para>Software Engineer</para>
+      </personblurb>
+    </author>
+
+    <productname>dbdoclet</productname>
+  </info>
+
+  <refmeta>
+    <refentrytitle>dbdoclet</refentrytitle>
+
+    <manvolnum>1</manvolnum>
+
+    <refmiscinfo class="manual">User Commands</refmiscinfo>
+  </refmeta>
+
+  <refnamediv>
+    <refname>dbdoclet</refname>
+
+    <refpurpose>Javadoc to DocBook converter</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>dbdoclet</command>
+
+      <arg choice="opt">OPTIONS</arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsection>
+    <title>Description</title>
+
+    <para>The reuse of javadoc content in presentation-neutral form is a
+    frequent problem. One possible solution is to convert javadoc to DocBook
+    XML, because DocBook is a semantic markup language for documentation,
+    which enables its users to create document content that captures the
+    logical structure of the content.</para>
+
+    <para>The command line tool <productname>dbdoclet</productname> can be
+    used to convert javadoc to DocBook. Because javadoc is written as HTML
+    tags and HTML elements are often used not as intended, the possibilities
+    for such a transformation are somewhat limited.</para>
+
+    <para>dbdoclet is part of the dbdoclet suite of tools. For more
+    information visit <link
+    xlink:href="http://www.dbdoclet.org">http://www.dbdoclet.org</link>.</para>
+  </refsection>
+
+  <refsection>
+    <title>Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>-d</term>
+
+        <listitem>
+          <para>Specifies the DocBook XML destination directory.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>-profile, -p</term>
+
+        <listitem>
+          <para>A profile file with predefined settings.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>-title</term>
+
+        <listitem>
+          <para>The title of the generated documentation. The default title is
+          the name of the first java package.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsection>
+
+  <refsection>
+    <title>Configuration</title>
+
+    <para>The details of a transformation are controlled by a profile file. A
+    profile file offers a lot of possibilities to influence the
+    transformation. The following example shows a typical profile file:</para>
+
+    <refsection>
+      <title>Syntax</title>
+
+      <para>A profile file consists mainly of sections. Sections are used to
+      group parameters which share the same context. Every section must start
+      with the keyword <varname>section</varname> followed by the name of the
+      section. After the name comes the block of parameters, which is
+      surrounded by curly braces. Parameters can be of type String, Number,
+      Boolean or Array. Strings must be framed with double quotes. If the
+      String contains newlines, use three double quotes instead of one. Arrays
+      are framed with square brackets. Inside an array, the elements must be
+      comma separated. Every assignment must be finished by a semicolon. Multi
+      line comments have the form <varname>/* my comment */</varname> , single
+      line comments look like <varname>// my comment\n</varname>.</para>
+    </refsection>
+
+    <refsection>
+      <title>Mandatory Elements</title>
+
+      <para>A profile for dbdoclet must start with the line
+      <literal>transformation dbdoclet;</literal>.</para>
+    </refsection>
+
+    <refsection>
+      <title>Section dbdoclet</title>
+
+      <para>The section dbdoclet controls what kind of documentation should be
+      created, e.g. which sections and which information should be contained
+      in the resulting media.</para>
+
+      <para><variablelist>
+          <varlistentry>
+            <term>chunk-docbook</term>
+
+            <listitem>
+              <para>Split the output into multiple files. If this parameter is
+              set to true, a separate file for every class will be
+              created.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>class-diagram-font-size</term>
+
+            <listitem>
+              <para>Defines the size of the class diagram font in points (pt).
+              This parameter indirectly influences the size of the generated
+              diagrams.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>class-diagram-width</term>
+
+            <listitem>
+              <para>Defines the maximum width of the generated class diagrams.
+              The default value is 700.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-appendix</term>
+
+            <listitem>
+              <para>If set to true, additional sections such as "Constants
+              values" or "Statistics" will generated inside an appendix.
+              Otherwise they will be appended as ordinary chapters. The
+              default value is true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-author-info</term>
+
+            <listitem>
+              <para>If set to true, the javadoc tag @author will be processed.
+              This parameter depends on the
+              <parameter>create-meta-info</parameter>. The default value is
+              true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-class-diagram</term>
+
+            <listitem>
+              <para>If set to true, an inheritance class diagram is created
+              for every class. The default value is true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-deprecated-info</term>
+
+            <listitem>
+              <para>If set to true, @deprecated javadoc tags and annotations
+              will be processed. A warning element will be created for each.
+              The default value is true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-deprecated-list</term>
+
+            <listitem>
+              <para>If set to true, a section is created at the end of the
+              document, which contains a list of all deprecated elements. The
+              default value is true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-exception-info</term>
+
+            <listitem>
+              <para>If set to true, the javadoc tag @exception will be
+              processed. The default value is true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-fully-qualified-names</term>
+
+            <listitem>
+              <para>If set to true, full qualified names of classes, fields,
+              methods and parameters are used. The default is false.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-inheritance-info</term>
+
+            <listitem>
+              <para>If set to true, an inheritance </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-inherited-from-info</term>
+
+            <listitem>
+              <para>If set to true, a section with all inherited methods is
+              created. The default is true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-meta-info</term>
+
+            <listitem>
+              <para>If set to true, a section with all meta javadoc tags is
+              created. Meta tags are all tags but @deprecated, @param,
+              @return, @serialField and @throws. If this parameter is set to
+              false, tags like @author will be suppresed</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-method-info</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-parameter-info</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-section-constant-values</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-see-also-info</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-serial-field-info </term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-since-info</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-statistics</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-synopsis</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>create-version-info</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>document-style</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>force-annotation-documentation</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>id-style</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>link-source</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>list-</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>logo-path</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>overview-title</term>
+
+            <listitem>
+              <para/>
+            </listitem>
+          </varlistentry>
+        </variablelist></para>
+    </refsection>
+
+    <refsection>
+      <title>Section DocBook</title>
+
+      <para><variablelist>
+          <varlistentry>
+            <term>abstract</term>
+
+            <listitem>
+              <para>The text for the abstract element of the info section. If
+              the text is structured with newlines, use three double quotes as
+              delimiters. If the text starts with a "&lt;" character, it is
+              embedded into an abstract element, otherwise the text is
+              embedded into an para element inside of an abstract element. The
+              text will parsed and can contain DocBook elements.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>add-index</term>
+
+            <listitem>
+              <para>If true, an index element is appended to the end of the
+              document.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>author-email</term>
+
+            <listitem>
+              <para>The email address of the author. If this parameter is set,
+              it is used to create an info section at the beginning of the
+              document.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>author-firstname</term>
+
+            <listitem>
+              <para>The firstname of the author. If this parameter is set, it
+              is used to create an info section at the beginning of the
+              document.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>author-surname</term>
+
+            <listitem>
+              <para>The surname of the author. If this parameter is set, it is
+              used to create an info section at the beginning of the
+              document.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist></para>
+    </refsection>
+
+    <refsection>
+      <title>Example</title>
+
+      <programlisting>transformation dbdoclet;
+
+section dbdoclet {
+  create-appendix = true;
+  class-diagram-font-size = 10;
+  class-diagram-width = 800;
+  create-author-info = true;
+  create-class-diagram = true;
+  create-deprecated-info = true;
+  create-deprecated-list = true;
+  create-exception-info = true;
+  create-fully-qualified-names = false;
+  create-inherited-from-info = true;
+} 
+
+section DocBook {
+  abstract = """ 
+&lt;emphasis&gt;Largo&lt;/emphasis&gt; dient der Erzeugung von Notenpapier in historischen Formaten. Er
+ermöglicht vielfältige Einstellungesmöglichkeiten.
+""";
+  add-index = true;  
+  author-email = "michael.fuchs@dbdoclet.org";
+  author-firstname = "Michael";
+  author-surname = "Fuchs";
+  title = "Musikeditor";
+  document-element = "book";
+  corporation = "Ingenieurbüro Michael Fuchs";
+} </programlisting>
+    </refsection>
+  </refsection>
+
+  <refsection>
+    <title>Copyright</title>
+
+    <para>Copyright 2001-2013 Michael Fuchs. License GPLv3+: GNU GPL version 3
+    or later <link
+    xlink:href="http://gnu.org/licenses/gpl.html">http://gnu.org/licenses/gpl.html</link>.
+    This is free software: you are free to change and redistribute it. There
+    is NO WARRANTY, to the extent permitted by law.</para>
+  </refsection>
+</refentry>
