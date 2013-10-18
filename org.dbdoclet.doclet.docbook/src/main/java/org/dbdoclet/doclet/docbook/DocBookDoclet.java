@@ -175,6 +175,10 @@ public final class DocBookDoclet extends AbstractDoclet {
 				}
 			}
 
+			if (options.getTitle() != null) {
+				dbdScript.setTitle(options.getTitle());
+			}
+			
 			logger.debug("destination-encoding = "
 					+ dbdScript.getDestinationEncoding());
 

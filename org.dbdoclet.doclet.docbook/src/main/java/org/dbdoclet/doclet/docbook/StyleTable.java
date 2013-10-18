@@ -134,7 +134,7 @@ public class StyleTable extends StyleCoded implements Style {
 				entry = dbfactory.createEntry();
 				row.appendChild(entry);
 
-				para = dbfactory.createPara(paramTags[j].parameterName());
+				para = dbfactory.createPara(hyphenation.hyphenateAfter(paramTags[j].parameterName(),"\\."));
 				entry.appendChild(para);
 
 				entry = dbfactory.createEntry();
@@ -143,7 +143,7 @@ public class StyleTable extends StyleCoded implements Style {
 				para = dbfactory.createPara();
 				entry.appendChild(para);
 
-				htmlDocBookTrafo.transform(paramTags[j].inlineTags(), para);
+				dbdTrafo.transform(paramTags[j].inlineTags(), para);
 			}
 
 			if (returnTag != null) {
@@ -164,7 +164,7 @@ public class StyleTable extends StyleCoded implements Style {
 				para = dbfactory.createPara();
 				entry.appendChild(para);
 
-				htmlDocBookTrafo.transform(returnTag.inlineTags(), para);
+				dbdTrafo.transform(returnTag.inlineTags(), para);
 			}
 		}
 
@@ -180,10 +180,13 @@ public class StyleTable extends StyleCoded implements Style {
 		if (tags.length > 0) {
 
 			VariableList varlist = dbfactory.createVariableList();
-			varlist.appendChild(new ProcessingInstructionImpl("dbfo",
-					"list-presentation=\"blocks\""));
-			varlist.appendChild(dbfactory.createTitle("Exceptions"));
 
+			if (script.getListPresentation() != null) {
+				varlist.appendChild(new ProcessingInstructionImpl("dbfo",
+						"list-presentation=\"" + script.getListPresentation() + "\""));
+			}
+			
+			varlist.appendChild(dbfactory.createTitle("Exceptions"));
 			parent.appendChild(varlist);
 
 			for (int i = 0; i < tags.length; i++) {
@@ -200,12 +203,12 @@ public class StyleTable extends StyleCoded implements Style {
 								dbfactory.createListItem().appendChild(
 										commentPara)));
 
-				htmlDocBookTrafo.transform(tags[i].holder(), tags[i].exceptionName(),
+				dbdTrafo.transform(tags[i].holder(), tags[i].exceptionName(),
 						exceptionName);
 
 				Tag[] inlineTags = tags[i].inlineTags();
 				if (inlineTags.length > 0) {
-					htmlDocBookTrafo.transform(tags[i].inlineTags(),
+					dbdTrafo.transform(tags[i].inlineTags(),
 							commentPara);
 				}
 
@@ -213,7 +216,7 @@ public class StyleTable extends StyleCoded implements Style {
 
 					ClassDoc doc = tags[i].exception();
 					if (doc != null) {
-						htmlDocBookTrafo.transform(doc.firstSentenceTags(),
+						dbdTrafo.transform(doc.firstSentenceTags(),
 								commentPara);
 					}
 				}
@@ -262,9 +265,9 @@ public class StyleTable extends StyleCoded implements Style {
 								dbfactory.createListItem().appendChild(
 										description)));
 
-				htmlDocBookTrafo.transform(tags[i].holder(), tags[i].fieldName(), varName);
-				htmlDocBookTrafo.transform(tags[i].holder(), tags[i].fieldType(), type);
-				htmlDocBookTrafo.transform(tags[i].holder(), tags[i].description(), description);
+				dbdTrafo.transform(tags[i].holder(), tags[i].fieldName(), varName);
+				dbdTrafo.transform(tags[i].holder(), tags[i].fieldType(), type);
+				dbdTrafo.transform(tags[i].holder(), tags[i].description(), description);
 			}
 		}
 
@@ -292,9 +295,6 @@ public class StyleTable extends StyleCoded implements Style {
 		VariableList varlist = dbfactory.createVariableList();
 		parent.appendChild(varlist);
 
-		// varlist.appendChild("<?dbfo list-presentation=\"blocks\"?>");
-		// varlist.appendChild(new
-		// Title(ResourceServices.getString(res,"C_ADDITIONAL_INFORMATION")));
 		LinkedHashMap<String, ArrayList<Tag>> tagMap = createTagMap(doc);
 
 		String kind;
@@ -375,7 +375,7 @@ public class StyleTable extends StyleCoded implements Style {
 			logger.debug("Adding tag " + tag + ".");
 			member = dbfactory.createMember();
 			list.appendChild(member);
-			htmlDocBookTrafo.transform(tag, member);
+			dbdTrafo.transform(tag, member);
 		}
 
 		return true;
@@ -433,7 +433,7 @@ public class StyleTable extends StyleCoded implements Style {
 
 				Member member = dbfactory.createMember();
 				list.appendChild(member);
-				htmlDocBookTrafo.transform(tags[i].holder(), label, member);
+				dbdTrafo.transform(tags[i].holder(), label, member);
 
 				logger.debug("label = " + label);
 				logger.debug("member = " + member);

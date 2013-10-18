@@ -18,7 +18,6 @@ public class DbdGuiceModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
-		// bind(AbstractDoclet.class).to(DocBookDoclet.class).in(Scopes.SINGLETON);
 		bind(DocBookTagFactory.class).in(Scopes.SINGLETON);
 		bind(MediaManager.class).toProvider(MediaManagerProvider.class).in(
 				Scopes.SINGLETON);
@@ -26,12 +25,14 @@ public class DbdGuiceModule extends AbstractModule {
 		bind(StatisticData.class).in(Scopes.SINGLETON);
 		bind(ResourceBundle.class).toProvider(ResourceBundleProvider.class).in(
 				Scopes.SINGLETON);
+
 		bind(Script.class).in(Scopes.SINGLETON);
 		bind(DbdScript.class).in(Scopes.SINGLETON);
 		bind(TagManager.class).in(Scopes.SINGLETON);
-		
-		bind(Style.class).to(StyleTable.class);
+
+		bind(Style.class).toProvider(StyleProvider.class);
 		bind(Hyphenation.class).toProvider(HyphenationProvider.class);
+		
 		bind(DbdTransformer.class);
 		bind(StrictSynopsis.class);
 		bind(TotalsDiagram.class);

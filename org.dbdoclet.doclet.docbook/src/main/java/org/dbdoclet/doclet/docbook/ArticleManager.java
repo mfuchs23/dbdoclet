@@ -20,7 +20,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ExecutableMemberInfo;
-import org.dbdoclet.doclet.util.MethodServices;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Article;
 import org.dbdoclet.tag.docbook.ArticleInfo;
@@ -134,7 +133,7 @@ public class ArticleManager extends MediaManager {
 				sect1.appendChild(tagFactory.createTitle(ResourceServices
 						.getString(res, "C_PACKAGE")
 						+ " "
-						+ hyphenation.hyphenateAfter(pkgDoc.name(), ".")));
+						+ hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
 
 				htmlDocBookTrafo.transform(pkgDoc, sect1);
 
@@ -305,8 +304,7 @@ public class ArticleManager extends MediaManager {
 
 				if (members[i] instanceof MethodDoc) {
 
-					implementedDoc = MethodServices
-							.implementedMethod((MethodDoc) members[i]);
+					implementedDoc = ((MethodDoc)members[i]).overriddenMethod();
 					memberInfo.setImplemented(implementedDoc);
 				}
 

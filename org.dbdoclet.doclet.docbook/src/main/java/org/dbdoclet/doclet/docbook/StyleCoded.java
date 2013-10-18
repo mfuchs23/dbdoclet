@@ -68,42 +68,44 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 		boolean rc = synopsis.process(doc, parent);
 
-		ArrayList<Type> subclasses = statisticData.getSubclasses(doc
-				.qualifiedName());
+		if (script.isCreateInheritedFromInfoEnabled()) {
 
-		if (subclasses.size() > 0) {
+			ArrayList<Type> subclasses = statisticData.getSubclasses(doc
+					.qualifiedName());
 
-			para = dbfactory.createPara();
-			parent.appendChild(para);
+			if (subclasses.size() > 0) {
 
-			para.appendChild(dbfactory.createEmphasis(ResourceServices
-					.getString(res, "C_DIRECT_KNOWN_SUBCLASSES"),
-					getEmphasisBoldRole()));
-			para.appendChild(": ");
+				para = dbfactory.createPara();
+				para.setRole("direct-known-subclasses");
+				parent.appendChild(para);
 
-			SimpleList list = dbfactory
-					.createSimpleList(SimpleList.FORMAT_INLINE);
-			para.appendChild(list);
+				para.appendChild(dbfactory.createEmphasis(ResourceServices
+						.getString(res, "C_DIRECT_KNOWN_SUBCLASSES"),
+						getEmphasisBoldRole()));
+				para.appendChild(": ");
 
-			for (Type cdoc : subclasses) {
+				SimpleList list = dbfactory
+						.createSimpleList(SimpleList.FORMAT_INLINE);
+				para.appendChild(list);
 
-				ref = referenceManager.findReference(cdoc.asClassDoc());
+				for (Type cdoc : subclasses) {
 
-				name = XmlServices.textToXml(cdoc.qualifiedTypeName());
-				name = hyphenation.hyphenateAfter(name, ".");
+					ref = referenceManager.findReference(cdoc.asClassDoc());
 
-				if ((ref != null) && (ref.length() > 0)) {
-					list.appendChild(dbfactory.createMember().appendChild(
-							dbfactory.createLink(dbfactory.createVarName(name),
-									ref)));
-				} else {
-					list.appendChild(dbfactory.createMember().appendChild(
-							dbfactory.createVarName(name)));
+					name = XmlServices.textToXml(cdoc.qualifiedTypeName());
+					name = hyphenation.hyphenateAfter(name, "\\.");
+
+					if ((ref != null) && (ref.length() > 0)) {
+						list.appendChild(dbfactory.createMember().appendChild(
+								dbfactory.createLink(
+										dbfactory.createVarName(name), ref)));
+					} else {
+						list.appendChild(dbfactory.createMember().appendChild(
+								dbfactory.createVarName(name)));
+					}
 				}
 			}
-		}
 
-		if (script.isCreateInheritedFromInfoEnabled()) {
 			addMethodsInheritedFrom(parent, doc.superclassType());
 			addFieldsInheritedFrom(parent, doc.superclassType());
 		}
@@ -132,7 +134,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			text = tag.text();
 
 			if (text != null && text.trim().length() > 0) {
-				htmlDocBookTrafo.transform(tag, warning);
+				dbdTrafo.transform(tag, warning);
 			} else {
 				warning.appendChild(dbfactory.createPara(ResourceServices
 						.getString(res, "C_DEPRECATED")));
@@ -201,6 +203,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			if (fieldCount > 0) {
 
 				para = dbfactory.createPara();
+				para.setRole("fields-inherited-from");
 				parent.appendChild(para);
 
 				para.appendChild(dbfactory.createEmphasis(
@@ -360,7 +363,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			if (methodCount > 0) {
 
 				para = dbfactory.createPara();
-				para.setRole("method-inherited-from");
+				para.setRole("methods-inherited-from");
 				parent.appendChild(para);
 
 				para.appendChild(dbfactory.createEmphasis(
@@ -431,4 +434,5 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 	private String getEmphasisBoldRole() {
 		return "bold";
-	}}
+	}
+}

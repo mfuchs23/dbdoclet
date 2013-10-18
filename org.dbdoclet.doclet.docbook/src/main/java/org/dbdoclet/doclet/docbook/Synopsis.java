@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
 import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.tag.docbook.Modifier;
@@ -41,6 +42,8 @@ public abstract class Synopsis {
 	protected DocBookTagFactory dbfactory;
 	@Inject
 	protected Hyphenation hyphenation;
+	@Inject
+	protected ReferenceManager referenceManager;
 	@Inject
 	protected DbdScript script;
 	
@@ -161,8 +164,7 @@ public abstract class Synopsis {
 		if (showFullQualifiedName == true) {
 			
 			hyphenation.setHyphenationChar(script.getHyphenationChar());
-			String qname = hyphenation.hyphenateAfter(doc.qualifiedName(), ".");
-			qname = hyphenation.hyphenateCamelCase(qname);
+			String qname = hyphenation.hyphenateAfter(doc.qualifiedName(), "\\.");
 			buffer.append(qname);
 		
 		} else {
@@ -539,8 +541,8 @@ public abstract class Synopsis {
 		}
 
 		String typeName = buffer.toString();
-		hyphenation.setHyphenationChar(script.getHyphenationChar());
-		typeName = hyphenation.hyphenateAfter(typeName, ".");
+		// hyphenation.setHyphenationChar(script.getHyphenationChar());
+		// typeName = hyphenation.hyphenateAfter(typeName, " ", "\\.");
 
 		return typeName;
 	}

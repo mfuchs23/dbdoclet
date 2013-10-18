@@ -139,7 +139,7 @@ public class DbdTransformer {
 		String comment = "";
 
 		for (int i = 0; i < tags.length; i++) {
-			comment += tagManager.handleInlineTag(tags[i]);
+			comment += tagManager.processTag(tags[i]);
 		}
 
 		return transform(tags[0].holder(), comment, parent);
@@ -262,6 +262,7 @@ public class DbdTransformer {
 						"Transformation failed. Root element is null!");
 			}
 
+			elem.traverse(new HyphenationVisitor());
 			return elem;
 
 		} catch (Exception oops) {

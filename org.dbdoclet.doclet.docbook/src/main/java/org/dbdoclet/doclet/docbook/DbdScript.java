@@ -152,7 +152,7 @@ public class DbdScript {
 	public XmlIdType getIdStyle() {
 
 		String idStyle = script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_ID_STYLE, "numbered");
+				DbdConstants.PARAM_ID_STYLE, "numbered");
 
 		if (idStyle != null && idStyle.equalsIgnoreCase("java")) {
 			return XmlIdType.JAVA;
@@ -185,14 +185,19 @@ public class DbdScript {
 						.getLanguage());
 	}
 
+	public String getListPresentation() {
+		return script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_LIST_PRESENTATION, null);
+	}
+
 	public String getLogoPath() {
 		return script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_LOGO_PATH, "");
+				DbdConstants.PARAM_LOGO_PATH, "");
 	}
 
 	public String getOverviewTitle() {
 		return script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_OVERVIEW_TITLE, "");
+				DbdConstants.PARAM_OVERVIEW_TITLE, "");
 	}
 
 	public String getReleaseInfo() {
@@ -202,6 +207,12 @@ public class DbdScript {
 
 	public Script getScript() {
 		return script;
+	}
+
+	public String getDocumentStyle() {
+		return script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_DOCUMENT_STYLE,
+				DbdConstants.DEFAULT_DOCUMENT_STYLE);
 	}
 
 	public String getTableStyle() {
@@ -230,6 +241,11 @@ public class DbdScript {
 	public boolean isAbsoluteImagePathEnabled() {
 		return script.isParameterOn(TrafoConstants.SECTION_DOCBOOK,
 				TrafoConstants.PARAM_USE_ABSOLUTE_IMAGE_PATH, false);
+	}
+
+	public boolean isAddIndexEnabled() {
+		return script.isParameterOn(TrafoConstants.SECTION_DOCBOOK,
+				TrafoConstants.PARAM_ADD_INDEX, true);
 	}
 
 	public boolean isChunkDocBookEnabled() {
@@ -263,7 +279,7 @@ public class DbdScript {
 	 */
 	public boolean isCreateConstantValuesEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_SECTION_CONSTANT_VALUES,
+				DbdConstants.PARAM_CREATE_SECTION_CONSTANT_VALUES,
 				true);
 	}
 
@@ -284,86 +300,86 @@ public class DbdScript {
 
 	public boolean isCreateFieldInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_FIELD_INFO, true);
+				DbdConstants.PARAM_CREATE_FIELD_INFO, true);
 	}
 
 	public boolean isCreateFullyQualifiedNamesEnabled() {
 		return script
 				.isParameterOn(
 						DbdConstants.SECTION_DBDOCLET,
-						DbdConstants.PARAM_DBDOCLET_CREATE_FULLY_QUALIFIED_NAMES,
+						DbdConstants.PARAM_CREATE_FULLY_QUALIFIED_NAMES,
 						false);
-	}
-
-	public boolean isAddIndexEnabled() {
-		return script.isParameterOn(TrafoConstants.SECTION_DOCBOOK,
-				TrafoConstants.PARAM_ADD_INDEX, true);
 	}
 
 	public boolean isCreateInheritanceInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_INHERITANCE_INFO, true);
+				DbdConstants.PARAM_CREATE_INHERITANCE_INFO, true);
 	}
 
 	public boolean isCreateInheritedFromInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_INHERITED_FROM_INFO, true);
+				DbdConstants.PARAM_CREATE_INHERITED_FROM_INFO, true);
 	}
 
 	public boolean isCreateMetaInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_META_INFO, true);
+				DbdConstants.PARAM_CREATE_META_INFO, true);
 	}
 
 	public boolean isCreateMethodInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_METHOD_INFO, true);
+				DbdConstants.PARAM_CREATE_METHOD_INFO, true);
 	}
 
 	public boolean isCreateParameterInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_PARAMETER_INFO, true);
+				DbdConstants.PARAM_CREATE_PARAMETER_INFO, true);
 	}
 
 	public boolean isCreateSeeAlsoInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_SEE_ALSO_INFO, true);
+				DbdConstants.PARAM_CREATE_SEE_ALSO_INFO, true);
 	}
 
 	public boolean isCreateSerialFieldInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_SERIAL_FIELD_INFO, true);
+				DbdConstants.PARAM_CREATE_SERIAL_FIELD_INFO, true);
 	}
 
 	public boolean isCreateSinceInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_SINCE_INFO, true);
+				DbdConstants.PARAM_CREATE_SINCE_INFO, true);
 	}
 
 	public boolean isCreateStatisticsEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_STATISTICS, true);
+				DbdConstants.PARAM_CREATE_STATISTICS, false);
 	}
 
 	public boolean isCreateSynopsisEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_CREATE_SYNOPSIS, true);
+				DbdConstants.PARAM_CREATE_SYNOPSIS, true);
 	}
 
 	public boolean isCreateVersionInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_VERSION_INFO, true);
+				DbdConstants.PARAM_CREATE_VERSION_INFO, true);
 	}
 
 	public boolean isForceAnnotationDocumentationEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_FORCE_ANNOTATION_DOCUMENTATION,
+				DbdConstants.PARAM_FORCE_ANNOTATION_DOCUMENTATION,
 				false);
 	}
 
 	public boolean isLinkSourceEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DBDOCLET_LINK_SOURCE, false);
+				DbdConstants.PARAM_LINK_SOURCE, false);
+	}
+
+	public void setAddIndexEnabled(boolean enabled) {
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setBoolParameter(TrafoConstants.PARAM_ADD_INDEX, enabled);
 	}
 
 	public void setAuthorEmail(String email) {
@@ -421,73 +437,68 @@ public class DbdScript {
 
 	public void setCreateFieldInfoEnabled(boolean createFieldInfoEnabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_FIELD_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_FIELD_INFO,
 				createFieldInfoEnabled);
 	}
 
 	public void setCreateFullyQualifiedNamesEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
 		script.setBoolParameter(
-				DbdConstants.PARAM_DBDOCLET_CREATE_FULLY_QUALIFIED_NAMES,
+				DbdConstants.PARAM_CREATE_FULLY_QUALIFIED_NAMES,
 				enabled);
-	}
-
-	public void setAddIndexEnabled(boolean enabled) {
-		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
-		script.setBoolParameter(TrafoConstants.PARAM_ADD_INDEX, enabled);
 	}
 
 	public void setCreateInheritanceInfoEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_INHERITANCE_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_INHERITANCE_INFO,
 				enabled);
 	}
 
 	public void setCreateInheritedFromInfoEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
 		script.setBoolParameter(
-				DbdConstants.PARAM_DBDOCLET_CREATE_INHERITED_FROM_INFO, enabled);
+				DbdConstants.PARAM_CREATE_INHERITED_FROM_INFO, enabled);
 	}
 
 	public void setCreateMetaInfoEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_META_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_META_INFO,
 				enabled);
 	}
 
 	public void setCreateMethodInfoEnabled(boolean createMethodInfoEnabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_METHOD_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_METHOD_INFO,
 				createMethodInfoEnabled);
 	}
 
 	public void setCreateParameterInfoEnabled(boolean createParameterInfoEnabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_PARAMETER_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_PARAMETER_INFO,
 				createParameterInfoEnabled);
 	}
 
 	public void setCreateSeeAlsoInfoEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_SEE_ALSO_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_SEE_ALSO_INFO,
 				enabled);
 	}
 
 	public void setCreateSerialFieldInfoEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_SERIAL_FIELD_INFO,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_SERIAL_FIELD_INFO,
 				enabled);
 	}
 
 	public void setCreateStatisticsEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_STATISTICS,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_STATISTICS,
 				enabled);
 	}
 
 	public void setCreateSynopsisEnabled(boolean createSynopsisEnabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setBoolParameter(DbdConstants.PARAM_DBDOCLET_CREATE_SYNOPSIS,
+		script.setBoolParameter(DbdConstants.PARAM_CREATE_SYNOPSIS,
 				createSynopsisEnabled);
 	}
 
@@ -525,7 +536,7 @@ public class DbdScript {
 	public void setForceAnnotationDocumentationEnabled(boolean enabled) {
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
 		script.setBoolParameter(
-				DbdConstants.PARAM_DBDOCLET_FORCE_ANNOTATION_DOCUMENTATION,
+				DbdConstants.PARAM_FORCE_ANNOTATION_DOCUMENTATION,
 				enabled);
 	}
 
@@ -545,7 +556,7 @@ public class DbdScript {
 	public void setLogoPath(String logoPath) {
 
 		script.selectSection(DbdConstants.SECTION_DBDOCLET);
-		script.setTextParameter(DbdConstants.PARAM_DBDOCLET_LOGO_PATH, logoPath);
+		script.setTextParameter(DbdConstants.PARAM_LOGO_PATH, logoPath);
 	}
 
 	public void setOutputFile(File destination) {
@@ -573,7 +584,6 @@ public class DbdScript {
 	}
 
 	public void setTitle(String title) {
-
 		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
 		script.setTextParameter(TrafoConstants.PARAM_TITLE, title);
 	}

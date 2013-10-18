@@ -48,6 +48,7 @@ public class DocletOptions {
 	private OptionList optList;
 	private DirectoryOption optDestDir;
 	private FileOption optProfile;
+	private StringOption optTitle;
 	private StringOption optSourcepath;
 
 	public DocletOptions(String[][] cmdline) {
@@ -120,6 +121,15 @@ public class DocletOptions {
 		return option.getValues();
 	}
 
+	public String getTitle() {
+	
+		if (optTitle.isUnset()) {
+			return null;
+		}
+		
+		return optTitle.getValue();
+	}
+	
 	private void init(OptionList optList) {
 
 		if (optList == null) {
@@ -140,6 +150,12 @@ public class DocletOptions {
 		optProfile.setLongName("profile");
 		optProfile.isExisting(false);
 		optList.add(optProfile);
+
+		optTitle = new StringOption();
+		optTitle.setShortName("t");
+		optTitle.setMediumName("title");
+		optTitle.setLongName("title");
+		optList.add(optTitle);
 
 		optSourcepath = new StringOption();
 		optSourcepath.setDefault(".");

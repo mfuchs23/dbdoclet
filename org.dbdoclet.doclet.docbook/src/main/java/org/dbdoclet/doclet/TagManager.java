@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.docbook.DbdScript;
-import org.dbdoclet.doclet.util.MethodServices;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.xiphias.HtmlServices;
@@ -53,7 +52,6 @@ public class TagManager {
 
 	@Inject
 	private ReferenceManager referenceManager;
-
 	@Inject
 	private DbdScript script;
 
@@ -358,7 +356,7 @@ public class TagManager {
 		return StringServices.capFirstLetter(label);
 	}
 
-	public String handleInlineTag(Tag tag) throws DocletException {
+	public String processTag(Tag tag) throws DocletException {
 
 		Doc doc;
 		SeeTag link;
@@ -375,25 +373,7 @@ public class TagManager {
 
 		if (kind.equals("@inheritDoc")) {
 
-			doc = tag.holder();
-
-			if (doc instanceof MethodDoc) {
-
-				MethodDoc implemented = MethodServices
-						.implementedMethod((MethodDoc) doc);
-
-				if (implemented != null) {
-
-					Tag[] tags = implemented.inlineTags();
-					comment = "";
-
-					for (int i = 0; i < tags.length; i++) {
-						comment += handleInlineTag(tags[i]);
-					}
-				}
-			}
-
-			return comment;
+			return processInheritDoc(tag);
 		}
 
 		if (kind.equals("@value")) {
@@ -459,16 +439,16 @@ public class TagManager {
 		if (kind.equals("@code")) {
 
 			logger.debug("tag=" + tag.toString());
-			comment = "<javadoc:code>" + HtmlServices.textToHtml(tag.text())
-					+ "</javadoc:code>";
+			String html = HtmlServices.textToHtml(tag.text());
+			comment = "<javadoc:code>" + html + "</javadoc:code>";
 			return comment;
 		}
 
 		if (kind.equals("@literal")) {
 
 			logger.debug("tag=" + tag.toString());
-			comment = "<javadoc:literal>" + HtmlServices.textToHtml(tag.text())
-					+ "</javadoc:literal>";
+			String html = HtmlServices.textToHtml(tag.text());
+			comment = "<javadoc:literal>" + html + "</javadoc:literal>";
 			return comment;
 		}
 
@@ -480,7 +460,7 @@ public class TagManager {
 
 			label = referenceManager.createReferenceLabel(link);
 			label = HtmlServices.textToHtml(label);
-			
+
 			reference = referenceManager.findReference(link);
 
 			if ((reference != null) && (reference.length() > 0)) {
@@ -515,6 +495,32 @@ public class TagManager {
 		return comment;
 	}
 
+	private String processInheritDoc(Tag tag) throws DocletException {
+
+		Doc doc = tag.holder();
+		String comment = "";
+
+		if (doc instanceof MethodDoc) {
+
+			MethodDoc methodDoc = (MethodDoc) doc;
+			MethodDoc overriddenMethod = methodDoc.overriddenMethod();
+
+			if (overriddenMethod != null) {
+
+				Tag[] tags = overriddenMethod.inlineTags();
+				comment = "<p>";
+
+				for (int i = 0; i < tags.length; i++) {
+					comment += processTag(tags[i]);
+				}
+				
+				comment += "</p>";
+			}
+		}
+		
+		return comment;
+	}
+
 	public boolean isMetaTag(String kind) {
 
 		if (kind.equals("@param")) {
@@ -542,27 +548,33 @@ public class TagManager {
 
 	public boolean showTag(String kind) {
 
-		if (kind.equals("@author") && (script.isCreateAuthorInfoEnabled() == false)) {
+		if (kind.equals("@author")
+				&& (script.isCreateAuthorInfoEnabled() == false)) {
 			return false;
 		}
 
-		if (kind.equals("@version") && (script.isCreateVersionInfoEnabled() == false)) {
+		if (kind.equals("@version")
+				&& (script.isCreateVersionInfoEnabled() == false)) {
 			return false;
 		}
 
-		if (kind.equals("@since") && (script.isCreateSinceInfoEnabled() == false)) {
+		if (kind.equals("@since")
+				&& (script.isCreateSinceInfoEnabled() == false)) {
 			return false;
 		}
 
-		if (kind.equals("@see") && (script.isCreateSeeAlsoInfoEnabled() == false)) {
+		if (kind.equals("@see")
+				&& (script.isCreateSeeAlsoInfoEnabled() == false)) {
 			return false;
 		}
 
-		if (kind.equals("@param") && (script.isCreateParameterInfoEnabled() == false)) {
+		if (kind.equals("@param")
+				&& (script.isCreateParameterInfoEnabled() == false)) {
 			return false;
 		}
 
-		if (kind.equals("@return") && (script.isCreateParameterInfoEnabled() == false)) {
+		if (kind.equals("@return")
+				&& (script.isCreateParameterInfoEnabled() == false)) {
 			return false;
 		}
 

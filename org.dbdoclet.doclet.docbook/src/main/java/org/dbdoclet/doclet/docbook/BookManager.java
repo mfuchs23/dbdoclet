@@ -168,7 +168,7 @@ public class BookManager extends MediaManager {
 				chapter.appendChild(tagFactory.createTitle(ResourceServices
 						.getString(res, "C_PACKAGE")
 						+ " "
-						+ hyphenation.hyphenateAfter(pkgDoc.name(), ".")));
+						+ hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
 
 				htmlDocBookTrafo.transform(pkgDoc, chapter);
 
@@ -226,7 +226,7 @@ public class BookManager extends MediaManager {
 			}
 
 			sect1.appendChild(
-					tagFactory.createTitle(prefix + " " + classDoc.name()))
+					tagFactory.createTitle(prefix + " " + hyphenation.hyphenateCamelCase(classDoc.name())))
 					.appendChild(
 							tagFactory.createIndexTerm().appendChild(
 									tagFactory.createPrimary(classDoc.name())))

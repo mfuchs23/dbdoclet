@@ -74,7 +74,7 @@ public class AbstractDoclet extends Doclet {
 	public static int optionLength(String option) {
 
 		if (option.equals("-d") || option.equals("-profile")
-				|| option.equals("-tag")) {
+				|| option.equals("-tag") || option.equals("-title")) {
 			return 2;
 		}
 

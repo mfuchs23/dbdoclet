@@ -90,7 +90,8 @@ public class StrictSynopsis extends Synopsis {
 			type = dbfactory.createType();
 			synopsis.appendChild(type);
 
-			createType(elements[i].returnType(), type, script.isCreateFullyQualifiedNamesEnabled());
+			createType(elements[i].returnType(), type,
+					script.isCreateFullyQualifiedNamesEnabled());
 
 			synopsis.appendChild(dbfactory.createVarName(elements[i].name()));
 
@@ -359,7 +360,8 @@ public class StrictSynopsis extends Synopsis {
 
 				ooelem = dbfactory.createOoClass();
 				ooelem.appendChild(dbfactory.createClassName(createTypeName(
-						interfaces[i], script.isCreateFullyQualifiedNamesEnabled())));
+						interfaces[i],
+						script.isCreateFullyQualifiedNamesEnabled())));
 
 			} else {
 
@@ -402,7 +404,7 @@ public class StrictSynopsis extends Synopsis {
 		createType(((MethodDoc) doc).returnType(), type,
 				script.isCreateFullyQualifiedNamesEnabled());
 
-		String name = hyphenation.hyphenateCamelCase(doc.name());
+		String name = doc.name();
 		synopsis.appendChild(dbfactory.createMethodName(name));
 
 		addParameters(synopsis, doc);
@@ -431,7 +433,8 @@ public class StrictSynopsis extends Synopsis {
 			String typeName = typeToString(parameters[i].type(),
 					script.isCreateFullyQualifiedNamesEnabled(), 1);
 			type.appendChild(typeName);
-			param.appendChild(dbfactory.createParameter(parameters[i].name()));
+			String name = parameters[i].name();
+			param.appendChild(dbfactory.createParameter(name));
 
 			parent.appendChild(param);
 		}
@@ -479,9 +482,19 @@ public class StrictSynopsis extends Synopsis {
 					OoClass extend = dbfactory.createOoClass();
 					synopsis.appendChild(extend);
 
-					ClassName className = dbfactory
-							.createClassName(createSuperClassName(superDoc,
-									script.isCreateFullyQualifiedNamesEnabled()));
+					ClassName className = dbfactory.createClassName();
+					String classNameText = createSuperClassName(superDoc,
+							script.isCreateFullyQualifiedNamesEnabled());
+
+					String ref = referenceManager.findReference(superDoc
+							.asClassDoc());
+
+					if (ref != null) {
+						className.appendChild(dbfactory.createLink(
+								classNameText, ref));
+					} else {
+						className.appendChild(classNameText);
+					}
 
 					extend.appendChild(className);
 				}

@@ -31,7 +31,6 @@ public class MethodServices {
 		MethodDoc[] methods;
 
 		String methodName = methodDoc.name() + methodDoc.signature();
-		;
 
 		String interfaceMethodName;
 

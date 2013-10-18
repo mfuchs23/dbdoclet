@@ -181,7 +181,7 @@ public class RefentryManager extends MediaManager {
 				reference.appendChild(tagFactory.createTitle(ResourceServices
 						.getString(res, "C_PACKAGE")
 						+ " "
-						+ hyphenation.hyphenateAfter(pkgDoc.name(), ".")));
+						+ hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
 
 				PartIntro partIntro = tagFactory.createPartIntro();
 

@@ -41,7 +41,7 @@ public class StyleBase {
 	@Inject
 	protected DocBookTagFactory dbfactory;
 	@Inject
-	protected DbdTransformer htmlDocBookTrafo;
+	protected DbdTransformer dbdTrafo;
 	@Inject
 	protected Hyphenation hyphenation;
 	@Inject

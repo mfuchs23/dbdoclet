@@ -805,11 +805,8 @@ public abstract class MediaManager {
 		} catch (Exception oops) {
 
 			if (oops instanceof DocletException) {
-
 				throw (DocletException) oops;
-
 			} else {
-
 				throw new DocletException(oops);
 			}
 		}
