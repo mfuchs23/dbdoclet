@@ -141,12 +141,5 @@
   <xsl:param name="xref.label-page.separator"/>
   <xsl:param name="xref.label-title.separator">: </xsl:param>
   <xsl:param name="xref.title-page.separator"/>
-  <xsl:attribute-set name="admonition.title.properties">
-    <xsl:attribute name="font-size">12pt</xsl:attribute>
-    <xsl:attribute name="font-family">DejaVu Sans</xsl:attribute>
-    <xsl:attribute name="font-weight">normal</xsl:attribute>
-    <xsl:attribute name="font-style">normal</xsl:attribute>
-    <xsl:attribute name="color">#000000</xsl:attribute>
-    <xsl:attribute name="background-color">#ffffff</xsl:attribute>
-  </xsl:attribute-set>
+  <xsl:attribute-set name="admonition.title.properties"/>
 </xsl:stylesheet>

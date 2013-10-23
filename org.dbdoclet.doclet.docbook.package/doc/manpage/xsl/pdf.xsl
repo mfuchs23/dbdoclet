@@ -141,45 +141,67 @@
   <xsl:param name="xref.label-page.separator"/>
   <xsl:param name="xref.label-title.separator">: </xsl:param>
   <xsl:param name="xref.title-page.separator"/>
-  <xsl:attribute-set name="admonition.title.properties">
-    <xsl:attribute name="font-size">12pt</xsl:attribute>
-    <xsl:attribute name="font-family">DejaVu Sans</xsl:attribute>
-    <xsl:attribute name="font-weight">normal</xsl:attribute>
+  <xsl:attribute-set name="admonition.title.properties"/>
+  <xsl:attribute-set name="monospace.verbatim.properties"/>
+  <xsl:attribute-set name="section.title.properties">
+    <xsl:attribute name="font-family">DejaVu Serif</xsl:attribute>
+    <xsl:attribute name="font-weight">bold</xsl:attribute>
     <xsl:attribute name="font-style">normal</xsl:attribute>
+    <xsl:attribute name="font-size">13pt</xsl:attribute>
     <xsl:attribute name="color">#000000</xsl:attribute>
     <xsl:attribute name="background-color">#ffffff</xsl:attribute>
+    <xsl:attribute name="space-after.minimum">0.50em</xsl:attribute>
+    <xsl:attribute name="space-after.optimum">0.70em</xsl:attribute>
+    <xsl:attribute name="space-after.maximum">1.00em</xsl:attribute>
   </xsl:attribute-set>
-  <xsl:attribute-set name="monospace.verbatim.properties">
-    <xsl:attribute name="font-family">DejaVu Sans Mono</xsl:attribute>
-    <xsl:attribute name="font-weight">normal</xsl:attribute>
-    <xsl:attribute name="font-style">normal</xsl:attribute>
-    <xsl:attribute name="font-size">9pt</xsl:attribute>
-    <xsl:attribute name="color">#000000</xsl:attribute>
-    <xsl:attribute name="background-color">#ffffff</xsl:attribute>
+  <xsl:attribute-set name="shade.verbatim.style">
+    <xsl:attribute name="padding">0.50em</xsl:attribute>
+    <xsl:attribute name="border-top-style">solid</xsl:attribute>
+    <xsl:attribute name="border-top-width">1.00pt</xsl:attribute>
+    <xsl:attribute name="border-bottom-style">solid</xsl:attribute>
+    <xsl:attribute name="border-bottom-width">1.00pt</xsl:attribute>
+    <xsl:attribute name="border-right-style">solid</xsl:attribute>
+    <xsl:attribute name="border-right-width">1.00pt</xsl:attribute>
+    <xsl:attribute name="border-left-style">solid</xsl:attribute>
+    <xsl:attribute name="border-left-width">1.00pt</xsl:attribute>
   </xsl:attribute-set>
-  <xsl:attribute-set name="normal.para.spacing">
-    <xsl:attribute name="space-before.minimum">0.00pt</xsl:attribute>
-    <xsl:attribute name="space-before.optimum">0.00pt</xsl:attribute>
-    <xsl:attribute name="space-before.maximum">0.00pt</xsl:attribute>
+  <xsl:attribute-set name="para.properties">
+    <xsl:attribute name="text-indent">1.40em</xsl:attribute>
+    <xsl:attribute name="line-height">1.50em</xsl:attribute>
     <xsl:attribute name="space-after.minimum">0.00pt</xsl:attribute>
     <xsl:attribute name="space-after.optimum">0.00pt</xsl:attribute>
     <xsl:attribute name="space-after.maximum">0.00pt</xsl:attribute>
-    <xsl:attribute name="text-indent">15.00pt</xsl:attribute>
-    <xsl:attribute name="font-family">DejaVu Sans</xsl:attribute>
-    <xsl:attribute name="font-weight">normal</xsl:attribute>
-    <xsl:attribute name="font-style">normal</xsl:attribute>
-    <xsl:attribute name="font-size">12pt</xsl:attribute>
-    <xsl:attribute name="color">#000000</xsl:attribute>
-    <xsl:attribute name="background-color">#ffffff</xsl:attribute>
+    <xsl:attribute name="space-before.minimum">0.00pt</xsl:attribute>
+    <xsl:attribute name="space-before.optimum">0.00pt</xsl:attribute>
+    <xsl:attribute name="space-before.maximum">0.00pt</xsl:attribute>
   </xsl:attribute-set>
-  <xsl:attribute-set name="section.title.properties">
-    <xsl:attribute name="space-after.minimum">10.00pt</xsl:attribute>
-    <xsl:attribute name="space-after.optimum">10.00pt</xsl:attribute>
-    <xsl:attribute name="space-after.maximum">10.00pt</xsl:attribute>
-    <xsl:attribute name="font-family">DejaVu Sans</xsl:attribute>
+  <xsl:template match="para">
+    <xsl:variable name="keep.together">
+       <xsl:call-template name="pi.dbfo_keep-together"/>
+     </xsl:variable>
+    <fo:block xsl:use-attribute-sets="para.properties">
+       <xsl:if test="$keep.together != &apos;&apos;">
+         <xsl:attribute name="keep-together.within-column">
+           <xsl:value-of select="$keep.together"/>
+         </xsl:attribute>
+       </xsl:if>
+       <!--
+        ABWEICHENDE IMPLEMENTIERUNG 
+	Kein Zeileneinzug der ersten Zeile, wenn der vorangegangene Knoten kein para war. 
+      -->
+       <xsl:if test="count(preceding-sibling::para) = 0">
+         <xsl:attribute name="text-indent">0</xsl:attribute>
+       </xsl:if>
+       <!-- END -->
+       <xsl:call-template name="anchor"/>
+       <xsl:apply-templates/>
+     </fo:block>
+  </xsl:template>
+  <xsl:attribute-set name="monospace.properties">
+    <xsl:attribute name="font-family">Courier New</xsl:attribute>
     <xsl:attribute name="font-weight">normal</xsl:attribute>
     <xsl:attribute name="font-style">normal</xsl:attribute>
-    <xsl:attribute name="font-size">12pt</xsl:attribute>
+    <xsl:attribute name="font-size">10pt</xsl:attribute>
     <xsl:attribute name="color">#000000</xsl:attribute>
     <xsl:attribute name="background-color">#ffffff</xsl:attribute>
   </xsl:attribute-set>

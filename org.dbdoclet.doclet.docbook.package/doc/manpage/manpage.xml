@@ -127,7 +127,7 @@
       created, e.g. which sections and which information should be contained
       in the resulting media.</para>
 
-      <para><variablelist>
+      <variablelist>
           <varlistentry>
             <term>chunk-docbook</term>
 
@@ -218,6 +218,15 @@
           </varlistentry>
 
           <varlistentry>
+            <term>create-field-info</term>
+
+            <listitem>
+              <para>If set to true, the field comments are processed. The
+              default value is true.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
             <term>create-fully-qualified-names</term>
 
             <listitem>
@@ -230,7 +239,7 @@
             <term>create-inheritance-info</term>
 
             <listitem>
-              <para>If set to true, an inheritance </para>
+              <para>If set to true, an inheritance</para>
             </listitem>
           </varlistentry>
 
@@ -258,7 +267,8 @@
             <term>create-method-info</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, the method comments are processed. The
+              default value is true.</para>
             </listitem>
           </varlistentry>
 
@@ -266,7 +276,8 @@
             <term>create-parameter-info</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, the javadoc tag @param will be processed.
+              The default value is true.</para>
             </listitem>
           </varlistentry>
 
@@ -274,7 +285,9 @@
             <term>create-section-constant-values</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, a section containing all constant values
+              will be created at the end of the document. The default value is
+              true.</para>
             </listitem>
           </varlistentry>
 
@@ -282,15 +295,17 @@
             <term>create-see-also-info</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, the javadoc tag @see will be processed.
+              The default value is true.</para>
             </listitem>
           </varlistentry>
 
           <varlistentry>
-            <term>create-serial-field-info </term>
+            <term>create-serial-field-info</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, the javadoc tag @serialField will be
+              processed. The default value is true.</para>
             </listitem>
           </varlistentry>
 
@@ -298,7 +313,8 @@
             <term>create-since-info</term>
 
             <listitem>
-              <para/>
+              <para>If set true, the javadoc tag @since will be processed. The
+              default value is true.</para>
             </listitem>
           </varlistentry>
 
@@ -306,7 +322,9 @@
             <term>create-statistics</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, a section with statistical information
+              will be created at the end of the document. The default value is
+              false.</para>
             </listitem>
           </varlistentry>
 
@@ -314,7 +332,8 @@
             <term>create-synopsis</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, the synopsis section will be created. The
+              default value is true.</para>
             </listitem>
           </varlistentry>
 
@@ -322,7 +341,8 @@
             <term>create-version-info</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, the javadoc tag @version will be
+              processed. The default value is true.</para>
             </listitem>
           </varlistentry>
 
@@ -330,7 +350,9 @@
             <term>document-style</term>
 
             <listitem>
-              <para/>
+              <para>This parameter influences the structure of the generated
+              DocBook XML. You can choose between style "table" and style
+              "variablelist". The default is "table".</para>
             </listitem>
           </varlistentry>
 
@@ -338,7 +360,9 @@
             <term>force-annotation-documentation</term>
 
             <listitem>
-              <para/>
+              <para>If set to true, annotation are being processed, regardless
+              of the annotation @Documented being present or not. The default
+              value is false.</para>
             </listitem>
           </varlistentry>
 
@@ -346,23 +370,21 @@
             <term>id-style</term>
 
             <listitem>
-              <para/>
+              <para>This parameter influences the generation of id values. You
+              can choose between "numbered" and "java". The default is
+              "numbered".</para>
             </listitem>
           </varlistentry>
 
           <varlistentry>
-            <term>link-source</term>
+            <term>list-presentation</term>
 
             <listitem>
-              <para/>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>list-</term>
-
-            <listitem>
-              <para/>
+              <para>This parameter is used for generated variablelist
+              elements. If the parameter is set, its value will be used as
+              attribute "list-presentation" of the a dbfo processing
+              instruction. For more information have look at the DocBook XSL
+              documentation.</para>
             </listitem>
           </varlistentry>
 
@@ -370,7 +392,8 @@
             <term>logo-path</term>
 
             <listitem>
-              <para/>
+              <para>This parameter defines a logo image, which will be
+              inserted as mediaobject in the info section.</para>
             </listitem>
           </varlistentry>
 
@@ -378,10 +401,12 @@
             <term>overview-title</term>
 
             <listitem>
-              <para/>
+              <para>The content of this parameter will be used as title for
+              the overview section, if no title can be extracted from the
+              overview file.</para>
             </listitem>
           </varlistentry>
-        </variablelist></para>
+        </variablelist>
     </refsection>
 
     <refsection>
@@ -462,7 +487,8 @@ section dbdoclet {
 
 section DocBook {
   abstract = """ 
-&lt;emphasis&gt;Largo&lt;/emphasis&gt; dient der Erzeugung von Notenpapier in historischen Formaten. Er
+Der &lt;emphasis&gt;Largo&lt;/emphasis&gt;-Editor dient der Erzeugung
+von Notenpapier in historischen Formaten. Er
 ermöglicht vielfältige Einstellungesmöglichkeiten.
 """;
   add-index = true;  
