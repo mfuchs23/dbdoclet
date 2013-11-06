@@ -34,16 +34,14 @@ public class ClassDiagramManager {
 
 	private static Log logger = LogFactory.getLog(ClassDiagramManager.class);
 
-	@Inject
-	private DbdScript script;
-	@Inject
-	private StrictSynopsis synopsis;
+	@Inject	private DbdScript script;
+	@Inject	private StrictSynopsis synopsis;
 	
 	private int imageHeight;
 	private int imageWidth;
 	private final boolean showFullQualifiedName = false;
 
-	public static ArrayList<Type> getInheritancePath(ClassDoc doc) {
+	public ArrayList<Type> getInheritancePath(ClassDoc doc) {
 
 		if (doc == null) {
 			throw new IllegalArgumentException("Parameter doc is null!");
@@ -84,8 +82,14 @@ public class ClassDiagramManager {
 				logger.debug(String.valueOf(index++) + " superType="
 						+ superType);
 
+				if (script.isInheritanceDiagramIncludesObject() == false && superType.qualifiedTypeName().equals("java.lang.Object")) {
+					break;
+				}
+				
 				list.add(superType);
+				
 				superType = superType.asClassDoc().superclassType();
+				
 			}
 		}
 

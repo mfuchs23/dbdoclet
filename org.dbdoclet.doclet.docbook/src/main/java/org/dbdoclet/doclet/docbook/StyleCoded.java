@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
@@ -251,7 +250,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		fpara.appendChild(dbfactory.createTitle(ResourceServices.getString(res,
 				"C_INHERITANCE_PATH")));
 
-		ArrayList<Type> list = ClassDiagramManager.getInheritancePath(classDoc);
+		ArrayList<Type> list = classDiagramManager.getInheritancePath(classDoc);
 
 		String name;
 		String id;

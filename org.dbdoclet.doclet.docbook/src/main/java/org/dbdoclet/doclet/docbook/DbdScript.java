@@ -16,8 +16,8 @@ public class DbdScript {
 	public static final File DEFAULT_DESTINATION_FILE = new File(
 			"./dbdoclet/Reference.xml");
 
-	private Script script;
 	private File outputFile;
+	private Script script;
 
 	public DbdScript() {
 		script = new Script();
@@ -130,6 +130,12 @@ public class DbdScript {
 				TrafoConstants.PARAM_DOCUMENT_ELEMENT, "book");
 	}
 
+	public String getDocumentStyle() {
+		return script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_DOCUMENT_STYLE,
+				DbdConstants.DEFAULT_DOCUMENT_STYLE);
+	}
+
 	public HyphenationChar getHyphenationChar() {
 
 		String hyphenationChar = script.getTextParameter(
@@ -178,6 +184,11 @@ public class DbdScript {
 				TrafoConstants.PARAM_IMAGE_PATH, TrafoConstants.DEFAULT_IMAGE_PATH);
 	}
 
+	public boolean isInheritanceDiagramIncludesObject() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_INHERITANCE_DIAGRAM_INCLUDES_OBJECT, false);
+	}
+
 	public String getLanguage() {
 
 		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
@@ -207,12 +218,6 @@ public class DbdScript {
 
 	public Script getScript() {
 		return script;
-	}
-
-	public String getDocumentStyle() {
-		return script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_DOCUMENT_STYLE,
-				DbdConstants.DEFAULT_DOCUMENT_STYLE);
 	}
 
 	public String getTableStyle() {

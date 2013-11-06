@@ -30,12 +30,11 @@ public class DbdConstants {
 	public static final String PARAM_DOCUMENT_STYLE = "document-style";
 	public static final String PARAM_FORCE_ANNOTATION_DOCUMENTATION = "force-annotation-documentation";
 	public static final String PARAM_ID_STYLE = "id-style";
+	public static final String PARAM_INHERITANCE_DIAGRAM_INCLUDES_OBJECT = "inheritance-diagram-includes-object";
 	public static final String PARAM_LINK_SOURCE = "link-source";
 	public static final String PARAM_LIST_PRESENTATION = "list-presentation";
 	public static final String PARAM_LOGO_PATH = "logo-path";
 	public static final String PARAM_OVERVIEW_TITLE = "overview-title";
 
 	public static final String DEFAULT_DOCUMENT_STYLE = "table";
-
-
 }
