@@ -35,13 +35,16 @@
 	<include name="org.apache.commons.jxpath_*.jar"/>
       </fileset>
     </copy>
-    <srcpacker product="dbdoclet" workdir="/usr/share/dbdoclet/src" jarfile="distrib/dbdoclet_${project.version}.jar" zipfile="distrib/dbdoclet-src_${module.version}.zip" buildfile="root/src/build.xml">
+    <srcpacker deleteOnExit="true" product="dbdoclet" workdir="/usr/share/dbdoclet/src" jarfile="distrib/dbdoclet_${project.version}.jar" zipfile="distrib/dbdoclet-src_${module.version}.zip" buildfile="root/src/build.xml">
       <fileset dir="../org.dbdoclet.doclet.docbook/src/main/java" />
       <fileset dir="../../common/org.dbdoclet.commons/src/main/java" />
       <fileset dir="../../common/org.dbdoclet.getopts/src/main/java" />
       <fileset dir="../../markup/org.dbdoclet.xiphias/src/main/java" />
+      <fileset dir="../../markup/org.dbdoclet.html.parser/src/main/java" />
+      <fileset dir="../../markup/org.dbdoclet.tag/src/main/java" />
       <fileset dir="../../markup/org.dbdoclet.svg/src/main/java" />
       <fileset dir="../../trafo/org.dbdoclet.trafo/src/main/java" />
+      <fileset dir="../../trafo/org.dbdoclet.trafo.html/src/main/java" />
       <fileset dir="../../trafo/org.dbdoclet.trafo.html.docbook/src/main/java" />
     </srcpacker>
   </target>

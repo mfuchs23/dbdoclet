@@ -17,6 +17,11 @@
       <fileset dir="java/license"/>
     </delete>
     <javac includeantruntime="false" srcdir="java" destdir="classes" encoding="utf-8">
+      <include name="org/dbdoclet/doclet/docbook/DocBookDoclet.java" />
+      <include name="org/dbdoclet/doclet/**" />
+      <include name="org/dbdoclet/tag/docbook/*" />
+      <include name="org/dbdoclet/tag/html/*" />
+      <include name="org/dbdoclet/trafo/internal/html/docbook/editor/**" />
       <classpath>
 	<fileset dir="../jars">
 	  <include name="*.jar" />
