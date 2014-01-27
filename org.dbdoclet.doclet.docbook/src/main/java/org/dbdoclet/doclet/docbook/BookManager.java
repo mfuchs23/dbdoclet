@@ -226,7 +226,8 @@ public class BookManager extends MediaManager {
 			}
 
 			sect1.appendChild(
-					tagFactory.createTitle(prefix + " " + hyphenation.hyphenateCamelCase(classDoc.name())))
+					tagFactory.createTitle(prefix + " "
+							+ hyphenation.hyphenateCamelCase(classDoc.name())))
 					.appendChild(
 							tagFactory.createIndexTerm().appendChild(
 									tagFactory.createPrimary(classDoc.name())))
@@ -456,7 +457,9 @@ public class BookManager extends MediaManager {
 					}
 				}
 
-				parent.appendChild(section);
+				if (section.hasContentChildren()) {
+					parent.appendChild(section);
+				}
 			}
 		}
 
@@ -538,7 +541,9 @@ public class BookManager extends MediaManager {
 					htmlDocBookTrafo.transform(fieldDoc, section);
 				}
 
-				parent.appendChild(section);
+				if (section.hasContentChildren()) {
+					parent.appendChild(section);
+				}
 			}
 		}
 

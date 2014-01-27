@@ -6,7 +6,11 @@ public class DbdConstants {
 
 	public static final String PARAM_CHUNK_DOCBOOK_ENABLED = "chunk-docbook";
 	public static final String PARAM_CLASS_DIAGRAM_FONT_SIZE = "class-diagram-font-size";
+	public static final String PARAM_CLASS_DIAGRAM_HEIGHT= "class-diagram-height";
 	public static final String PARAM_CLASS_DIAGRAM_WIDTH = "class-diagram-width";
+	public static final String PARAM_CLASS_DIAGRAM_CONTAINS_ATTRIBUTES = "class-diagram-contains-attributes";
+	public static final String PARAM_CLASS_DIAGRAM_CONTAINS_OPERATIONS = "class-diagram-contains-operations";
+	public static final String PARAM_CLASS_DIAGRAM_INCLUDES_OBJECT = "class-diagram-includes-object";
 	public static final String PARAM_CREATE_APPENDIX = "create-appendix";
 	public static final String PARAM_CREATE_AUTHOR_INFO = "create-author-info";
 	public static final String PARAM_CREATE_CLASS_DIAGRAM = "create-class-diagram";
@@ -30,7 +34,6 @@ public class DbdConstants {
 	public static final String PARAM_DOCUMENT_STYLE = "document-style";
 	public static final String PARAM_FORCE_ANNOTATION_DOCUMENTATION = "force-annotation-documentation";
 	public static final String PARAM_ID_STYLE = "id-style";
-	public static final String PARAM_INHERITANCE_DIAGRAM_INCLUDES_OBJECT = "inheritance-diagram-includes-object";
 	public static final String PARAM_LINK_SOURCE = "link-source";
 	public static final String PARAM_LIST_PRESENTATION = "list-presentation";
 	public static final String PARAM_LOGO_PATH = "logo-path";

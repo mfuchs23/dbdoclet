@@ -4,6 +4,7 @@ section dbdoclet {
 	create-appendix = true;
 	class-diagram-font-size = 10;
 	class-diagram-width = 800;
+	class-diagram-height = 1200;
 	create-author-info = true;
 	create-class-diagram = true;
 	create-deprecated-info = true;

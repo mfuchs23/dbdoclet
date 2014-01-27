@@ -19,7 +19,7 @@
     <dependency org="org.dbdoclet" name="org.dbdoclet.tag" rev="7.0.1" revConstraint="latest.integration"/>
     <dependency org="org.dbdoclet" name="org.dbdoclet.xiphias" rev="6.1.1" revConstraint="latest.integration"/>
     <dependency org="org.dbdoclet" name="org.dbdoclet.jive" rev="6.1.0" revConstraint="latest.integration"/>
-    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="6.1.0" revConstraint="latest.integration"/>
+    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="7.0.1" revConstraint="latest.integration"/>
     <dependency org="org.dbdoclet" name="org.dbdoclet.trafo" rev="7.0.0" revConstraint="latest.integration"/>
     <dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook" rev="7.0.0" revConstraint="latest.integration"/>
   </dependencies>

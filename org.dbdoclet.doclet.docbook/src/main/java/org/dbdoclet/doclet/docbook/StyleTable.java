@@ -222,13 +222,7 @@ public class StyleTable extends StyleCoded implements Style {
 				}
 
 				if (commentPara.hasChildNodes() == false) {
-
-					ClassDoc doc = tags[i].exception();
-					if (doc != null) {
-						commentPara.appendChild(doc.qualifiedName());
-					} else {
-						commentPara.appendChild("");
-					}
+					commentPara.appendChild("");
 				}
 			}
 		}

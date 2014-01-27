@@ -9,33 +9,27 @@
   <info>
     <author>
       <personname>Michael Fuchs</personname>
-
       <personblurb>
         <para>Software Engineer</para>
       </personblurb>
     </author>
-
     <productname>dbdoclet</productname>
   </info>
 
   <refmeta>
     <refentrytitle>dbdoclet</refentrytitle>
-
     <manvolnum>1</manvolnum>
-
     <refmiscinfo class="manual">User Commands</refmiscinfo>
   </refmeta>
 
   <refnamediv>
     <refname>dbdoclet</refname>
-
     <refpurpose>Javadoc to DocBook converter</refpurpose>
   </refnamediv>
 
   <refsynopsisdiv>
     <cmdsynopsis>
       <command>dbdoclet</command>
-
       <arg choice="opt">OPTIONS</arg>
     </cmdsynopsis>
   </refsynopsisdiv>
@@ -43,16 +37,18 @@
   <refsection>
     <title>Description</title>
 
-    <para>The reuse of javadoc content in presentation-neutral form is a
-    frequent problem. One possible solution is to convert javadoc to DocBook
-    XML, because DocBook is a semantic markup language for documentation,
-    which enables its users to create document content that captures the
-    logical structure of the content.</para>
+    <para>The reuse of javadoc content in presentation-neutral form is
+    a frequent problem. One possible solution is to convert javadoc to
+    DocBook XML, because DocBook is a semantic markup language for
+    documentation, which enables its users to create document content
+    that captures the logical structure of the content.</para>
 
-    <para>The command line tool <productname>dbdoclet</productname> can be
-    used to convert javadoc to DocBook. Because javadoc is written as HTML
-    tags and HTML elements are often used not as intended, the possibilities
-    for such a transformation are somewhat limited.</para>
+    <para>The command line tool <productname>dbdoclet</productname>
+    can be used to convert javadoc to DocBook. Because javadoc is
+    written as HTML tags and HTML elements are often used not as
+    intended, the possibilities for such a transformation are somewhat
+    limited.  In addition to the generation of DocBook XML, dbdoclet
+    creates UML class diagrams for every class.</para>
 
     <para>dbdoclet is part of the dbdoclet suite of tools. For more
     information visit <link
@@ -65,7 +61,6 @@
     <variablelist>
       <varlistentry>
         <term>-d</term>
-
         <listitem>
           <para>Specifies the DocBook XML destination directory.</para>
         </listitem>
@@ -73,7 +68,6 @@
 
       <varlistentry>
         <term>-profile, -p</term>
-
         <listitem>
           <para>A profile file with predefined settings.</para>
         </listitem>
@@ -128,285 +122,320 @@
       in the resulting media.</para>
 
       <variablelist>
-          <varlistentry>
-            <term>chunk-docbook</term>
+        <varlistentry>
+          <term>chunk-docbook</term>
 
-            <listitem>
-              <para>Split the output into multiple files. If this parameter is
-              set to true, a separate file for every class will be
-              created.</para>
-            </listitem>
-          </varlistentry>
+          <listitem>
+            <para>Split the output into multiple files. If this parameter is
+            set to true, a separate file for every class will be
+            created.</para>
+          </listitem>
+        </varlistentry>
 
-          <varlistentry>
-            <term>class-diagram-font-size</term>
+        <varlistentry>
+          <term>class-diagram-contains-attributes</term>
+          <listitem>
+            <para>If set to true, the documented class contains the
+            attributes in the its class diagram. The default value is
+            true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>Defines the size of the class diagram font in points (pt).
-              This parameter indirectly influences the size of the generated
-              diagrams.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>class-diagram-contains-operations</term>
+          <listitem>
+            <para>If set to true, the documented class contains the
+            operations in the its class diagram. The default value is
+            true.</para>
+          </listitem>
+        </varlistentry>
 
-          <varlistentry>
-            <term>class-diagram-width</term>
+        <varlistentry>
+          <term>class-diagram-font-size</term>
+          <listitem>
+            <para>Defines the size of the class diagram font in points (pt).
+            This parameter indirectly influences the size of the generated
+            diagrams.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>Defines the maximum width of the generated class diagrams.
-              The default value is 700.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>class-diagram-height</term>
+          <listitem>
+            <para>Defines the maximum height of the generated class
+            diagrams in px. If the parameter is set to 0, no scaling
+            will be done for the height. The default value is
+            0.</para>
+          </listitem>
+        </varlistentry>
 
-          <varlistentry>
-            <term>create-appendix</term>
+        <varlistentry>
+          <term>class-diagram-includes-object</term>
+          <listitem>
+            <para>If set to true, the generated class diagrams include
+            <classname>java.lang.Object</classname> as root class,
+            otherwise it is omitted to save space. The default value
+            is false.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, additional sections such as "Constants
-              values" or "Statistics" will generated inside an appendix.
-              Otherwise they will be appended as ordinary chapters. The
-              default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>class-diagram-width</term>
+          <listitem>
+            <para>Defines the maximum width of the generated class
+            diagrams in px. If the parameter is set to 0, no scaling
+            will be done for the width. The default value is 0.</para>
+          </listitem>
+        </varlistentry>
 
-          <varlistentry>
-            <term>create-author-info</term>
+        <varlistentry>
+          <term>create-appendix</term>
+          <listitem>
+            <para>If set to true, additional sections such as "Constants
+            values" or "Statistics" will generated inside an appendix.
+            Otherwise they will be appended as ordinary chapters. The default
+            value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the javadoc tag @author will be processed.
-              This parameter depends on the
-              <parameter>create-meta-info</parameter>. The default value is
-              true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-author-info</term>
 
-          <varlistentry>
-            <term>create-class-diagram</term>
+          <listitem>
+            <para>If set to true, the javadoc tag @author will be processed.
+            This parameter depends on the
+            <parameter>create-meta-info</parameter>. The default value is
+            true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, an inheritance class diagram is created
-              for every class. The default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-class-diagram</term>
 
-          <varlistentry>
-            <term>create-deprecated-info</term>
+          <listitem>
+            <para>If set to true, an inheritance class diagram is created for
+            every class. The default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, @deprecated javadoc tags and annotations
-              will be processed. A warning element will be created for each.
-              The default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-deprecated-info</term>
 
-          <varlistentry>
-            <term>create-deprecated-list</term>
+          <listitem>
+            <para>If set to true, @deprecated javadoc tags and annotations
+            will be processed. A warning element will be created for each. The
+            default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, a section is created at the end of the
-              document, which contains a list of all deprecated elements. The
-              default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-deprecated-list</term>
 
-          <varlistentry>
-            <term>create-exception-info</term>
+          <listitem>
+            <para>If set to true, a section is created at the end of the
+            document, which contains a list of all deprecated elements. The
+            default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the javadoc tag @exception will be
-              processed. The default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-exception-info</term>
 
-          <varlistentry>
-            <term>create-field-info</term>
+          <listitem>
+            <para>If set to true, the javadoc tag @exception will be
+            processed. The default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the field comments are processed. The
-              default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-field-info</term>
 
-          <varlistentry>
-            <term>create-fully-qualified-names</term>
+          <listitem>
+            <para>If set to true, the field comments are processed. The
+            default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, full qualified names of classes, fields,
-              methods and parameters are used. The default is false.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-fully-qualified-names</term>
 
-          <varlistentry>
-            <term>create-inheritance-info</term>
+          <listitem>
+            <para>If set to true, full qualified names of classes, fields,
+            methods and parameters are used. The default is false.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, an inheritance</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-inheritance-info</term>
 
-          <varlistentry>
-            <term>create-inherited-from-info</term>
+          <listitem>
+            <para>If set to true, an inheritance</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, a section with all inherited methods is
-              created. The default is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-inherited-from-info</term>
 
-          <varlistentry>
-            <term>create-meta-info</term>
+          <listitem>
+            <para>If set to true, a section with all inherited methods is
+            created. The default is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, a section with all meta javadoc tags is
-              created. Meta tags are all tags but @deprecated, @param,
-              @return, @serialField and @throws. If this parameter is set to
-              false, tags like @author will be suppresed</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-meta-info</term>
 
-          <varlistentry>
-            <term>create-method-info</term>
+          <listitem>
+            <para>If set to true, a section with all meta javadoc tags is
+            created. Meta tags are all tags but @deprecated, @param, @return,
+            @serialField and @throws. If this parameter is set to false, tags
+            like @author will be suppresed</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the method comments are processed. The
-              default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-method-info</term>
 
-          <varlistentry>
-            <term>create-parameter-info</term>
+          <listitem>
+            <para>If set to true, the method comments are processed. The
+            default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the javadoc tag @param will be processed.
-              The default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-parameter-info</term>
 
-          <varlistentry>
-            <term>create-section-constant-values</term>
+          <listitem>
+            <para>If set to true, the javadoc tag @param will be processed.
+            The default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, a section containing all constant values
-              will be created at the end of the document. The default value is
-              true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-section-constant-values</term>
 
-          <varlistentry>
-            <term>create-see-also-info</term>
+          <listitem>
+            <para>If set to true, a section containing all constant values
+            will be created at the end of the document. The default value is
+            true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the javadoc tag @see will be processed.
-              The default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-see-also-info</term>
 
-          <varlistentry>
-            <term>create-serial-field-info</term>
+          <listitem>
+            <para>If set to true, the javadoc tag @see will be processed. The
+            default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the javadoc tag @serialField will be
-              processed. The default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-serial-field-info</term>
 
-          <varlistentry>
-            <term>create-since-info</term>
+          <listitem>
+            <para>If set to true, the javadoc tag @serialField will be
+            processed. The default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set true, the javadoc tag @since will be processed. The
-              default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-since-info</term>
 
-          <varlistentry>
-            <term>create-statistics</term>
+          <listitem>
+            <para>If set true, the javadoc tag @since will be processed. The
+            default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, a section with statistical information
-              will be created at the end of the document. The default value is
-              false.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-statistics</term>
 
-          <varlistentry>
-            <term>create-synopsis</term>
+          <listitem>
+            <para>If set to true, a section with statistical information will
+            be created at the end of the document. The default value is
+            false.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the synopsis section will be created. The
-              default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-synopsis</term>
 
-          <varlistentry>
-            <term>create-version-info</term>
+          <listitem>
+            <para>If set to true, the synopsis section will be created. The
+            default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, the javadoc tag @version will be
-              processed. The default value is true.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>create-version-info</term>
 
-          <varlistentry>
-            <term>document-style</term>
+          <listitem>
+            <para>If set to true, the javadoc tag @version will be processed.
+            The default value is true.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>This parameter influences the structure of the generated
-              DocBook XML. You can choose between style "table" and style
-              "variablelist". The default is "table".</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>document-style</term>
 
-          <varlistentry>
-            <term>force-annotation-documentation</term>
+          <listitem>
+            <para>This parameter influences the structure of the generated
+            DocBook XML. You can choose between style "table" and style
+            "variablelist". The default is "table".</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>If set to true, annotation are being processed, regardless
-              of the annotation @Documented being present or not. The default
-              value is false.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>force-annotation-documentation</term>
 
-          <varlistentry>
-            <term>id-style</term>
+          <listitem>
+            <para>If set to true, annotation are being processed, regardless
+            of the annotation @Documented being present or not. The default
+            value is false.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>This parameter influences the generation of id values. You
-              can choose between "numbered" and "java". The default is
-              "numbered".</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>id-style</term>
 
-          <varlistentry>
-            <term>list-presentation</term>
+          <listitem>
+            <para>This parameter influences the generation of id values. You
+            can choose between "numbered" and "java". The default is
+            "numbered".</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>This parameter is used for generated variablelist
-              elements. If the parameter is set, its value will be used as
-              attribute "list-presentation" of the a dbfo processing
-              instruction. For more information have look at the DocBook XSL
-              documentation.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>list-presentation</term>
 
-          <varlistentry>
-            <term>logo-path</term>
+          <listitem>
+            <para>This parameter is used for generated variablelist elements.
+            If the parameter is set, its value will be used as attribute
+            "list-presentation" of the a dbfo processing instruction. For more
+            information have look at the DocBook XSL documentation.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>This parameter defines a logo image, which will be
-              inserted as mediaobject in the info section.</para>
-            </listitem>
-          </varlistentry>
+        <varlistentry>
+          <term>logo-path</term>
 
-          <varlistentry>
-            <term>overview-title</term>
+          <listitem>
+            <para>This parameter defines a logo image, which will be inserted
+            as mediaobject in the info section.</para>
+          </listitem>
+        </varlistentry>
 
-            <listitem>
-              <para>The content of this parameter will be used as title for
-              the overview section, if no title can be extracted from the
-              overview file.</para>
-            </listitem>
-          </varlistentry>
-        </variablelist>
+        <varlistentry>
+          <term>overview-title</term>
+
+          <listitem>
+            <para>The content of this parameter will be used as title for the
+            overview section, if no title can be extracted from the overview
+            file.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </refsection>
 
     <refsection>
@@ -505,7 +534,7 @@ ermöglicht vielfältige Einstellungesmöglichkeiten.
   <refsection>
     <title>Copyright</title>
 
-    <para>Copyright 2001-2013 Michael Fuchs. License GPLv3+: GNU GPL version 3
+    <para>Copyright 2001-2014 Michael Fuchs. License GPLv3+: GNU GPL version 3
     or later <link
     xlink:href="http://gnu.org/licenses/gpl.html">http://gnu.org/licenses/gpl.html</link>.
     This is free software: you are free to change and redistribute it. There

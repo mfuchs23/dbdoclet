@@ -542,23 +542,9 @@ public class RefentryManager extends MediaManager {
 					}
 				}
 
-				/*
-				 * else { head = new
-				 * BridgeHead(ResourceServices.getString(res,"C_DESCRIPTION"
-				 * ),"sect5"); section.appendChild(head); }
-				 */
 				logger.debug("Transforming executable member description.");
 				htmlDocBookTrafo.transform(commentDoc, section);
 
-				/*
-				 * logger.debug("executable member section = " +
-				 * section.treeView());
-				 * 
-				 * try { section.toXML(new PrintWriter(new
-				 * FileWriter("/tmp/dodo.xml")));
-				 * 
-				 * } catch (Exception e) { e.printStackTrace(); }
-				 */
 				parent.appendChild(section);
 			}
 		}

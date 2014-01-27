@@ -156,13 +156,9 @@
   </xsl:attribute-set>
   <xsl:attribute-set name="shade.verbatim.style">
     <xsl:attribute name="padding">0.50em</xsl:attribute>
-    <xsl:attribute name="border-top-style">solid</xsl:attribute>
     <xsl:attribute name="border-top-width">1.00pt</xsl:attribute>
-    <xsl:attribute name="border-bottom-style">solid</xsl:attribute>
     <xsl:attribute name="border-bottom-width">1.00pt</xsl:attribute>
-    <xsl:attribute name="border-right-style">solid</xsl:attribute>
     <xsl:attribute name="border-right-width">1.00pt</xsl:attribute>
-    <xsl:attribute name="border-left-style">solid</xsl:attribute>
     <xsl:attribute name="border-left-width">1.00pt</xsl:attribute>
   </xsl:attribute-set>
   <xsl:attribute-set name="para.properties">

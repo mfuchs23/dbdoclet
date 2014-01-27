@@ -422,7 +422,9 @@ public class ArticleManager extends MediaManager {
 					}
 				}
 
-				parent.appendChild(section);
+				if (section.hasContentChildren()) {
+					parent.appendChild(section);
+				}
 			}
 		}
 
@@ -504,7 +506,9 @@ public class ArticleManager extends MediaManager {
 					htmlDocBookTrafo.transform(fieldDoc, section);
 				}
 
-				parent.appendChild(section);
+				if (section.hasContentChildren()) {
+					parent.appendChild(section);
+				}
 			}
 		}
 

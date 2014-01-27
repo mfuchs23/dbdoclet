@@ -16,7 +16,7 @@
 
 		<jar destfile="distrib/dbdoclet.jar">
 			<manifest>
-				<attribute name="Class-Path" value="../conf" />
+				<attribute name="Class-Path" value="../conf/" />
 			</manifest>
 			<fileset dir="${build.main.classes.dir}" />
 			<zipgroupfileset dir="lib">

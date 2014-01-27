@@ -50,6 +50,7 @@ public class DocletOptions {
 	private FileOption optProfile;
 	private StringOption optTitle;
 	private StringOption optSourcepath;
+	private StringOption optEncoding;
 
 	public DocletOptions(String[][] cmdline) {
 
@@ -73,6 +74,10 @@ public class DocletOptions {
 		return optList.getString("doclet.documentation.id");
 	}
 
+	public String getEncoding() {
+		return optEncoding.getValue();
+	}
+	
 	public String getInstallationPath() throws IOException {
 
 		URL url = getClass().getClassLoader().getResource("fo.xsl");
@@ -162,6 +167,11 @@ public class DocletOptions {
 		optSourcepath.setMediumName("sourcepath");
 		optList.add(optSourcepath);
 
+		optEncoding = new StringOption();
+		optEncoding.setDefault("UTF-8");
+		optEncoding.setMediumName("encoding");
+		optList.add(optEncoding);
+
 		optList.add(new BooleanOption().setMediumName("breakiterator"));
 		optList.add(new BooleanOption().setMediumName("help"));
 		optList.add(new BooleanOption().setMediumName("package"));
@@ -173,7 +183,6 @@ public class DocletOptions {
 		optList.add(new StringOption().setMediumName("classpath"));
 		optList.add(new StringOption().setMediumName("doclet"));
 		optList.add(new StringOption().setMediumName("docletpath"));
-		optList.add(new StringOption().setMediumName("encoding"));
 		optList.add(new StringOption().setMediumName("exclude"));
 		optList.add(new StringOption().setMediumName("extdirs"));
 		optList.add(new StringOption().setMediumName("locale"));

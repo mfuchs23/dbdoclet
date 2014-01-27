@@ -204,8 +204,7 @@ public class DbdTransformer {
 			script.setTextParameter(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
 					parent.getTagName());
 
-			transformer.setInputStream(new ByteArrayInputStream(comment
-					.getBytes()));
+			transformer.setInputStream(new ByteArrayInputStream(comment.getBytes(script.getTextParameter("javadoc", TrafoConstants.PARAM_ENCODING, "UTF-8"))));
 			TrafoResult result = transformer.transform(script);
 
 			NodeImpl elem = null;

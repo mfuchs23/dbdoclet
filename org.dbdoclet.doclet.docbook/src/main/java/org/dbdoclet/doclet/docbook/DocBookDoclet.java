@@ -158,7 +158,8 @@ public final class DocBookDoclet extends AbstractDoclet {
 			logger.info(String.format("destination directory=" + destDir));
 			
 			dbdScript.setOutputFile(new File(destDir, "Reference.xml"));
-
+			dbdScript.setEncoding(options.getEncoding());
+			
 			File scriptFile = options.getProfile();
 			logger.info("profile file=" + scriptFile);
 

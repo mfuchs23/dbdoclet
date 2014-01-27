@@ -48,8 +48,9 @@ public class DbdScript {
 	 * minimale Wert ist 4. Als Standardwert ist 12 vorgegeben.
 	 */
 	public int getClassDiagramFontSize() {
+		
 		int fontSize = script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_CLASS_DIAGRAM_FONT_SIZE, 12);
+				DbdConstants.PARAM_CLASS_DIAGRAM_FONT_SIZE, 8);
 
 		if (fontSize < 4) {
 			fontSize = 4;
@@ -65,7 +66,22 @@ public class DbdScript {
 	 */
 	public int getClassDiagramWidth() {
 		return script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_CLASS_DIAGRAM_WIDTH, 700);
+				DbdConstants.PARAM_CLASS_DIAGRAM_WIDTH, 0);
+	}
+
+	public int getClassDiagramHeight() {
+		return script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_HEIGHT, 0);
+	}
+	
+	public boolean isClassDiagramContainsAttributes() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_CONTAINS_ATTRIBUTES, true);
+	}
+
+	public boolean isClassDiagramContainsOperations() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_CONTAINS_OPERATIONS, true);
 	}
 
 	public String getCopyrightHolder() {
@@ -184,9 +200,9 @@ public class DbdScript {
 				TrafoConstants.PARAM_IMAGE_PATH, TrafoConstants.DEFAULT_IMAGE_PATH);
 	}
 
-	public boolean isInheritanceDiagramIncludesObject() {
+	public boolean isClassDiagramIncludesObject() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_INHERITANCE_DIAGRAM_INCLUDES_OBJECT, false);
+				DbdConstants.PARAM_CLASS_DIAGRAM_INCLUDES_OBJECT, true);
 	}
 
 	public String getLanguage() {
@@ -591,5 +607,10 @@ public class DbdScript {
 	public void setTitle(String title) {
 		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
 		script.setTextParameter(TrafoConstants.PARAM_TITLE, title);
+	}
+
+	public void setEncoding(String encoding) {
+		script.selectSection("javadoc");
+		script.setTextParameter(TrafoConstants.PARAM_ENCODING, encoding);
 	}
 }

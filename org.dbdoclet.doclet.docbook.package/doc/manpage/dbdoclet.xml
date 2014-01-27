@@ -2,12 +2,12 @@
 <project default="dbdoclet.pdf" name="dbdoclet manpage" xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- ========================================================== -->
   <!-- Generated from dbdoclet.TiDbit                             -->
-  <!-- Generated at 23.10.2013 09:59:45                           -->
+  <!-- Generated at 15.01.2014 09:46:07                           -->
   <!-- http://www.dbdoclet.org                                    -->
   <!-- ========================================================== -->
   <property file="${basedir}/dbdoclet.properties"/>
   <property file="${basedir}/params.properties"/>
-  <property name="dbdoclet.home" value="/usr/share/tidbit/"/>
+  <property name="dbdoclet.home" value="/usr/share/dodo/"/>
   <property name="dbdoclet.destination.path" value="${basedir}/build"/>
   <property name="dbdoclet.project.path" value="${basedir}"/>
   <property name="dbdoclet.overview.file" value=""/>

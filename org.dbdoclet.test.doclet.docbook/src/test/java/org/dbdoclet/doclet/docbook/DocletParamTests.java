@@ -16,6 +16,8 @@ public class DocletParamTests extends AbstractTestCase {
 
 	private static final String PROFILE_DIR = "src/main/resources/profile/";
 	private static final String PROFILE_CHUNK = PROFILE_DIR + "chunk.her";
+	private static final String PROFILE_CLASSDIAGRAM_WIDTH_ZERO = PROFILE_DIR + "classDiagramWidthZero.her";
+	private static final String PROFILE_CLASSDIAGRAM_HEIGHT_50 = PROFILE_DIR + "classDiagramHeight50.her";
 	private static final String PROFILE_MAXIMAL = PROFILE_DIR + "showAll.her";
 	private static final String PROFILE_MINIMAL = PROFILE_DIR + "showMinimal.her";
 	private static final String PROFILE_CREATE_META_INFO_DISABLED = PROFILE_DIR + "createMetaInfoDisabled.her";
@@ -57,7 +59,27 @@ public class DocletParamTests extends AbstractTestCase {
 		javadoc("-profile", PROFILE_MAXIMAL);
 		File imgFile = new File(destPath, "img/org/dbdoclet/music/Note/ClassDiagram.svg");
 		String buffer = FileServices.readToString(imgFile);
-		assertTrue(buffer.contains("width=\"809\""));
+		assertTrue(buffer.contains("width=\"800\""));
+	}
+
+	@Test
+	public void classDiagramHeightSetTo50() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_CLASSDIAGRAM_HEIGHT_50);
+		File imgFile = new File(destPath, "img/org/dbdoclet/music/Note/ClassDiagram.svg");
+		String buffer = FileServices.readToString(imgFile);
+		assertTrue(buffer.contains("height=\"50\""));
+	}
+
+	@Test
+	public void classDiagramWidthSetTo0() throws IOException, SAXException,
+			ParserConfigurationException {
+
+		javadoc("-profile", PROFILE_CLASSDIAGRAM_WIDTH_ZERO);
+		File imgFile = new File(destPath, "img/org/dbdoclet/music/Note/ClassDiagram.svg");
+		String buffer = FileServices.readToString(imgFile);
+		assertTrue(buffer.contains("width=\"885\""));
 	}
 
 	@Test

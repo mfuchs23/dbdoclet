@@ -27,8 +27,9 @@ public class Motiv {
      * Fügt mehrere Noten hinzu.
      * 
      * @param notes
+     * @throws WrongNoteException
      */
-    public void addNotes(Note[] notes) {
+    public void addNotes(Note[] notes) throws WrongNoteException {
 
     }
 

@@ -23,20 +23,37 @@ import org.dbdoclet.doclet.docbook.StrictSynopsis;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.svg.UmlClassDiagramCreator;
+import org.dbdoclet.svg.shape.ClassBox;
 import org.dbdoclet.svg.shape.Shape;
 import org.dbdoclet.xiphias.ImageServices;
 
 import com.sun.javadoc.AnnotationTypeDoc;
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.ConstructorDoc;
+import com.sun.javadoc.ExecutableMemberDoc;
+import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.MemberDoc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.Parameter;
 import com.sun.javadoc.Type;
+import com.sun.javadoc.TypeVariable;
 
+/**
+ * Die Klasse ClassDiagramManager erstellt ein UML Klassendiagramm aus einem
+ * {@linkplain ClassDoc} Objekt.
+ * 
+ * @author michael
+ * 
+ */
 public class ClassDiagramManager {
 
 	private static Log logger = LogFactory.getLog(ClassDiagramManager.class);
 
-	@Inject	private DbdScript script;
-	@Inject	private StrictSynopsis synopsis;
-	
+	@Inject
+	private DbdScript script;
+	@Inject
+	private StrictSynopsis synopsis;
+
 	private int imageHeight;
 	private int imageWidth;
 	private final boolean showFullQualifiedName = false;
@@ -82,14 +99,16 @@ public class ClassDiagramManager {
 				logger.debug(String.valueOf(index++) + " superType="
 						+ superType);
 
-				if (script.isInheritanceDiagramIncludesObject() == false && superType.qualifiedTypeName().equals("java.lang.Object")) {
+				if (script.isClassDiagramIncludesObject() == false
+						&& superType.qualifiedTypeName().equals(
+								"java.lang.Object")) {
 					break;
 				}
-				
+
 				list.add(superType);
-				
+
 				superType = superType.asClassDoc().superclassType();
-				
+
 			}
 		}
 
@@ -125,19 +144,19 @@ public class ClassDiagramManager {
 			UmlClassDiagramCreator ucdc = new UmlClassDiagramCreator();
 			ucdc.setInterfaceBackgroundColor(Color.orange);
 			ucdc.setFontSize(script.getClassDiagramFontSize());
-			define(ucdc, cdoc);
+			buildDiagram(ucdc, cdoc);
 
-			ucdc.scaleToWidth(script.getClassDiagramWidth());
+			ucdc.setMaxWidth(script.getClassDiagramWidth());
+			ucdc.setMaxHeight(script.getClassDiagramHeight());
 			ucdc.drawImage();
 
 			fileName = FileServices.appendFileName(path, "ClassDiagram.svg");
 			imageFile = new File(fileName);
 			ucdc.save(imageFile);
 
-			fileName = FileServices
-					.appendFileName(path, "ClassDiagram.png");
+			fileName = FileServices.appendFileName(path, "ClassDiagram.png");
 			imageFile = new File(fileName);
-				ucdc.saveAsPng(imageFile);
+			ucdc.saveAsPng(imageFile);
 
 			imageWidth = ImageServices.getWidth(imageFile);
 			imageHeight = ImageServices.getHeight(imageFile);
@@ -171,7 +190,7 @@ public class ClassDiagramManager {
 	 * @param ucdc
 	 * @param doc
 	 */
-	private void define(UmlClassDiagramCreator ucdc, ClassDoc doc) {
+	private void buildDiagram(UmlClassDiagramCreator ucdc, ClassDoc doc) {
 
 		if (doc.isInterface()) {
 			defineInterface(ucdc, doc);
@@ -180,7 +199,94 @@ public class ClassDiagramManager {
 		}
 	}
 
-	private void defineClass(UmlClassDiagramCreator ucdc, ClassDoc doc) {
+	private void defineAttributes(UmlClassDiagramCreator ucdc, ClassDoc doc,
+			ClassBox classBox) {
+		FieldDoc[] fields = doc.fields();
+
+		if (script.isClassDiagramContainsAttributes() && fields.length > 0) {
+
+			ucdc.addLine(classBox);
+			for (FieldDoc field : fields) {
+				ucdc.addAttribute(classBox, String.format("%s %s: %s",
+						createVisibilityIndicator(field), field.name(),
+						synopsis.typeToString(field.type(), false)));
+			}
+		}
+	}
+
+	private void defineOperations(UmlClassDiagramCreator ucdc, ClassDoc doc,
+			ClassBox classBox) {
+
+		MethodDoc[] methods = doc.methods();
+		ConstructorDoc[] constructors = doc.constructors();
+
+		if (script.isClassDiagramContainsOperations()
+				&& (methods.length > 0 || constructors.length > 0)) {
+
+			ucdc.addLine(classBox);
+
+			for (ConstructorDoc constructor : constructors) {
+				ucdc.addMethod(classBox, String.format("%s %s(%s)",
+						createVisibilityIndicator(constructor),
+						constructor.name(),
+						createOperationParameterList(constructor)));
+			}
+
+			for (MethodDoc method : methods) {
+				ucdc.addMethod(classBox, String.format("%s %s(%s): %s",
+						createVisibilityIndicator(method), method.name(),
+						createOperationParameterList(method),
+						synopsis.typeToString(method.returnType(), false)));
+			}
+		}
+	}
+
+	private String createVisibilityIndicator(MemberDoc field) {
+
+		String indicator = "";
+
+		if (field == null) {
+			return indicator;
+		}
+
+		if (field.isPublic()) {
+			return "+";
+		}
+
+		if (field.isProtected()) {
+			return "#";
+		}
+
+		if (field.isPrivate()) {
+			return "-";
+		}
+
+		if (field.isPackagePrivate()) {
+			return "~";
+		}
+
+		return indicator;
+	}
+
+	private String createOperationParameterList(ExecutableMemberDoc method) {
+
+		StringBuilder buffer = new StringBuilder();
+
+		for (Parameter paramDoc : method.parameters()) {
+			buffer.append(String.format("%s: %s,\n", paramDoc.name(),
+					synopsis.typeToString(paramDoc.type(), false)));
+		}
+
+		String parametersAsText = buffer.toString();
+		if (parametersAsText.length() > 0) {
+			parametersAsText = StringServices
+					.cutSuffix(parametersAsText, ",\n");
+		}
+
+		return parametersAsText.trim();
+	}
+
+	private ClassBox defineClass(UmlClassDiagramCreator ucdc, ClassDoc doc) {
 
 		int row = 0;
 
@@ -209,8 +315,9 @@ public class ClassDiagramManager {
 
 		index = 0;
 
-		Shape fromShape = null;
-		Shape toShape = null;
+		ClassBox classBox = null;
+		ClassBox fromShape = null;
+		ClassBox toShape = null;
 		Shape shape = null;
 
 		for (Type type : inheritanceList) {
@@ -229,6 +336,21 @@ public class ClassDiagramManager {
 
 				toShape = ucdc.addClassBox(row, middleCol, className,
 						"interface");
+
+			} else if (cdoc.typeParameters() != null
+					&& cdoc.typeParameters().length > 0) {
+
+				ArrayList<String> templateParameters = new ArrayList<String>();
+
+				for (TypeVariable typeParameter : cdoc.typeParameters()) {
+					templateParameters.add(String.format("%s: %s",
+							typeParameter.typeName(),
+							synopsis.typeToString(typeParameter, false)));
+				}
+
+				logger.debug("className: " + className);
+				toShape = ucdc.addParameterizedClassBox(row, middleCol,
+						className, templateParameters);
 
 			} else {
 
@@ -258,8 +380,8 @@ public class ClassDiagramManager {
 					offset *= -1;
 				}
 
-				String interfaceName = synopsis.typeToString(
-						interfaceType, showFullQualifiedName);
+				String interfaceName = synopsis.typeToString(interfaceType,
+						showFullQualifiedName);
 
 				ClassDoc tcdoc = type.asClassDoc();
 				AnnotationTypeDoc tadoc = type.asAnnotationTypeDoc();
@@ -288,12 +410,24 @@ public class ClassDiagramManager {
 
 			fromShape = toShape;
 
+			if (index == inheritanceList.size() - 1) {
+
+				defineAttributes(ucdc, cdoc, fromShape);
+				defineOperations(ucdc, cdoc, fromShape);
+			}
+
+			if (classBox == null) {
+				classBox = fromShape;
+			}
+
 			row++;
 			index++;
 		}
+
+		return classBox;
 	}
-	
-	private void defineInterface(UmlClassDiagramCreator ucdc, ClassDoc doc) {
+
+	private ClassBox defineInterface(UmlClassDiagramCreator ucdc, ClassDoc doc) {
 
 		int row = 0;
 
@@ -323,11 +457,11 @@ public class ClassDiagramManager {
 
 		index = 0;
 
-		Shape fromShape = null;
-		Shape toShape = null;
+		ClassBox fromShape = null;
+		ClassBox toShape = null;
 
-		String interfaceName = synopsis.typeToString(doc,
-				showFullQualifiedName);
+		String interfaceName = synopsis
+				.typeToString(doc, showFullQualifiedName);
 
 		fromShape = ucdc
 				.addClassBox(row, middleCol, interfaceName, "interface");
@@ -350,7 +484,7 @@ public class ClassDiagramManager {
 
 					toShape = ucdc.addClassBox(row, middleCol, interfaceName,
 							"interface");
-
+ 
 				} else {
 
 					int remainder = typeIndex % 2;
@@ -372,11 +506,19 @@ public class ClassDiagramManager {
 
 			}
 
+
+			if (index == 0) {
+				
+				defineAttributes(ucdc, cdoc, fromShape);
+				defineOperations(ucdc, cdoc, fromShape);
+			}
+
 			fromShape = toShape;
 			row--;
 			index++;
 		}
 
+		return fromShape;
 	}
 
 	/**
