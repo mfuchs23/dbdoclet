@@ -178,10 +178,9 @@ public class RefentryManager extends MediaManager {
 							.setXrefLabel(XmlServices.textToXml(pkgDoc.name()));
 				}
 
-				reference.appendChild(tagFactory.createTitle(ResourceServices
-						.getString(res, "C_PACKAGE")
-						+ " "
-						+ hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
+				reference.appendChild(tagFactory.createTitle(
+						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
+						hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
 
 				PartIntro partIntro = tagFactory.createPartIntro();
 
@@ -239,7 +238,7 @@ public class RefentryManager extends MediaManager {
 		try {
 
 			String indexCategory = getIndexCategory(classDoc);
-			String prefix = getClassTypeAsText(classDoc);
+			// String prefix = getClassTypeAsText(classDoc);
 
 			RefEntry refEntry = tagFactory.createRefEntry();
 
@@ -279,8 +278,7 @@ public class RefentryManager extends MediaManager {
 			RefNameDiv refNameDiv = tagFactory.createRefNameDiv();
 			refEntry.appendChild(refNameDiv);
 
-			refNameDiv.appendChild(tagFactory.createRefName(prefix + " "
-					+ classDoc.name()));
+			refNameDiv.appendChild(tagFactory.createRefName(classDoc.name()));
 
 			RefPurpose purpose = tagFactory.createRefPurpose();
 			htmlDocBookTrafo.transform(classDoc.firstSentenceTags(), purpose);

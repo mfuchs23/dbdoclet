@@ -71,11 +71,12 @@ public class AbstractTestCase implements InfoListener {
 			FileServices.delete(destDir);
 		}
 
+		/*
 		System.out.println("Arbeitsverzeichnis: "
 				+ new File(".").getAbsolutePath());
 		System.out.println("sourcePath: " + sourcePath);
 		System.out.println("destPath: " + destPath);
-
+		*/
 	}
 
 	protected RootDocImpl javadoc(String[] sources, String classpath,
@@ -115,7 +116,7 @@ public class AbstractTestCase implements InfoListener {
 		try {
 			root = tool.getRootDocImpl("de", "", new ModifierFilter(PUBLIC
 					| PROTECTED | PRIVATE), javaNames.toList(),
-					options.toList(), false, subPackages.toList(),
+					options.toList(), null, false, subPackages.toList(),
 					xcludePackages.toList(), false, false, false);
 		} catch (IOException oops) {
 			oops.printStackTrace();

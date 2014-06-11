@@ -2,7 +2,7 @@ package org.dbdoclet.doclet.docbook;
 
 import org.junit.Test;
 
-public class DocBookDocletTests extends AbstractTestCase {
+public class CommandLineTests extends AbstractTestCase {
 
 	@Test
     public void testDoclet_1() {

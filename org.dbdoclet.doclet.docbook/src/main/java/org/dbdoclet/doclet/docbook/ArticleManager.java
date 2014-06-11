@@ -130,10 +130,9 @@ public class ArticleManager extends MediaManager {
 					sect1.setXrefLabel(XmlServices.textToXml(pkgDoc.name()));
 				}
 
-				sect1.appendChild(tagFactory.createTitle(ResourceServices
-						.getString(res, "C_PACKAGE")
-						+ " "
-						+ hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
+				sect1.appendChild(tagFactory.createTitle(
+						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
+						hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
 
 				htmlDocBookTrafo.transform(pkgDoc, sect1);
 
@@ -181,7 +180,7 @@ public class ArticleManager extends MediaManager {
 
 			DocBookElement parent;
 
-			String prefix = getClassTypeAsText(classDoc);
+			// String prefix = getClassTypeAsText(classDoc);
 			String indexCategory = getIndexCategory(classDoc);
 
 			sect2 = tagFactory.createSection();
@@ -193,7 +192,7 @@ public class ArticleManager extends MediaManager {
 			}
 
 			sect2.appendChild(
-					tagFactory.createTitle(prefix + " " + classDoc.name()))
+					tagFactory.createTitle(hyphenation.hyphenateCamelCase(classDoc.name())))
 					.appendChild(
 							tagFactory.createIndexTerm().appendChild(
 									tagFactory.createPrimary(classDoc.name())))

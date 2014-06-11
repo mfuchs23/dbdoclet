@@ -165,10 +165,9 @@ public class BookManager extends MediaManager {
 					chapter.setXrefLabel(XmlServices.textToXml(pkgDoc.name()));
 				}
 
-				chapter.appendChild(tagFactory.createTitle(ResourceServices
-						.getString(res, "C_PACKAGE")
-						+ " "
-						+ hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
+				chapter.appendChild(tagFactory.createTitle(
+						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
+						hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
 
 				htmlDocBookTrafo.transform(pkgDoc, chapter);
 
@@ -214,7 +213,7 @@ public class BookManager extends MediaManager {
 			Sect1 sect1;
 			Sect2 sect2;
 
-			String prefix = getClassTypeAsText(classDoc);
+			// String prefix = getClassTypeAsText(classDoc);
 			String indexCategory = getIndexCategory(classDoc);
 
 			sect1 = tagFactory.createSect1();
@@ -226,8 +225,7 @@ public class BookManager extends MediaManager {
 			}
 
 			sect1.appendChild(
-					tagFactory.createTitle(prefix + " "
-							+ hyphenation.hyphenateCamelCase(classDoc.name())))
+					tagFactory.createTitle(hyphenation.hyphenateCamelCase(classDoc.name())))
 					.appendChild(
 							tagFactory.createIndexTerm().appendChild(
 									tagFactory.createPrimary(classDoc.name())))

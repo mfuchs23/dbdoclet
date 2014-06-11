@@ -2,7 +2,7 @@
 <project default="dbdoclet.pdf" name="dbdoclet manpage" xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- ========================================================== -->
   <!-- Generated from dbdoclet.TiDbit                             -->
-  <!-- Generated at 15.01.2014 09:46:07                           -->
+  <!-- Generated at 26.02.2014 14:02:49                           -->
   <!-- http://www.dbdoclet.org                                    -->
   <!-- ========================================================== -->
   <property file="${basedir}/dbdoclet.properties"/>
@@ -130,69 +130,6 @@
       <classpath refid="dbdoclet.fop.classpath"/>
     </java>
   </target>
-  <target name="dbdoclet.xslt.html">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.html                                  -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(html)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/html.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.html">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.html                               -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="html"/>
-    <delete dir="${dbdoclet.docbook.file.dir}/./build/html/"/>
-    <antcall target="dbdoclet.xslt.html">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.html.log"/>
-    </antcall>
-    <copy file="${dbdoclet.home}/xslt/html/dbdoclet.css" todir="${dbdoclet.docbook.file.dir}/./build/html/"/>
-    <copy todir="${dbdoclet.docbook.file.dir}/./build/html/images/">
-      <fileset dir="${dbdoclet.home}/docbook/xsl/images"/>
-      <fileset dir="${dbdoclet.home}/xslt/html/images"/>
-      <fileset dir="${dbdoclet.home}/xslt/html">
-        <include name="*.css"/>
-      </fileset>
-    </copy>
-  </target>
-  <target name="dbdoclet.xslt.manpage">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.manpage                               -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(manpage)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/manpages.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.manpage">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.manpage                            -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="manpage"/>
-    <antcall target="dbdoclet.xslt.manpage">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.manpage"/>
-    </antcall>
-  </target>
   <target name="dbdoclet.docbook.webhelp">
     <!-- ========================================================== -->
     <!-- TARGET dbdoclet.docbook.webhelp                            -->
@@ -265,69 +202,6 @@
       <param name="out" value="${dbdoclet.docbook.file.base}-WordML.xml"/>
     </antcall>
   </target>
-  <target name="dbdoclet.xslt.epub">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.epub                                  -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(epub)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/epub.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.epub">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.epub                               -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="epub"/>
-    <antcall target="dbdoclet.xslt.epub">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.epub"/>
-    </antcall>
-    <copy file="${dbdoclet.home}/xslt/epub/dbdoclet.css" todir="${dbdoclet.docbook.file.dir}/./build/epub/OEBPS/"/>
-    <copy todir="${dbdoclet.docbook.file.dir}/./build/epub/OEBPS/images/">
-      <fileset dir="${dbdoclet.home}/docbook/xsl/images"/>
-    </copy>
-  </target>
-  <target name="dbdoclet.xslt.eclipse">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.eclipse                               -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(eclipse)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/eclipse.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.eclipse">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.eclipse                            -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="eclipse"/>
-    <antcall target="dbdoclet.xslt.eclipse">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.eclipse"/>
-    </antcall>
-    <copy file="${dbdoclet.home}/xslt/eclipse/dbdoclet.css" todir="${dbdoclet.docbook.file.dir}/./build/eclipse/"/>
-    <copy todir="${dbdoclet.docbook.file.dir}/./build/eclipse/images/">
-      <fileset dir="${dbdoclet.home}/docbook/xsl/images"/>
-      <fileset dir="${dbdoclet.home}/xslt/eclipse/images"/>
-    </copy>
-  </target>
   <target name="dbdoclet.xslt.pdf">
     <!-- ========================================================== -->
     <!-- TARGET dbdoclet.xslt.pdf                                   -->
@@ -359,109 +233,5 @@
       <param name="in" value="${dbdoclet.docbook.file.base}.fo"/>
       <param name="out" value="${dbdoclet.docbook.file.base}.pdf"/>
     </antcall>
-  </target>
-  <target name="dbdoclet.xslt.htmlhelp">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.htmlhelp                              -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(htmlhelp)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/htmlhelp.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.htmlhelp">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.htmlhelp                           -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="htmlhelp"/>
-    <antcall target="dbdoclet.xslt.htmlhelp">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.htmlhelp"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.xslt.rtf">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.rtf                                   -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(rtf)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/rtf.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.rtf">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.rtf                                -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="rtf"/>
-    <echo message="DocBook File: ${dbdoclet.docbook.file}"/>
-    <antcall target="dbdoclet.xslt.rtf">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.fo"/>
-    </antcall>
-    <antcall target="dbdoclet.fop.rtf">
-      <param name="in" value="${dbdoclet.docbook.file.base}.fo"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.rtf"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.xslt.javahelp">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.javahelp                              -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(javahelp)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/javahelp.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.javahelp">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.javahelp                           -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="javahelp"/>
-    <antcall target="dbdoclet.xslt.javahelp">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.javahelp"/>
-    </antcall>
-    <copy file="${dbdoclet.home}/xslt/javahelp/dbdoclet.css" todir="${dbdoclet.docbook.file.dir}/./build/javahelp/"/>
-    <copy todir="${dbdoclet.docbook.file.dir}/./build/javahelp/images/">
-      <fileset dir="${dbdoclet.home}/docbook/xsl/images"/>
-    </copy>
-    <delete dir="${dbdoclet.docbook.file.dir}/./build/javahelp/JavaHelpSearch"/>
-    <!-- PATH dbdoclet.javahelp.classpath                           -->
-    <path id="dbdoclet.javahelp.classpath">
-      <pathelement path="${dbdoclet.home}jars/jhall.jar"/>
-    </path>
-    <!-- TASK java                                                  -->
-    <java classname="com.sun.java.help.search.Indexer" failonerror="yes" fork="yes" maxmemory="1024m">
-      <jvmarg value="-Xbootclasspath/p:${dbdoclet.bootclasspath}"/>
-      <arg value="-verbose"/>
-      <arg value="-db"/>
-      <arg value="${dbdoclet.docbook.file.dir}/./build/javahelp/JavaHelpSearch"/>
-      <arg value="${dbdoclet.docbook.file.dir}/./build/javahelp/"/>
-      <classpath refid="dbdoclet.javahelp.classpath"/>
-    </java>
   </target>
 </project>

@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.dbdoclet.doclet</groupId>
+  <artifactId>doclet</artifactId>
+  <version>7.1.0</version>
+  <packaging>jar</packaging>
+
+  <name>DocBook Doclet</name>
+  <description>
+  </description>
+
+  <dependencies>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-javadoc-plugin</artifactId>
+	<configuration>
+	  <doclet>org.dbdoclet.doclet.docbook.DocBookDoclet</doclet>
+	  <docletPath>/usr/share/dbdoclet/jars/dbdoclet_7.1.0.jar</docletPath>
+	  <additionalparam>-profile ${basedir}/src/docbook/docbook-javadoc.profile</additionalparam>
+	  <useStandardDocletOptions>false</useStandardDocletOptions>
+	  <doctitle>DocBook Maven Test</doctitle>
+	  <subpackages>org.dbdoclet</subpackages>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

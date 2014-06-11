@@ -719,8 +719,9 @@ public abstract class MediaManager {
 					.hasNext();) {
 
 				pkgName = pkgIterator.next();
-				section = tagFactory.createSection(ResourceServices.getString(
-						res, "C_PACKAGE") + " " + pkgName + ".*");
+				section = tagFactory.createSection(
+						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
+					    pkgName + ".*");
 
 				classMap = pkgFieldMap.get(pkgName);
 

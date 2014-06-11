@@ -37,18 +37,24 @@
   <refsection>
     <title>Description</title>
 
-    <para>The reuse of javadoc content in presentation-neutral form is
-    a frequent problem. One possible solution is to convert javadoc to
-    DocBook XML, because DocBook is a semantic markup language for
-    documentation, which enables its users to create document content
-    that captures the logical structure of the content.</para>
+    <para>The reuse of <productname>javadoc</productname> content in
+    presentation-neutral form is a frequent problem. One possible
+    solution is to convert javadoc to DocBook
+    XML. <productname>DocBook</productname> is a semantic markup
+    language for technical documentation, which enables its users to
+    create documents that capture the logical structure of the
+    content. For more infomation about DocBook have a look at <link
+    xlink:href="www.docbook.org">http://www.docbook.org</link>. In
+    addition to the generation of DocBook XML, dbdoclet creates UML
+    class diagrams including attributes, operations and the
+    inheritance path for every class.</para>
 
     <para>The command line tool <productname>dbdoclet</productname>
-    can be used to convert javadoc to DocBook. Because javadoc is
-    written as HTML tags and HTML elements are often used not as
-    intended, the possibilities for such a transformation are somewhat
-    limited.  In addition to the generation of DocBook XML, dbdoclet
-    creates UML class diagrams for every class.</para>
+    can be used to convert javadoc to DocBook. It's a simple wrapper
+    around the javadoc tool and the javadoc doclet
+    <filename>dbdoclet.jar</filename>. Because javadoc is written as
+    HTML tags and HTML elements are often not used as intended, the
+    possibilities for such a transformation are somewhat limited.</para>
 
     <para>dbdoclet is part of the dbdoclet suite of tools. For more
     information visit <link
