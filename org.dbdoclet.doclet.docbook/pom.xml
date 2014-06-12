@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.dbdoclet</groupId>
+  <artifactId>dbdoclet</artifactId>
+  <version>8.0.0</version>
+  <packaging>jar</packaging>
+
+  <name>org.dbdoclet:dbdoclet</name>
+  <description>dbdoclet is a javadoc doclet, which creates DocBook XML
+  and UML class diagrams from javadoc comments.
+  </description>
+
+  <licenses>
+    <license>
+    <name>GNU General Public License v3</name>
+    <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Michael Fuchs</name>
+      <email>michael.fuchs@dbdoclet.org</email>
+    </developer>
+  </developers>
+
+  <scm>
+  </scm>
+
+</project>
+

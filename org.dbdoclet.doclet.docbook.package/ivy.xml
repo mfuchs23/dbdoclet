@@ -18,13 +18,13 @@
     <dependency org="org.apache" name="org.apache.commons.logging" rev="latest.integration" />
     <dependency org="org.apache" name="org.apache.log4j" rev="latest.integration" />
     <dependency org="org.jfree" name="jfreechart" rev="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="6.1.1" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.getopts" rev="6.1.1" revConstraint="latest.integration"/>
-    <dependency org="org.dbdoclet" name="org.dbdoclet.xiphias" rev="6.1.1" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.jive" rev="7.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="7.0.1" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo" rev="7.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook" rev="7.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook" rev="7.1.0" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="8.0.0" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.getopts" rev="8.0.0" revConstraint="latest.integration"/>
+    <dependency org="org.dbdoclet" name="org.dbdoclet.xiphias" rev="8.0.0" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.jive" rev="8.0.0" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="8.0.0" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo" rev="8.0.0" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook" rev="8.0.0" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook" rev="8.0.0" revConstraint="latest.integration" />
   </dependencies>
 </ivy-module>

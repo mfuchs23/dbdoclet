@@ -21,8 +21,7 @@
 	<artifactId>maven-javadoc-plugin</artifactId>
 	<configuration>
 	  <doclet>org.dbdoclet.doclet.docbook.DocBookDoclet</doclet>
-	  <docletPath>/usr/share/dbdoclet/jars/dbdoclet_7.1.0.jar</docletPath>
-	  <additionalparam>-profile ${basedir}/src/docbook/docbook-javadoc.profile</additionalparam>
+	  <docletPath>/usr/share/dbdoclet/jars/dbdoclet_8.0.0.jar</docletPath>
 	  <useStandardDocletOptions>false</useStandardDocletOptions>
 	  <doctitle>DocBook Maven Test</doctitle>
 	  <subpackages>org.dbdoclet</subpackages>

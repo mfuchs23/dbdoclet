@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+### Copyright (C) 2001-2012 Michael Fuchs ###
+-->
+<project name="common" default="build">
+
+  <property name="resolveMode" value="default"/>
+
+  <property file="workspace.properties" />
+  <import file="../build/build.config/defaultBuild.xml"/>  
+
+  <macrodef name="iterate">
+    <attribute name="target"/>
+    <sequential>
+      <subant target="@{target}" failonerror="true"> 
+	<fileset dir=".">
+	  <exclude name="org.dbdoclet.test.*/build.xml"/>
+	  <include name="*/build.xml"/>
+	</fileset>
+      </subant>
+    </sequential>
+  </macrodef>
+
+  <target name="build">
+    <iterate target="build"/>
+  </target>
+
+  <echo>resolve mode = ${resolveMode}</echo>
+</project>

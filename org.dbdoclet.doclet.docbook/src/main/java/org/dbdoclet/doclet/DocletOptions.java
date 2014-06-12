@@ -181,8 +181,8 @@ public class DocletOptions {
 		optList.add(new BooleanOption().setMediumName("verbose"));
 		optList.add(new StringOption().setMediumName("bootclasspath"));
 		optList.add(new StringOption().setMediumName("classpath"));
-		optList.add(new StringOption().setMediumName("doclet"));
-		optList.add(new StringOption().setMediumName("docletpath"));
+		optList.add(new StringOption().setMediumName("doclet").isUnique(false));
+		optList.add(new StringOption().setMediumName("docletpath").isUnique(false));
 		optList.add(new StringOption().setMediumName("exclude"));
 		optList.add(new StringOption().setMediumName("extdirs"));
 		optList.add(new StringOption().setMediumName("locale"));
