@@ -27,6 +27,9 @@
   </developers>
 
   <scm>
+    <connection>scm:git:git@github.com:mfuchs23/dbdoclet.git</connection>
+    <developerConnection>scm:git:git@github.com:mfuchs23/dbdoclet.git</developerConnection>
+    <url>git@github.com:mfuchs23/dbdoclet.git</url>
   </scm>
 
 </project>
