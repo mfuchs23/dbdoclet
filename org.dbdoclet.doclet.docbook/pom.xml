@@ -11,6 +11,7 @@
   <description>dbdoclet is a javadoc doclet, which creates DocBook XML
   and UML class diagrams from javadoc comments.
   </description>
+  <url>http://www.dbdoclet.org</url>
 
   <licenses>
     <license>

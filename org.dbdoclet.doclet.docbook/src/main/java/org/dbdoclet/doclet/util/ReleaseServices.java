@@ -1,18 +1,42 @@
-
 package org.dbdoclet.doclet.util;
+
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.dbdoclet.service.ResourceServices;
 
 public class ReleaseServices {
 
-    public static String getVersion() {
-        return "7.0.0";
-    }
+	private static Log logger = LogFactory.getLog(ReleaseServices.class);
 
-    public static String getBuild() {
-        return "636";
-    }
+	Properties releaseProperties = null;
 
-    public static String getTimestamp() {
-        return "201202061403";
-    }
+	public String getVersion() {
+		return getReleaseProperties().getProperty("version");
+	}
+
+	private Properties getReleaseProperties() {
+
+		if (releaseProperties == null) {
+			
+			releaseProperties = new Properties();
+			
+			try {
+				releaseProperties.load(ResourceServices.getResourceAsStream("/release.properties"));
+			} catch (Throwable oops) {
+				logger.error("", oops);
+			}
+		}
+
+		return releaseProperties;
+	}
+
+	public String getBuild() {
+		return getReleaseProperties().getProperty("build");
+	}
+
+	public String getTimestamp() {
+		return getReleaseProperties().getProperty("timestamp");
+	}
 }
-

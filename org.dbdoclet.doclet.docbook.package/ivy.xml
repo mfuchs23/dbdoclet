@@ -1,30 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	    xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-  <info
-      organisation="org.dbdoclet"
-      module="org.dbdoclet.doclet.docbook.package"
-      status="integration"
-      revision="${module.version}">
-  </info>
-  <publications>
-  	<artifact name="org.dbdoclet.doclet.docbook.package" />
-  	<artifact name="dbdoclet" />
-  </publications>
-  <dependencies>
-    <dependency org="javax.inject" name="javax.inject" rev="1" />
-    <dependency org="com.google.inject" name="guice" rev="latest.integration" />
-    <dependency org="xml-apis" name="xml-apis" rev="latest.integration" />
-    <dependency org="org.apache" name="org.apache.commons.logging" rev="latest.integration" />
-    <dependency org="org.apache" name="org.apache.log4j" rev="latest.integration" />
-    <dependency org="org.jfree" name="jfreechart" rev="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="8.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.getopts" rev="8.0.0" revConstraint="latest.integration"/>
-    <dependency org="org.dbdoclet" name="org.dbdoclet.xiphias" rev="8.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.jive" rev="8.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="8.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo" rev="8.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook" rev="8.0.0" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook" rev="8.0.0" revConstraint="latest.integration" />
-  </dependencies>
+<ivy-module version="2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="org.dbdoclet" module="org.dbdoclet.doclet.docbook.package"
+		status="integration" revision="${module.version}">
+	</info>
+	<publications>
+		<artifact name="org.dbdoclet.doclet.docbook.package" />
+		<artifact name="dbdoclet" />
+	</publications>
+	<dependencies>
+		<dependency org="javax.inject" name="javax.inject" rev="1" />
+		<dependency org="com.google.inject" name="guice"
+			rev="latest.integration" />
+		<dependency org="xml-apis" name="xml-apis" rev="latest.integration" />
+		<dependency org="org.apache" name="org.apache.commons.logging"
+			rev="latest.integration" />
+		<dependency org="org.apache" name="org.apache.log4j" rev="latest.integration" />
+		<dependency org="org.jfree" name="jfreechart" rev="latest.integration" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.commons"
+			rev="8.0.0" revConstraint="latest.integration" changing="true" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.getopts"
+			rev="8.0.0" revConstraint="latest.integration" changing="true" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.xiphias"
+			rev="8.0.0" revConstraint="latest.integration" changing="true" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.jive"
+			rev="8.0.0" revConstraint="latest.integration" changing="true" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="8.0.0"
+			revConstraint="latest.integration" changing="true" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.trafo"
+			rev="8.0.0" revConstraint="latest.integration" changing="true" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook"
+			rev="8.0.0" revConstraint="latest.integration" changing="true" />
+		<dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook"
+			rev="8.0.1" revConstraint="latest.integration" changing="true" />
+	</dependencies>
 </ivy-module>

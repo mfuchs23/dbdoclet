@@ -12,6 +12,21 @@
 
 	<target name="build">
 
+		<buildnumber/>
+		<tstamp>
+		    <format property="timestamp" pattern="yyyy-MM-dd'T'hh:mm:ss" />
+		</tstamp>
+
+		<replaceregexp file="src/main/resources/release.properties"
+				match="version=.*" 
+				replace="version=${module.version}"/>    
+		<replaceregexp file="src/main/resources/release.properties"
+				match="build=.*" 
+				replace="build=${build.number}"/>    
+		<replaceregexp file="src/main/resources/release.properties"
+				match="timestamp=.*" 
+				replace="timestamp=${timestamp}"/>    
+		
 		<antcall target="default.compile" />
 
 		<jar destfile="distrib/dbdoclet.jar">
@@ -37,9 +52,5 @@
 			</zipgroupfileset>
 		</jar>
 		<antcall target="default.build" />
-	</target>
-	
-	<target name="release">
-		
 	</target>
 </project>

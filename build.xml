@@ -2,7 +2,7 @@
 <!--
 ### Copyright (C) 2001-2012 Michael Fuchs ###
 -->
-<project name="common" default="build">
+<project name="common" default="deploy">
 
   <property name="resolveMode" value="default"/>
 
@@ -21,8 +21,12 @@
     </sequential>
   </macrodef>
 
-  <target name="build">
+  <target name="deploy">
+    <antcall target="clean.cache"/>
+    <iterate target="distclean"/>
     <iterate target="build"/>
+    <ant dir="org.dbdoclet.doclet.docbook.package" target="install"/>
+    <ant dir="org.dbdoclet.doclet.docbook.package" target="dist"/>
   </target>
 
   <echo>resolve mode = ${resolveMode}</echo>

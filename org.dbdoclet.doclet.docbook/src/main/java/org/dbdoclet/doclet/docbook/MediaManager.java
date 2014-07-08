@@ -83,6 +83,7 @@ import org.dbdoclet.xiphias.Hyphenation;
 import org.dbdoclet.xiphias.ImageServices;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
+import org.dbdoclet.xiphias.dom.ProcessingInstructionImpl;
 import org.w3c.dom.Element;
 
 import com.sun.javadoc.ClassDoc;
@@ -860,6 +861,7 @@ public abstract class MediaManager {
 			docList = deprecatedMap.get(title);
 
 			VariableList list = tagFactory.createVariableList();
+			list.appendChild(new ProcessingInstructionImpl("dbfo", "list-presentation=\"block\""));
 			section.appendChild(list);
 
 			for (Doc doc : docList) {

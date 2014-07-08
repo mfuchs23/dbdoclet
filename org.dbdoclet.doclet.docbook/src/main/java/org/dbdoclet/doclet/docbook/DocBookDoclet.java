@@ -185,9 +185,10 @@ public final class DocBookDoclet extends AbstractDoclet {
 
 			doclet.println(ResourceServices
 					.getString(res, "C_RUNNING_DBDOCLET"));
-			doclet.println("Copyright (c) 2001-2013 Michael Fuchs");
-			doclet.println("Version " + ReleaseServices.getVersion()
-					+ " Build " + ReleaseServices.getBuild());
+			doclet.println("Copyright (c) 2001-2014 Michael Fuchs");
+			ReleaseServices releaseServices = new ReleaseServices();
+			doclet.println("Version " + releaseServices.getVersion()
+					+ " Build " + releaseServices.getBuild());
 
 			File destPath = dbdScript.getDestinationDirectory();
 

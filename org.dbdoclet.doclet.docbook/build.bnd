@@ -1,5 +1,5 @@
 Main-Class: org.dbdoclet.doclet.docbook
-version=8.0.0
+version=8.0.1
 Bundle-Name=org.dbdoclet.doclet.docbook
 Bundle-SymbolicName=org.dbdoclet.doclet.docbook
 Bundle-Version=${version}

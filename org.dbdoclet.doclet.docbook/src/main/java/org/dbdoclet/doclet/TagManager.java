@@ -303,7 +303,7 @@ public class TagManager {
 			}
 		}
 
-		pkgName = pkgName.substring(index);
+		pkgName = pkgName.substring(0, index);
 		return pkgName;
 	}
 
