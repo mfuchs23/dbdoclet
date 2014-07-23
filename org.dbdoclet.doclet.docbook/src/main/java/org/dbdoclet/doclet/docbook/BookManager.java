@@ -186,7 +186,9 @@ public class BookManager extends MediaManager {
 					className = classIterator.next();
 					classDoc = classMap.get(className);
 
+					script.addContext(classDoc.qualifiedTypeName());
 					writeClass(chapter, classDoc);
+					script.removeContext(classDoc.qualifiedTypeName());
 				}
 
 				parent.appendChild(chapter);

@@ -613,4 +613,12 @@ public class DbdScript {
 		script.selectSection("javadoc");
 		script.setTextParameter(TrafoConstants.PARAM_ENCODING, encoding);
 	}
+
+	public void addContext(String context) {
+		script.addContext(context);
+	}
+
+	public void removeContext(String context) {
+		script.removeContext(context);
+	}
 }

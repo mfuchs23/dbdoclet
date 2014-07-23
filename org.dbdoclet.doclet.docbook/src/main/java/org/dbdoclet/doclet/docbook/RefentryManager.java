@@ -205,7 +205,9 @@ public class RefentryManager extends MediaManager {
 					className = classIterator.next();
 					classDoc = classMap.get(className);
 
+					script.addContext(classDoc.qualifiedTypeName());
 					writeClass(reference, classDoc);
+					script.removeContext(classDoc.qualifiedTypeName());
 				}
 			}
 

@@ -151,7 +151,9 @@ public class ArticleManager extends MediaManager {
 					className = classIterator.next();
 					classDoc = classMap.get(className);
 
+					script.addContext(classDoc.qualifiedTypeName());
 					writeClass(sect1, classDoc);
+					script.removeContext(classDoc.qualifiedTypeName());
 				}
 
 				parent.appendChild(sect1);
