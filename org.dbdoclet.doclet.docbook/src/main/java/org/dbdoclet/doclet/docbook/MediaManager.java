@@ -110,7 +110,7 @@ public abstract class MediaManager {
 	protected DocBookTagFactory tagFactory;
 	protected TagManager tagManager;
 	protected Hyphenation hyphenation;
-	
+
 	protected void createAdditionalSections(DocBookElement parent)
 			throws IOException, DocletException {
 
@@ -209,18 +209,19 @@ public abstract class MediaManager {
 			if (isDocBook5()) {
 
 				if (isDefined(authorFirstname) || isDefined(authorSurname)) {
-					
+
 					Personname personname = tagFactory.createPersonname();
 					author.appendChild(personname);
 
 					if (isDefined(authorFirstname)) {
 						FirstName firstName = tagFactory
-							.createFirstName(authorFirstname);
+								.createFirstName(authorFirstname);
 						personname.appendChild(firstName);
 					}
-					
+
 					if (isDefined(authorSurname)) {
-						Surname surname = tagFactory.createSurname(authorSurname);
+						Surname surname = tagFactory
+								.createSurname(authorSurname);
 						personname.appendChild(surname);
 					}
 				}
@@ -355,10 +356,11 @@ public abstract class MediaManager {
 		Date date = tagFactory.createDate(df.format(new java.util.Date()));
 		parent.appendChild(date);
 
-		Abstract abstractElement = tagFactory.createAbstract();
-		parent.appendChild(abstractElement);
-		abstractElement.appendChild(summary);
-
+		if (summary.getTextContent().trim().length() > 0) {
+			Abstract abstractElement = tagFactory.createAbstract();
+			parent.appendChild(abstractElement);
+			abstractElement.appendChild(summary);
+		}
 	}
 
 	protected void createInheritanceDiagram(ClassDoc classDoc,
@@ -378,7 +380,6 @@ public abstract class MediaManager {
 		media = tagFactory.createMediaObject();
 		media.setParentNode(figure);
 		figure.appendChild(media);
-
 
 		try {
 
@@ -582,11 +583,11 @@ public abstract class MediaManager {
 	protected Title getTitle() {
 
 		String title = script.getTitle();
-		
+
 		if (title == null && pkgMap.size() > 0) {
 			title = pkgMap.firstKey();
 		}
-		
+
 		if (title == null) {
 			title = "JavaDoc";
 		}
@@ -621,7 +622,7 @@ public abstract class MediaManager {
 		if (value == null || value.trim().length() == 0) {
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -721,8 +722,8 @@ public abstract class MediaManager {
 
 				pkgName = pkgIterator.next();
 				section = tagFactory.createSection(
-						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
-					    pkgName + ".*");
+				// ResourceServices.getString(res, "C_PACKAGE") + " " +
+						pkgName + ".*");
 
 				classMap = pkgFieldMap.get(pkgName);
 
@@ -861,7 +862,8 @@ public abstract class MediaManager {
 			docList = deprecatedMap.get(title);
 
 			VariableList list = tagFactory.createVariableList();
-			list.appendChild(new ProcessingInstructionImpl("dbfo", "list-presentation=\"block\""));
+			list.appendChild(new ProcessingInstructionImpl("dbfo",
+					"list-presentation=\"block\""));
 			section.appendChild(list);
 
 			for (Doc doc : docList) {
@@ -880,8 +882,9 @@ public abstract class MediaManager {
 
 				if (doc instanceof ProgramElementDoc) {
 
-					Link link = tagFactory.createLink(doc.toString(), referenceManager
-							.findReference((ProgramElementDoc) doc));
+					Link link = tagFactory.createLink(doc.toString(),
+							referenceManager
+									.findReference((ProgramElementDoc) doc));
 					term.appendChild(link);
 
 				} else {

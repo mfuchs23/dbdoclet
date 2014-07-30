@@ -47,6 +47,7 @@ public class DocletOptions {
 	private static Log logger = LogFactory.getLog(DocletOptions.class);
 	private OptionList optList;
 	private DirectoryOption optDestDir;
+	private FileOption optDestFile;
 	private FileOption optProfile;
 	private StringOption optTitle;
 	private StringOption optSourcepath;
@@ -64,6 +65,10 @@ public class DocletOptions {
 
 	public File getDestinationDirectory() {
 		return optDestDir.getValue();
+	}
+
+	public File getDestinationFile() {
+		return optDestFile.getValue();
 	}
 
 	public ArrayList<String> getSourcepath() {
@@ -98,15 +103,9 @@ public class DocletOptions {
 					"Can't detect installation path (2)!");
 		}
 
-		dir = dir.getParentFile();
-		if (dir == null) {
-			throw new IllegalStateException(
-					"Can't detect installation path (3)!");
-		}
-
 		if (dir.exists() == false) {
 			throw new IllegalStateException(
-					"Can't detect installation path (4)!");
+					"Can't detect installation path (3)!");
 		}
 
 		path = dir.getCanonicalPath();
@@ -148,6 +147,13 @@ public class DocletOptions {
 		optDestDir.setMediumName("destination-directory");
 		optDestDir.setDefault(new File("./dbdoclet"));
 		optList.add(optDestDir);
+
+		optDestFile = new FileOption();
+		optDestFile.setShortName("f");
+		optDestFile.setMediumName("file");
+		optDestFile.setLongName("destination-file");
+		optDestFile.isExisting(false);
+		optList.add(optDestFile);
 
 		optProfile = new FileOption();
 		optProfile.setShortName("p");

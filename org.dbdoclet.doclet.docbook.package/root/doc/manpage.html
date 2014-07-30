@@ -1,17 +1,37 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>dbdoclet</title><link rel="stylesheet" type="text/css" href="dbdoclet.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="index.html" title="dbdoclet"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">dbdoclet</th></tr></table></div><div class="refentry"><a name="d0e1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>dbdoclet &#8212; Javadoc to DocBook converter</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">dbdoclet</code>  [OPTIONS]</p></div></div><div class="refsection"><a name="d0e29"></a><h2>Description</h2><p>The reuse of javadoc content in presentation-neutral form is a
-    frequent problem. One possible solution is to convert javadoc to DocBook
-    XML, because DocBook is a semantic markup language for documentation,
-    which enables its users to create document content that captures the
-    logical structure of the content.</p><p>The command line tool <span class="productname">dbdoclet</span> can be
-    used to convert javadoc to DocBook. Because javadoc is written as HTML
-    tags and HTML elements are often used not as intended, the possibilities
-    for such a transformation are somewhat limited.</p><p>dbdoclet is part of the dbdoclet suite of tools. For more
-    information visit <a class="ulink" href="http://www.dbdoclet.org" target="_top">http://www.dbdoclet.org</a>.</p></div><div class="refsection"><a name="d0e44"></a><h2>Options</h2><div class="variablelist"><dl class="variablelist"><dt><span class="term">-d</span></dt><dd><p>Specifies the DocBook XML destination directory.</p></dd><dt><span class="term">-profile, -p</span></dt><dd><p>A profile file with predefined settings.</p></dd><dt><span class="term">-title</span></dt><dd><p>The title of the generated documentation. The default title is
-          the name of the first java package.</p></dd></dl></div></div><div class="refsection"><a name="d0e66"></a><h2>Configuration</h2><p>The details of a transformation are controlled by a profile file. A
+   <title>dbdoclet</title><link rel="stylesheet" type="text/css" href="dbdoclet.css"><meta name="generator" content="DocBook XSL Stylesheets V1.78.1"><link rel="home" href="index.html" title="dbdoclet"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">dbdoclet</th></tr></table></div><div class="refentry"><a name="d0e1"></a><div class="titlepage"></div><div class="refnamediv"><h2>Name</h2><p>dbdoclet &#8212; Javadoc to DocBook converter</p></div><div class="refsynopsisdiv"><h2>Synopsis</h2><div class="cmdsynopsis"><p><code class="command">dbdoclet</code>  [OPTIONS]</p></div></div><div class="refsection"><a name="d0e29"></a><h2>Description</h2><p>The reuse of <span class="productname">javadoc</span> content in
+    presentation-neutral form is a frequent problem. One possible
+    solution is to convert javadoc to DocBook
+    XML. <span class="productname">DocBook</span> is a semantic markup
+    language for technical documentation, which enables its users to
+    create documents that capture the logical structure of the
+    content. For more infomation about DocBook have a look at <a class="ulink" href="www.docbook.org" target="_top">http://www.docbook.org</a>.</p><p>dbdoclet is the implementation of a javadoc doclet,
+    which converts javadoc documentation to DocBook XML. In addition
+    to the generation of DocBook XML, it is able to create UML class
+    diagrams.</p><p>The command line tool <span class="productname">dbdoclet</span>
+    can be used directly to convert javadoc to DocBook. It's a simple
+    wrapper around the javadoc tool and the javadoc doclet
+    <code class="filename">dbdoclet.jar</code>.</p><p>The dbdoclet doclet jar archive is part of the maven central
+    repository. Use <code class="varname">GroupId</code>: <span class="emphasis"><em>org.dbdoclet</em></span> and
+    <code class="varname">ArtifactId</code>: <span class="emphasis"><em>dbdoclet</em></span> to add a dependency to your
+    project.</p><p>dbdoclet is part of the dbdoclet suite of tools. For more
+    information visit <a class="ulink" href="http://www.dbdoclet.org" target="_top">http://www.dbdoclet.org</a>.</p></div><div class="refsection"><a name="d0e72"></a><h2>Options</h2><p>You can use all general options provided by the javadoc tool, but you
+    can't use the options of the standard HTML doclet. Please have a look at
+    the javadoc manual.</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">-d</span></dt><dd><p>This option specifies the DocBook XML destination
+          directory. It must not used together with the option -f. The
+          name of the DocBook XML file is set to
+          Reference.xml. Because dbdoclet generates a lot of image
+          files and also the javadoc documentation can contain
+          addtional files, the use of an empty directory is
+          prefered.</p></dd><dt><span class="term">-f</span></dt><dd><p>This option specifies the DocBook XML destination
+          file. It must not used together with the option -d. The
+          parent directory of the file will be used as destination
+          directory for all generated images and for all additional
+          files found in the javadoc documentation.</p></dd><dt><span class="term">-profile, -p</span></dt><dd><p>A profile file with predefined settings.</p></dd><dt><span class="term">-title</span></dt><dd><p>The title of the generated documentation. The default title is
+          the name of the first java package.</p></dd></dl></div></div><div class="refsection"><a name="d0e102"></a><h2>Configuration</h2><p>The details of a transformation are controlled by a profile file. A
     profile file offers a lot of possibilities to influence the
-    transformation. The following example shows a typical profile file:</p><div class="refsection"><a name="d0e71"></a><h3>Syntax</h3><p>A profile file consists mainly of sections. Sections are used to
+    transformation. The following example shows a typical profile file:</p><div class="refsection"><a name="d0e107"></a><h3>Syntax</h3><p>A profile file consists mainly of sections. Sections are used to
       group parameters which share the same context. Every section must start
       with the keyword <code class="varname">section</code> followed by the name of the
       section. After the name comes the block of parameters, which is
@@ -21,57 +41,67 @@
       are framed with square brackets. Inside an array, the elements must be
       comma separated. Every assignment must be finished by a semicolon. Multi
       line comments have the form <code class="varname">/* my comment */</code> , single
-      line comments look like <code class="varname">// my comment\n</code>.</p></div><div class="refsection"><a name="d0e85"></a><h3>Mandatory Elements</h3><p>A profile for dbdoclet must start with the line
-      <code class="literal">transformation dbdoclet;</code>.</p></div><div class="refsection"><a name="d0e93"></a><h3>Section dbdoclet</h3><p>The section dbdoclet controls what kind of documentation should be
+      line comments look like <code class="varname">// my comment\n</code>.</p></div><div class="refsection"><a name="d0e121"></a><h3>Mandatory Elements</h3><p>A profile for dbdoclet must start with the line
+      <code class="literal">transformation dbdoclet;</code>.</p></div><div class="refsection"><a name="d0e129"></a><h3>Section dbdoclet</h3><p>The section dbdoclet controls what kind of documentation should be
       created, e.g. which sections and which information should be contained
       in the resulting media.</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">chunk-docbook</span></dt><dd><p>Split the output into multiple files. If this parameter is
-              set to true, a separate file for every class will be
-              created.</p></dd><dt><span class="term">class-diagram-font-size</span></dt><dd><p>Defines the size of the class diagram font in points (pt).
-              This parameter indirectly influences the size of the generated
-              diagrams.</p></dd><dt><span class="term">class-diagram-width</span></dt><dd><p>Defines the maximum width of the generated class diagrams.
-              The default value is 700.</p></dd><dt><span class="term">create-appendix</span></dt><dd><p>If set to true, additional sections such as "Constants
-              values" or "Statistics" will generated inside an appendix.
-              Otherwise they will be appended as ordinary chapters. The
-              default value is true.</p></dd><dt><span class="term">create-author-info</span></dt><dd><p>If set to true, the javadoc tag @author will be processed.
-              This parameter depends on the
-              <em class="parameter"><code>create-meta-info</code></em>. The default value is
-              true.</p></dd><dt><span class="term">create-class-diagram</span></dt><dd><p>If set to true, an inheritance class diagram is created
-              for every class. The default value is true.</p></dd><dt><span class="term">create-deprecated-info</span></dt><dd><p>If set to true, @deprecated javadoc tags and annotations
-              will be processed. A warning element will be created for each.
-              The default value is true.</p></dd><dt><span class="term">create-deprecated-list</span></dt><dd><p>If set to true, a section is created at the end of the
-              document, which contains a list of all deprecated elements. The
-              default value is true.</p></dd><dt><span class="term">create-exception-info</span></dt><dd><p>If set to true, the javadoc tag @exception will be
-              processed. The default value is true.</p></dd><dt><span class="term">create-field-info</span></dt><dd><p>If set to true, the field comments are processed. The
-              default value is true.</p></dd><dt><span class="term">create-fully-qualified-names</span></dt><dd><p>If set to true, full qualified names of classes, fields,
-              methods and parameters are used. The default is false.</p></dd><dt><span class="term">create-inheritance-info</span></dt><dd><p>If set to true, an inheritance</p></dd><dt><span class="term">create-inherited-from-info</span></dt><dd><p>If set to true, a section with all inherited methods is
-              created. The default is true.</p></dd><dt><span class="term">create-meta-info</span></dt><dd><p>If set to true, a section with all meta javadoc tags is
-              created. Meta tags are all tags but @deprecated, @param,
-              @return, @serialField and @throws. If this parameter is set to
-              false, tags like @author will be suppresed</p></dd><dt><span class="term">create-method-info</span></dt><dd><p>If set to true, the method comments are processed. The
-              default value is true.</p></dd><dt><span class="term">create-parameter-info</span></dt><dd><p>If set to true, the javadoc tag @param will be processed.
-              The default value is true.</p></dd><dt><span class="term">create-section-constant-values</span></dt><dd><p>If set to true, a section containing all constant values
-              will be created at the end of the document. The default value is
-              true.</p></dd><dt><span class="term">create-see-also-info</span></dt><dd><p>If set to true, the javadoc tag @see will be processed.
-              The default value is true.</p></dd><dt><span class="term">create-serial-field-info</span></dt><dd><p>If set to true, the javadoc tag @serialField will be
-              processed. The default value is true.</p></dd><dt><span class="term">create-since-info</span></dt><dd><p>If set true, the javadoc tag @since will be processed. The
-              default value is true.</p></dd><dt><span class="term">create-statistics</span></dt><dd><p>If set to true, a section with statistical information
-              will be created at the end of the document. The default value is
-              false.</p></dd><dt><span class="term">create-synopsis</span></dt><dd><p>If set to true, the synopsis section will be created. The
-              default value is true.</p></dd><dt><span class="term">create-version-info</span></dt><dd><p>If set to true, the javadoc tag @version will be
-              processed. The default value is true.</p></dd><dt><span class="term">document-style</span></dt><dd><p>This parameter influences the structure of the generated
-              DocBook XML. You can choose between style "table" and style
-              "variablelist". The default is "table".</p></dd><dt><span class="term">force-annotation-documentation</span></dt><dd><p>If set to true, annotation are being processed, regardless
-              of the annotation @Documented being present or not. The default
-              value is false.</p></dd><dt><span class="term">id-style</span></dt><dd><p>This parameter influences the generation of id values. You
-              can choose between "numbered" and "java". The default is
-              "numbered".</p></dd><dt><span class="term">list-presentation</span></dt><dd><p>This parameter is used for generated variablelist
-              elements. If the parameter is set, its value will be used as
-              attribute "list-presentation" of the a dbfo processing
-              instruction. For more information have look at the DocBook XSL
-              documentation.</p></dd><dt><span class="term">logo-path</span></dt><dd><p>This parameter defines a logo image, which will be
-              inserted as mediaobject in the info section.</p></dd><dt><span class="term">overview-title</span></dt><dd><p>The content of this parameter will be used as title for
-              the overview section, if no title can be extracted from the
-              overview file.</p></dd></dl></div></div><div class="refsection"><a name="d0e276"></a><h3>Section DocBook</h3><div class="variablelist"><dl class="variablelist"><dt><span class="term">abstract</span></dt><dd><p>The text for the abstract element of the info section. If
+            set to true, a separate file for every class will be
+            created.</p></dd><dt><span class="term">class-diagram-contains-attributes</span></dt><dd><p>If set to true, the documented class contains the
+            attributes in the its class diagram. The default value is
+            true.</p></dd><dt><span class="term">class-diagram-contains-operations</span></dt><dd><p>If set to true, the documented class contains the
+            operations in the its class diagram. The default value is
+            true.</p></dd><dt><span class="term">class-diagram-font-size</span></dt><dd><p>Defines the size of the class diagram font in points (pt).
+            This parameter indirectly influences the size of the generated
+            diagrams.</p></dd><dt><span class="term">class-diagram-height</span></dt><dd><p>Defines the maximum height of the generated class
+            diagrams in px. If the parameter is set to 0, no scaling
+            will be done for the height. The default value is
+            0.</p></dd><dt><span class="term">class-diagram-includes-object</span></dt><dd><p>If set to true, the generated class diagrams include
+            <code class="classname">java.lang.Object</code> as root class,
+            otherwise it is omitted to save space. The default value
+            is false.</p></dd><dt><span class="term">class-diagram-width</span></dt><dd><p>Defines the maximum width of the generated class
+            diagrams in px. If the parameter is set to 0, no scaling
+            will be done for the width. The default value is 0.</p></dd><dt><span class="term">create-appendix</span></dt><dd><p>If set to true, additional sections such as "Constants
+            values" or "Statistics" will generated inside an appendix.
+            Otherwise they will be appended as ordinary chapters. The default
+            value is true.</p></dd><dt><span class="term">create-author-info</span></dt><dd><p>If set to true, the javadoc tag @author will be processed.
+            This parameter depends on the
+            <em class="parameter"><code>create-meta-info</code></em>. The default value is
+            true.</p></dd><dt><span class="term">create-class-diagram</span></dt><dd><p>If set to true, an inheritance class diagram is created for
+            every class. The default value is true.</p></dd><dt><span class="term">create-deprecated-info</span></dt><dd><p>If set to true, @deprecated javadoc tags and annotations
+            will be processed. A warning element will be created for each. The
+            default value is true.</p></dd><dt><span class="term">create-deprecated-list</span></dt><dd><p>If set to true, a section is created at the end of the
+            document, which contains a list of all deprecated elements. The
+            default value is true.</p></dd><dt><span class="term">create-exception-info</span></dt><dd><p>If set to true, the javadoc tag @exception will be
+            processed. The default value is true.</p></dd><dt><span class="term">create-field-info</span></dt><dd><p>If set to true, the field comments are processed. The
+            default value is true.</p></dd><dt><span class="term">create-fully-qualified-names</span></dt><dd><p>If set to true, full qualified names of classes, fields,
+            methods and parameters are used. The default is false.</p></dd><dt><span class="term">create-inheritance-info</span></dt><dd><p>If set to true, an inheritance</p></dd><dt><span class="term">create-inherited-from-info</span></dt><dd><p>If set to true, a section with all inherited methods is
+            created. The default is true.</p></dd><dt><span class="term">create-meta-info</span></dt><dd><p>If set to true, a section with all meta javadoc tags is
+            created. Meta tags are all tags but @deprecated, @param, @return,
+            @serialField and @throws. If this parameter is set to false, tags
+            like @author will be suppresed</p></dd><dt><span class="term">create-method-info</span></dt><dd><p>If set to true, the method comments are processed. The
+            default value is true.</p></dd><dt><span class="term">create-parameter-info</span></dt><dd><p>If set to true, the javadoc tag @param will be processed.
+            The default value is true.</p></dd><dt><span class="term">create-section-constant-values</span></dt><dd><p>If set to true, a section containing all constant values
+            will be created at the end of the document. The default value is
+            true.</p></dd><dt><span class="term">create-see-also-info</span></dt><dd><p>If set to true, the javadoc tag @see will be processed. The
+            default value is true.</p></dd><dt><span class="term">create-serial-field-info</span></dt><dd><p>If set to true, the javadoc tag @serialField will be
+            processed. The default value is true.</p></dd><dt><span class="term">create-since-info</span></dt><dd><p>If set true, the javadoc tag @since will be processed. The
+            default value is true.</p></dd><dt><span class="term">create-statistics</span></dt><dd><p>If set to true, a section with statistical information will
+            be created at the end of the document. The default value is
+            false.</p></dd><dt><span class="term">create-synopsis</span></dt><dd><p>If set to true, the synopsis section will be created. The
+            default value is true.</p></dd><dt><span class="term">create-version-info</span></dt><dd><p>If set to true, the javadoc tag @version will be processed.
+            The default value is true.</p></dd><dt><span class="term">document-style</span></dt><dd><p>This parameter influences the structure of the generated
+            DocBook XML. You can choose between style "table" and style
+            "variablelist". The default is "table".</p></dd><dt><span class="term">force-annotation-documentation</span></dt><dd><p>If set to true, annotations are processed, regardless
+            of the presence of the @Documented annotation. The default
+            value is false.</p></dd><dt><span class="term">id-style</span></dt><dd><p>This parameter influences the generation of id values. You
+            can choose between "numbered" and "java". The default is
+            "numbered".</p></dd><dt><span class="term">list-presentation</span></dt><dd><p>This parameter is used for generated variablelist elements.
+            If the parameter is set, its value will be used as attribute
+            "list-presentation" of the a dbfo processing instruction. For more
+            information have look at the DocBook XSL documentation.</p></dd><dt><span class="term">logo-path</span></dt><dd><p>This parameter defines a logo image, which will be inserted
+            as mediaobject in the info section.</p></dd><dt><span class="term">overview-title</span></dt><dd><p>The content of this parameter will be used as title for the
+            overview section, if no title can be extracted from the overview
+            file.</p></dd></dl></div></div><div class="refsection"><a name="d0e339"></a><h3>Section DocBook</h3><div class="variablelist"><dl class="variablelist"><dt><span class="term">abstract</span></dt><dd><p>The text for the abstract element of the info section. If
               the text is structured with newlines, use three double quotes as
               delimiters. If the text starts with a "&lt;" character, it is
               embedded into an abstract element, otherwise the text is
@@ -83,7 +113,19 @@
               is used to create an info section at the beginning of the
               document.</p></dd><dt><span class="term">author-surname</span></dt><dd><p>The surname of the author. If this parameter is set, it is
               used to create an info section at the beginning of the
-              document.</p></dd></dl></div></div><div class="refsection"><a name="d0e311"></a><h3>Example</h3><pre class="programlisting">transformation dbdoclet;
+              document.</p></dd></dl></div></div><div class="refsection"><a name="d0e374"></a><h3>Sections for certain classes</h3><p>Frequently there is a need to handle a certain class in a
+      special way. For example, if the class contains far to many
+      methods or fields, you may want to disable these in the UML
+      class diagram, because the diagram becomes unreadable. In this
+      case you can create a special section for this class using the
+      canonical class name as its section name.
+      </p></div><div class="refsection"><a name="d0e379"></a><h3>Sections with regular expressions for groups of classes</h3><p>Frequently there is a need to handle a group of classes
+      with similiar names in a special way. In this case you can
+      create a special section for this classes using a regular
+      expression as its section name. The regexp must start and end
+      with a slash and it is anchored, which means the pattern must
+      match against the whole canonical name of a class.
+      </p></div><div class="refsection"><a name="d0e384"></a><h3>Example</h3><pre class="programlisting">transformation dbdoclet;
 
 section dbdoclet {
   create-appendix = true;
@@ -111,7 +153,20 @@ erm&ouml;glicht vielf&auml;ltige Einstellungesm&ouml;glichkeiten.
   title = "Musikeditor";
   document-element = "book";
   corporation = "Ingenieurb&uuml;ro Michael Fuchs";
-} </pre></div></div><div class="refsection"><a name="d0e316"></a><h2>Copyright</h2><p>Copyright 2001-2013 Michael Fuchs. License GPLv3+: GNU GPL version 3
+}
+
+// Special section for class org.dbdoclet.doclet.docbook.DocBookDoclet
+section org.dbdoclet.doclet.docbook.DocBookDoclet {
+  class-diagram-contains-attributes = false;
+}
+
+/* All classes whose canonical name end with "Synopsis" */
+section /.*Synopsis/ {
+  class-diagram-contains-attributes = false;
+  class-diagram-contains-operations = false;
+}
+
+ </pre></div></div><div class="refsection"><a name="d0e389"></a><h2>Copyright</h2><p>Copyright 2001-2014 Michael Fuchs. License GPLv3+: GNU GPL version 3
     or later <a class="ulink" href="http://gnu.org/licenses/gpl.html" target="_top">http://gnu.org/licenses/gpl.html</a>.
     This is free software: you are free to change and redistribute it. There
     is NO WARRANTY, to the extent permitted by law.</p></div></div><div class="navfooter"></div></body></html>

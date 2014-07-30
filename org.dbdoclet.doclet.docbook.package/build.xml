@@ -3,129 +3,169 @@
 <!-- <!DOCTYPE project PUBLIC "-//Apache Group//DTD Ant V1.0//EN" "ant.dtd"> -->
 <project name="org.dbdoclet.doclet.docbook.package" default="build">
 
-	<property file="../workspace.properties" />
-	<property file="module.properties" />
-	<import file="${build.config.dir}/defaultBuild.xml" />
+  <property file="../workspace.properties" />
+  <property file="module.properties" />
+  <property file="../org.dbdoclet.doclet.docbook/src/main/resources/release.properties"
+	    prefix="release" />
+  <property name="archives.dir" value="${user.home}/Webpräsenz/HTML/archives/dbdoclet"/>
 
-	<taskdef name="packman" classname="org.dbdoclet.ant.PackmanTask" />
-	<taskdef name="srcpacker" classname="org.dbdoclet.tool.src.ProductManagerTask" />
+  <import file="${build.config.dir}/defaultBuild.xml" />
 
-	<target name="build">
-		<antcall target="default.compile" />
-		<copy todir="distrib">
-			<fileset dir="lib">
-				<include name="dbdoclet_*.jar" />
-			</fileset>
-		</copy>
-	</target>
+  <taskdef name="packman" classname="org.dbdoclet.ant.PackmanTask" />
+  <taskdef name="srcpacker" classname="org.dbdoclet.tool.src.ProductManagerTask" />
 
-	<target name="dist-src">
-		<property name="workdir" value="/usr/share/dbdoclet/src" />
-		<mkdir dir="${workdir}/jars" />
-		<copy todir="${workdir}/jars">
-			<fileset dir="lib">
-				<include name="resolver_*.jar" />
-				<include name="felix_*.jar" />
-				<include name="org.apache.felix.scr_*.jar" />
-				<include name="org.apache.commons.codec_*.jar" />
-				<include name="org.apache.commons.jxpath_*.jar" />
-			</fileset>
-		</copy>
-		<srcpacker deleteOnExit="true" product="dbdoclet"
-			workdir="/usr/share/dbdoclet/src" jarfile="distrib/dbdoclet_${project.version}.jar"
-			zipfile="distrib/dbdoclet-src_${project.version}.zip" buildfile="root/src/build.xml">
-			<fileset dir="../org.dbdoclet.doclet.docbook/src/main/java" />
-			<fileset dir="../../common8/org.dbdoclet.commons/src/main/java" />
-			<fileset dir="../../common8/org.dbdoclet.getopts/src/main/java" />
-			<fileset dir="../../markup8/org.dbdoclet.xiphias/src/main/java" />
-			<fileset dir="../../markup8/org.dbdoclet.html.parser/src/main/java" />
-			<fileset dir="../../markup8/org.dbdoclet.tag/src/main/java" />
-			<fileset dir="../../markup8/org.dbdoclet.svg/src/main/java" />
-			<fileset dir="../../trafo8/org.dbdoclet.trafo/src/main/java" />
-			<fileset dir="../../trafo8/org.dbdoclet.trafo.html/src/main/java" />
-			<fileset dir="../../trafo8/org.dbdoclet.trafo.html.docbook/src/main/java" />
-		</srcpacker>
-	</target>
+  <target name="build">
+    <antcall target="default.compile" />
+    <copy todir="distrib">
+      <fileset dir="lib">
+	<include name="dbdoclet_*.jar" />
+      </fileset>
+    </copy>
+    <gzip src="doc/manpage/dbdoclet.1" destfile="doc/manpage/dbdoclet.1.gz" />
+    <copy file="doc/manpage/build/html/index.html" tofile="root/doc/manpage.html" failonerror="false" />
+    <copy file="doc/manpage/manpage.pdf" tofile="root/doc/manpage.pdf" failonerror="false" />
+    <copy file="doc/manpage/dbdoclet.1.gz" tofile="root/doc/dbdoclet.1.gz" failonerror="false" />
+  </target>
 
-	<!-- ========================================== -->
-	<!-- INSTALL -->
-	<!-- ========================================== -->
-	<target name="install" depends="build.all">
-		<property name="instdir" value="/usr/share/dbdoclet" />
-		<echo>%%% Installationsverzeichnis [${instdir}]</echo>
-		<mkdir dir="${instdir}" />
-		<delete>
-			<fileset dir="${instdir}" />
-		</delete>
-		<copy todir="${instdir}" overwrite="true">
-			<fileset dir="root">
-				<include name="bin/**" />
-			</fileset>
-			<filterset>
-				<filter token="VERSION" value="${project.version}" />
-			</filterset>
-		</copy>
-		<copy todir="${instdir}">
-			<fileset dir="root">
-				<include name="conf/**" />
-				<include name="doc/**" />
-				<include name="icons/**" />
-				<include name="profiles/**" />
-				<include name="README" />
-				<include name="COPYING" />
-			</fileset>
-		</copy>
-		<mkdir dir="${instdir}/jars" />
-		<copy todir="${instdir}/jars">
-			<fileset dir="distrib">
-				<include name="*.jar" />
-			</fileset>
-		</copy>
-	</target>
+  <target name="dist-src">
+    <property name="workdir" value="/usr/share/dbdoclet/src" />
+    <mkdir dir="${workdir}/jars" />
+    <copy todir="${workdir}/jars">
+      <fileset dir="lib">
+	<include name="resolver_*.jar" />
+	<include name="felix_*.jar" />
+	<include name="org.apache.felix.scr_*.jar" />
+	<include name="org.apache.commons.codec_*.jar" />
+	<include name="org.apache.commons.jxpath_*.jar" />
+      </fileset>
+    </copy>
+    <srcpacker deleteOnExit="true" product="dbdoclet"
+	       workdir="/usr/share/dbdoclet/src" 
+	       jarfile="distrib/dbdoclet_${release.version}.jar"
+	       zipfile="distrib/dbdoclet-src-${release.version}-${release.build}.zip"
+	       buildfile="root/src/build.xml">
+      <fileset dir="../org.dbdoclet.doclet.docbook/src/main/java" />
+      <fileset dir="../../common8/org.dbdoclet.commons/src/main/java" />
+      <fileset dir="../../common8/org.dbdoclet.getopts/src/main/java" />
+      <fileset dir="../../markup8/org.dbdoclet.xiphias/src/main/java" />
+      <fileset dir="../../markup8/org.dbdoclet.html.parser/src/main/java" />
+      <fileset dir="../../markup8/org.dbdoclet.tag/src/main/java" />
+      <fileset dir="../../markup8/org.dbdoclet.svg/src/main/java" />
+      <fileset dir="../../trafo8/org.dbdoclet.trafo/src/main/java" />
+      <fileset dir="../../trafo8/org.dbdoclet.trafo.html/src/main/java" />
+      <fileset dir="../../trafo8/org.dbdoclet.trafo.html.docbook/src/main/java" />
+    </srcpacker>
+  </target>
 
-	<!-- ========================================== -->
-	<!-- DIST -->
-	<!-- ========================================== -->
-	<target name="dist" depends="clean.cache, distclean.all, build.all, install">
+  <!-- ========================================== -->
+  <!-- INSTALL -->
+  <!-- ========================================== -->
+  <target name="install" depends="build">
+    <property name="instdir" value="/usr/share/dbdoclet" />
+    <echo>%%% Installationsverzeichnis [${instdir}]</echo>
+    <mkdir dir="${instdir}" />
+    <delete>
+      <fileset dir="${instdir}" />
+    </delete>
+    <copy todir="${instdir}" overwrite="true">
+      <fileset dir="root">
+	<include name="bin/**" />
+      </fileset>
+      <filterset>
+	<filter token="VERSION" value="${project.version}" />
+      </filterset>
+    </copy>
+    <copy todir="${instdir}">
+      <fileset dir="root">
+	<include name="conf/**" />
+	<include name="doc/**" />
+	<include name="icons/**" />
+	<include name="profiles/**" />
+	<include name="README" />
+	<include name="COPYING" />
+      </fileset>
+    </copy>
+    <mkdir dir="${instdir}/jars" />
+    <copy todir="${instdir}/jars">
+      <fileset dir="distrib">
+	<include name="*.jar" />
+      </fileset>
+    </copy>
+    <chmod perm="0755">
+      <fileset dir="/usr/share/dbdoclet/bin">
+	<include name="*"/>
+      </fileset>
+    </chmod>
+  </target>
 
-		<property
-			file="../org.dbdoclet.doclet.docbook/src/main/resources/release.properties"
-			prefix="release" />
-		<antcall target="install" />
+  <target name="scratch" depends="clean.cache, distclean.all, build.all, install, dist, dist-deliver" />
 
-		<copy file="spec/dbdoclet.xml" tofile="spec/packman.xml"
-			overwrite="yes">
-			<filterset>
-				<filter token="BUILDNUMBER" value="${release.build}" />
-				<filter token="VERSION" value="${release.version}" />
-			</filterset>
-		</copy>
+  <!-- ========================================== -->
+  <!-- DIST -->
+  <!-- ========================================== -->
+  <target name="dist">
 
-		<mkdir dir="${packman.dir}/main" />
-		<copy todir="${packman.dir}/main" file="build.properties" />
+    <copy file="spec/dbdoclet.xml" tofile="spec/packman.xml"
+	  overwrite="yes">
+      <filterset>
+	<filter token="BUILDNUMBER" value="${release.build}" />
+	<filter token="VERSION" value="${release.version}" />
+      </filterset>
+    </copy>
 
-		<echo>Creating RPM Package...</echo>
-		<packman spec="spec/packman.xml" destdir="${packman.dir}/main"
-			type="rpm" />
+    <mkdir dir="${packman.dir}/main" />
+    <copy todir="${packman.dir}/main" file="build.properties" />
 
-		<echo>Creating Debian Package...</echo>
-		<packman spec="spec/packman.xml" destdir="${packman.dir}/main"
-			type="deb" />
+    <echo>Creating RPM Package...</echo>
+    <packman spec="spec/packman.xml" destdir="${packman.dir}/main"
+	     type="rpm" />
+    <echo>Creating Debian Package...</echo>
+    <packman spec="spec/packman.xml" destdir="${packman.dir}/main"
+	     type="deb" />
 
-		<echo>Creating tar/gzip Package...</echo>
-		<packman spec="spec/packman.xml" destdir="${packman.dir}/main"
-			type="tgz" />
+    <echo>Creating tar/gzip Package...</echo>
+    <packman spec="spec/packman.xml" destdir="${packman.dir}/main"
+	     type="tgz" />
 
-		<echo>Creating Windows Package...</echo>
-		<packman verbose="true" spec="spec/packman.xml" destdir="${packman.dir}/main"
-			type="nsis" />
+    <echo>Creating Windows Package...</echo>
+    <packman verbose="true" spec="spec/packman.xml" destdir="${packman.dir}/main"
+	     type="nsis" />
 
-		<echo file="${packman.dir}/main/version.properties">
-			version=${project.version}
-			version.win=${project.version.style.win}
-			release=${build.number}
-		</echo>
+    <echo file="${packman.dir}/main/version.properties">
+      version=${release.version}
+      release=${release.build}
+    </echo>
 
-	</target>
+    <antcall target="dist-src"/>
+  </target>
+
+  <target name="dist-deliver">
+
+    <loadresource property="release.win.version">
+      <string value="${release.version}"/>
+      <filterchain>
+	<replacestring from="." to="_"/>
+      </filterchain>
+    </loadresource>
+
+    <delete dir="${archives.dir}">
+      <include name="dbdoclet-${release.version}*"/>
+      <include name="dbdoclet-src-${release.version}*"/>
+      <include name="dbdoclet_${release.version}*"/>
+      <include name="dbdoclet-${release.win.version}*"/>
+    </delete>
+
+    <copy file="distrib/dbdoclet-src-${release.version}-${release.build}.zip"
+	  todir="${archives.dir}"/>
+
+    <copy todir="${archives.dir}">
+      <fileset dir="packman/main">
+	<include name="dbdoclet*.exe"/>
+	<include name="dbdoclet*.deb"/>
+	<include name="dbdoclet*.rpm"/>
+	<include name="dbdoclet*.tar.gz"/>
+      </fileset>
+    </copy>
+  </target>
 
 </project>

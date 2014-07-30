@@ -1,0 +1,9 @@
+transformation html2docbook;
+
+section org.dbdoclet.music.Motiv {
+	create-class-diagram = false;
+}
+
+section /.*\.Note/ {
+	create-class-diagram = false;
+}

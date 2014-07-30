@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 
 import org.dbdoclet.doclet.docbook.ExceptionHandler;
+import org.dbdoclet.option.Option;
 import org.dbdoclet.option.OptionException;
 import org.dbdoclet.option.OptionList;
 import org.dbdoclet.service.ResourceServices;
@@ -45,14 +46,24 @@ public class AbstractDoclet extends Doclet {
 		OptionList optionList = options.getOptionList();
 		boolean rc = optionList.validate();
 
+		Option<?> destFileOption = optionList.findOption("destination-file");
+		Option<?> destDirOption = optionList.findOption("destination-directory");
+		String usageText = "";
+		try {
+			usageText = ResourceServices
+					.getResourceAsString("resource/dbdoclet_usage.txt");
+		} catch (IOException oops) {
+			usageText = oops.getMessage();
+		}
+		
+		if (destFileOption.isUnset() == false && destDirOption.isUnset() == false) {
+			reporter.printError("Options --destination-file and --destination-directory may not be used together!");
+			reporter.printNotice(usageText);
+		}
+		
 		if (rc == false) {
 			reporter.printError(optionList.getError());
-			try {
-				reporter.printNotice(ResourceServices
-						.getResourceAsString("resource/dbdoclet_usage.txt"));
-			} catch (IOException oops) {
-				ExceptionHandler.handleException(oops);
-			}
+			reporter.printNotice(usageText);
 		}
 
 		return rc;
@@ -73,7 +84,7 @@ public class AbstractDoclet extends Doclet {
 	 */
 	public static int optionLength(String option) {
 
-		if (option.equals("-d") || option.equals("-profile")
+		if (option.equals("-d") || option.equals("-f") || option.equals("-profile")
 				|| option.equals("-tag") || option.equals("-title")) {
 			return 2;
 		}

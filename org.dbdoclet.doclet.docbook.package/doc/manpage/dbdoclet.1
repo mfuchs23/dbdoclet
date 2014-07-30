@@ -1,0 +1,370 @@
+'\" t
+.\"     Title: dbdoclet
+.\"    Author: Michael Fuchs
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/30/2014
+.\"    Manual: User Commands
+.\"    Source: dbdoclet
+.\"  Language: English
+.\"
+.TH "DBDOCLET" "1" "07/30/2014" "dbdoclet" "User Commands"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+dbdoclet \- Javadoc to DocBook converter
+.SH "SYNOPSIS"
+.HP \w'\fBdbdoclet\fR\ 'u
+\fBdbdoclet\fR [OPTIONS]
+.SH "DESCRIPTION"
+.PP
+The reuse of
+javadoc
+content in presentation\-neutral form is a frequent problem\&. One possible solution is to convert javadoc to DocBook XML\&.
+DocBook
+is a semantic markup language for technical documentation, which enables its users to create documents that capture the logical structure of the content\&. For more infomation about DocBook have a look at
+\m[blue]\fBhttp://www\&.docbook\&.org\fR\m[]\&\s-2\u[1]\d\s+2\&.
+.PP
+dbdoclet is the implementation of a javadoc doclet, which converts javadoc documentation to DocBook XML\&. In addition to the generation of DocBook XML, it is able to create UML class diagrams\&.
+.PP
+The command line tool
+dbdoclet
+can be used directly to convert javadoc to DocBook\&. It\*(Aqs a simple wrapper around the javadoc tool and the javadoc doclet
+dbdoclet\&.jar\&.
+.PP
+The dbdoclet doclet jar archive is part of the maven central repository\&. Use
+\fIGroupId\fR:
+\fIorg\&.dbdoclet\fR
+and
+\fIArtifactId\fR:
+\fIdbdoclet\fR
+to add a dependency to your project\&.
+.PP
+dbdoclet is part of the dbdoclet suite of tools\&. For more information visit
+\m[blue]\fBhttp://www\&.dbdoclet\&.org\fR\m[]\&.
+.SH "OPTIONS"
+.PP
+You can use all general options provided by the javadoc tool, but you can\*(Aqt use the options of the standard HTML doclet\&. Please have a look at the javadoc manual\&.
+.PP
+\-d
+.RS 4
+This option specifies the DocBook XML destination directory\&. It must not used together with the option \-f\&. The name of the DocBook XML file is set to Reference\&.xml\&. Because dbdoclet generates a lot of image files and also the javadoc documentation can contain addtional files, the use of an empty directory is prefered\&.
+.RE
+.PP
+\-f
+.RS 4
+This option specifies the DocBook XML destination file\&. It must not used together with the option \-d\&. The parent directory of the file will be used as destination directory for all generated images and for all additional files found in the javadoc documentation\&.
+.RE
+.PP
+\-profile, \-p
+.RS 4
+A profile file with predefined settings\&.
+.RE
+.PP
+\-title
+.RS 4
+The title of the generated documentation\&. The default title is the name of the first java package\&.
+.RE
+.SH "CONFIGURATION"
+.PP
+The details of a transformation are controlled by a profile file\&. A profile file offers a lot of possibilities to influence the transformation\&. The following example shows a typical profile file:
+.SS "Syntax"
+.PP
+A profile file consists mainly of sections\&. Sections are used to group parameters which share the same context\&. Every section must start with the keyword
+\fIsection\fR
+followed by the name of the section\&. After the name comes the block of parameters, which is surrounded by curly braces\&. Parameters can be of type String, Number, Boolean or Array\&. Strings must be framed with double quotes\&. If the String contains newlines, use three double quotes instead of one\&. Arrays are framed with square brackets\&. Inside an array, the elements must be comma separated\&. Every assignment must be finished by a semicolon\&. Multi line comments have the form
+\fI/* my comment */\fR
+, single line comments look like
+\fI// my comment\en\fR\&.
+.SS "Mandatory Elements"
+.PP
+A profile for dbdoclet must start with the line
+transformation dbdoclet;\&.
+.SS "Section dbdoclet"
+.PP
+The section dbdoclet controls what kind of documentation should be created, e\&.g\&. which sections and which information should be contained in the resulting media\&.
+.PP
+chunk\-docbook
+.RS 4
+Split the output into multiple files\&. If this parameter is set to true, a separate file for every class will be created\&.
+.RE
+.PP
+class\-diagram\-contains\-attributes
+.RS 4
+If set to true, the documented class contains the attributes in the its class diagram\&. The default value is true\&.
+.RE
+.PP
+class\-diagram\-contains\-operations
+.RS 4
+If set to true, the documented class contains the operations in the its class diagram\&. The default value is true\&.
+.RE
+.PP
+class\-diagram\-font\-size
+.RS 4
+Defines the size of the class diagram font in points (pt)\&. This parameter indirectly influences the size of the generated diagrams\&.
+.RE
+.PP
+class\-diagram\-height
+.RS 4
+Defines the maximum height of the generated class diagrams in px\&. If the parameter is set to 0, no scaling will be done for the height\&. The default value is 0\&.
+.RE
+.PP
+class\-diagram\-includes\-object
+.RS 4
+If set to true, the generated class diagrams include
+java\&.lang\&.Object
+as root class, otherwise it is omitted to save space\&. The default value is false\&.
+.RE
+.PP
+class\-diagram\-width
+.RS 4
+Defines the maximum width of the generated class diagrams in px\&. If the parameter is set to 0, no scaling will be done for the width\&. The default value is 0\&.
+.RE
+.PP
+create\-appendix
+.RS 4
+If set to true, additional sections such as "Constants values" or "Statistics" will generated inside an appendix\&. Otherwise they will be appended as ordinary chapters\&. The default value is true\&.
+.RE
+.PP
+create\-author\-info
+.RS 4
+If set to true, the javadoc tag @author will be processed\&. This parameter depends on the
+\fIcreate\-meta\-info\fR\&. The default value is true\&.
+.RE
+.PP
+create\-class\-diagram
+.RS 4
+If set to true, an inheritance class diagram is created for every class\&. The default value is true\&.
+.RE
+.PP
+create\-deprecated\-info
+.RS 4
+If set to true, @deprecated javadoc tags and annotations will be processed\&. A warning element will be created for each\&. The default value is true\&.
+.RE
+.PP
+create\-deprecated\-list
+.RS 4
+If set to true, a section is created at the end of the document, which contains a list of all deprecated elements\&. The default value is true\&.
+.RE
+.PP
+create\-exception\-info
+.RS 4
+If set to true, the javadoc tag @exception will be processed\&. The default value is true\&.
+.RE
+.PP
+create\-field\-info
+.RS 4
+If set to true, the field comments are processed\&. The default value is true\&.
+.RE
+.PP
+create\-fully\-qualified\-names
+.RS 4
+If set to true, full qualified names of classes, fields, methods and parameters are used\&. The default is false\&.
+.RE
+.PP
+create\-inheritance\-info
+.RS 4
+If set to true, an inheritance
+.RE
+.PP
+create\-inherited\-from\-info
+.RS 4
+If set to true, a section with all inherited methods is created\&. The default is true\&.
+.RE
+.PP
+create\-meta\-info
+.RS 4
+If set to true, a section with all meta javadoc tags is created\&. Meta tags are all tags but @deprecated, @param, @return, @serialField and @throws\&. If this parameter is set to false, tags like @author will be suppresed
+.RE
+.PP
+create\-method\-info
+.RS 4
+If set to true, the method comments are processed\&. The default value is true\&.
+.RE
+.PP
+create\-parameter\-info
+.RS 4
+If set to true, the javadoc tag @param will be processed\&. The default value is true\&.
+.RE
+.PP
+create\-section\-constant\-values
+.RS 4
+If set to true, a section containing all constant values will be created at the end of the document\&. The default value is true\&.
+.RE
+.PP
+create\-see\-also\-info
+.RS 4
+If set to true, the javadoc tag @see will be processed\&. The default value is true\&.
+.RE
+.PP
+create\-serial\-field\-info
+.RS 4
+If set to true, the javadoc tag @serialField will be processed\&. The default value is true\&.
+.RE
+.PP
+create\-since\-info
+.RS 4
+If set true, the javadoc tag @since will be processed\&. The default value is true\&.
+.RE
+.PP
+create\-statistics
+.RS 4
+If set to true, a section with statistical information will be created at the end of the document\&. The default value is false\&.
+.RE
+.PP
+create\-synopsis
+.RS 4
+If set to true, the synopsis section will be created\&. The default value is true\&.
+.RE
+.PP
+create\-version\-info
+.RS 4
+If set to true, the javadoc tag @version will be processed\&. The default value is true\&.
+.RE
+.PP
+document\-style
+.RS 4
+This parameter influences the structure of the generated DocBook XML\&. You can choose between style "table" and style "variablelist"\&. The default is "table"\&.
+.RE
+.PP
+force\-annotation\-documentation
+.RS 4
+If set to true, annotations are processed, regardless of the presence of the @Documented annotation\&. The default value is false\&.
+.RE
+.PP
+id\-style
+.RS 4
+This parameter influences the generation of id values\&. You can choose between "numbered" and "java"\&. The default is "numbered"\&.
+.RE
+.PP
+list\-presentation
+.RS 4
+This parameter is used for generated variablelist elements\&. If the parameter is set, its value will be used as attribute "list\-presentation" of the a dbfo processing instruction\&. For more information have look at the DocBook XSL documentation\&.
+.RE
+.PP
+logo\-path
+.RS 4
+This parameter defines a logo image, which will be inserted as mediaobject in the info section\&.
+.RE
+.PP
+overview\-title
+.RS 4
+The content of this parameter will be used as title for the overview section, if no title can be extracted from the overview file\&.
+.RE
+.SS "Section DocBook"
+.PP
+.PP
+abstract
+.RS 4
+The text for the abstract element of the info section\&. If the text is structured with newlines, use three double quotes as delimiters\&. If the text starts with a "<" character, it is embedded into an abstract element, otherwise the text is embedded into an para element inside of an abstract element\&. The text will parsed and can contain DocBook elements\&.
+.RE
+.PP
+add\-index
+.RS 4
+If true, an index element is appended to the end of the document\&.
+.RE
+.PP
+author\-email
+.RS 4
+The email address of the author\&. If this parameter is set, it is used to create an info section at the beginning of the document\&.
+.RE
+.PP
+author\-firstname
+.RS 4
+The firstname of the author\&. If this parameter is set, it is used to create an info section at the beginning of the document\&.
+.RE
+.PP
+author\-surname
+.RS 4
+The surname of the author\&. If this parameter is set, it is used to create an info section at the beginning of the document\&.
+.RE
+.SS "Sections for certain classes"
+.PP
+Frequently there is a need to handle a certain class in a special way\&. For example, if the class contains far to many methods or fields, you may want to disable these in the UML class diagram, because the diagram becomes unreadable\&. In this case you can create a special section for this class using the canonical class name as its section name\&.
+.SS "Sections with regular expressions for groups of classes"
+.PP
+Frequently there is a need to handle a group of classes with similiar names in a special way\&. In this case you can create a special section for this classes using a regular expression as its section name\&. The regexp must start and end with a slash and it is anchored, which means the pattern must match against the whole canonical name of a class\&.
+.SS "Example"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+transformation dbdoclet;
+
+section dbdoclet {
+  create\-appendix = true;
+  class\-diagram\-font\-size = 10;
+  class\-diagram\-width = 800;
+  create\-author\-info = true;
+  create\-class\-diagram = true;
+  create\-deprecated\-info = true;
+  create\-deprecated\-list = true;
+  create\-exception\-info = true;
+  create\-fully\-qualified\-names = false;
+  create\-inherited\-from\-info = true;
+} 
+
+section DocBook {
+  abstract = """ 
+Der <emphasis>Largo</emphasis>\-Editor dient der Erzeugung
+von Notenpapier in historischen Formaten\&. Er
+ermöglicht vielfältige Einstellungesmöglichkeiten\&.
+""";
+  add\-index = true;  
+  author\-email = "michael\&.fuchs@dbdoclet\&.org";
+  author\-firstname = "Michael";
+  author\-surname = "Fuchs";
+  title = "Musikeditor";
+  document\-element = "book";
+  corporation = "Ingenieurbüro Michael Fuchs";
+}
+
+// Special section for class org\&.dbdoclet\&.doclet\&.docbook\&.DocBookDoclet
+section org\&.dbdoclet\&.doclet\&.docbook\&.DocBookDoclet {
+  class\-diagram\-contains\-attributes = false;
+}
+
+/* All classes whose canonical name end with "Synopsis" */
+section /\&.*Synopsis/ {
+  class\-diagram\-contains\-attributes = false;
+  class\-diagram\-contains\-operations = false;
+}
+
+ 
+.fi
+.if n \{\
+.RE
+.\}
+.SH "COPYRIGHT"
+.PP
+Copyright 2001\-2014 Michael Fuchs\&. License GPLv3+: GNU GPL version 3 or later
+\m[blue]\fBhttp://gnu\&.org/licenses/gpl\&.html\fR\m[]\&. This is free software: you are free to change and redistribute it\&. There is NO WARRANTY, to the extent permitted by law\&.
+.SH "AUTHOR"
+.PP
+\fBMichael Fuchs\fR
+.RS 4
+Software Engineer
+.RE
+.SH "NOTES"
+.IP " 1." 4
+http://www.docbook.org
+.RS 4
+\%[set $man.base.url.for.relative.links]/www.docbook.org
+.RE

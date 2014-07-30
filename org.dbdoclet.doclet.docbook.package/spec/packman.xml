@@ -6,14 +6,14 @@
   <name>dbdoclet</name>
 
   <version>8.0.1</version>
-  <release>649</release>
+  <release>667</release>
 
   <archives>
   </archives>
 
   <summary>Javadoc doclet for DocBook XML generation.</summary> 
 
-  <copyright>Copyright (c) 2001-2013 by Michael Fuchs.</copyright> 
+  <copyright>Copyright (c) 2001-2014 by Michael Fuchs.</copyright> 
   <group>Productivity/File utilities</group>
 
   <architectures>

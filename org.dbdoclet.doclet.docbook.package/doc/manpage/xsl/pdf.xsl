@@ -141,8 +141,6 @@
   <xsl:param name="xref.label-page.separator"/>
   <xsl:param name="xref.label-title.separator">: </xsl:param>
   <xsl:param name="xref.title-page.separator"/>
-  <xsl:attribute-set name="admonition.title.properties"/>
-  <xsl:attribute-set name="monospace.verbatim.properties"/>
   <xsl:attribute-set name="section.title.properties">
     <xsl:attribute name="font-family">DejaVu Serif</xsl:attribute>
     <xsl:attribute name="font-weight">bold</xsl:attribute>
