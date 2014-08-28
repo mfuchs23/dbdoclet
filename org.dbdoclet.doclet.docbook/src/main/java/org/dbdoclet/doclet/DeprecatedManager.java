@@ -39,7 +39,7 @@ public class DeprecatedManager {
         
         boolean isDeprecated = false;
         
-        if (DbdServices.findComment("@deprecated", doc.tags()) != null) {
+        if (DbdServices.findComment(doc.tags(), "@deprecated") != null) {
             isDeprecated = true;
         }
         

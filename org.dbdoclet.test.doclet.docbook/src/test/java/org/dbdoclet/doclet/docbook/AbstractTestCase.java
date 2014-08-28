@@ -1,8 +1,5 @@
 package org.dbdoclet.doclet.docbook;
 
-import static com.sun.tools.javac.code.Flags.PRIVATE;
-import static com.sun.tools.javac.code.Flags.PROTECTED;
-import static com.sun.tools.javac.code.Flags.PUBLIC;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -12,6 +9,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.jxpath.JXPathException;
@@ -19,30 +18,34 @@ import org.dbdoclet.progress.InfoListener;
 import org.dbdoclet.service.ExecResult;
 import org.dbdoclet.service.ExecServices;
 import org.dbdoclet.service.FileServices;
+import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.xiphias.XmlServices;
 import org.dbdoclet.xiphias.XmlValidationResult;
 import org.dbdoclet.xiphias.XsdServices;
 import org.junit.Before;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javadoc.JavadocTool;
 import com.sun.tools.javadoc.Main;
-import com.sun.tools.javadoc.Messager;
-import com.sun.tools.javadoc.ModifierFilter;
-import com.sun.tools.javadoc.RootDocImpl;
 
 public class AbstractTestCase implements InfoListener {
 
+	private static final String DEFAULT_DOCBOOK_SCHEMA_PATH = "src/main/resources/xsd/docbook.xsd";
+	private static final String DEFAULT_PROFILE_PATH = "src/main/resources/profile/";
+	private static final String DEFAULT_DEST_PATH = "build/test/docbook/";
+	
 	protected static final ResourceBundle res = ResourceBundle
 			.getBundle("org/dbdoclet/doclet/docbook/Resources");
-	private final String docbookXsdFileName = "src/main/resources/xsd/docbook.xsd";
+	
+	private String docbookSchemaPath = DEFAULT_DOCBOOK_SCHEMA_PATH;
 
-	protected String destPath = "build/test/docbook/";
+	protected String dbdocletVersion = "8.0.2";
+	protected String destPath = DEFAULT_DEST_PATH;
+	protected String profilePath = DEFAULT_PROFILE_PATH;
+	protected String generatedPath = "build/test/generated/";
 	protected String sourcePath = "src/main/java/";
-	protected String docbookDocletJarFileName = "lib/dbdoclet_7.0.0.jar";
+	protected String docbookDocletJarFileName = "lib/dbdoclet_" + dbdocletVersion + ".jar";
 
 	@Override
 	public void info(String text) {
@@ -56,13 +59,17 @@ public class AbstractTestCase implements InfoListener {
 				.getResource("/org/dbdoclet/music/Note.java");
 
 		if (url != null) {
+			
 			String path = url.getPath();
+			
 			sourcePath = StringServices.cutSuffix(path,
 					"org/dbdoclet/music/Note.java");
-			destPath = StringServices.cutSuffix(sourcePath, "src/main/java/")
-					+ "/build/test/docbook/";
-			docbookDocletJarFileName = StringServices.cutSuffix(sourcePath,
-					"src/main/java/") + "/lib/dbdoclet_7.0.0.jar";
+			
+			String projectPath = StringServices.cutSuffix(sourcePath, "src/main/java/");
+			destPath = FileServices.appendPath(projectPath, DEFAULT_DEST_PATH);
+			profilePath = FileServices.appendPath(projectPath, DEFAULT_PROFILE_PATH);
+			docbookSchemaPath = FileServices.appendPath(projectPath, DEFAULT_DOCBOOK_SCHEMA_PATH);
+			docbookDocletJarFileName = projectPath + "/lib/dbdoclet_" + dbdocletVersion + ".jar";
 		}
 
 		File destDir = new File(destPath);
@@ -71,59 +78,11 @@ public class AbstractTestCase implements InfoListener {
 			FileServices.delete(destDir);
 		}
 
-		/*
 		System.out.println("Arbeitsverzeichnis: "
 				+ new File(".").getAbsolutePath());
 		System.out.println("sourcePath: " + sourcePath);
 		System.out.println("destPath: " + destPath);
-		*/
-	}
-
-	protected RootDocImpl javadoc(String[] sources, String classpath,
-			String[][] args) {
-
-		Context context = new Context();
-		Messager.preRegister(context, "dbdoclet");
-
-		JavadocTool tool = JavadocTool.make0(context);
-
-		final ListBuffer<String> subPackages = new ListBuffer<String>();
-		subPackages.append("yes");
-
-		final ListBuffer<String> xcludePackages = new ListBuffer<String>();
-
-		final ListBuffer<String> javaNames = new ListBuffer<String>();
-
-		for (String srcpath : sources) {
-			javaNames.append(srcpath);
-		}
-
-		final ListBuffer<String[]> options = new ListBuffer<String[]>();
-		options.append(new String[] { "-d", destPath });
-
-		if (args != null) {
-
-			for (String[] arg : args) {
-				options.append(arg);
-			}
-		}
-		// final Options compOpts = Options.instance(context);
-		// compOpts.put("-classpath", classpath);
-		// compOpts.put("-d", destPath);
-
-		RootDocImpl root;
-
-		try {
-			root = tool.getRootDocImpl("de", "", new ModifierFilter(PUBLIC
-					| PROTECTED | PRIVATE), javaNames.toList(),
-					options.toList(), null, false, subPackages.toList(),
-					xcludePackages.toList(), false, false, false);
-		} catch (IOException oops) {
-			oops.printStackTrace();
-			return null;
-		}
-
-		return root;
+		System.out.println("profilePath: " + profilePath);
 	}
 
 	protected void pln(String text) {
@@ -137,7 +96,7 @@ public class AbstractTestCase implements InfoListener {
 			assertTrue(rc.failed() == false);
 
 			XmlValidationResult result = XsdServices.validate(new File(destPath
-					+ "Reference.xml"), new File(docbookXsdFileName));
+					+ "Reference.xml"), new File(docbookSchemaPath));
 
 			if (result.failed()) {
 				System.out.println(result.createTextReport());
@@ -156,6 +115,10 @@ public class AbstractTestCase implements InfoListener {
 		return xpath(query, "Reference.xml");
 	}
 
+	protected void printDocBookFile() throws IOException {
+		System.out.println(FileServices.readToString(new File(destPath, "Reference.xml")));
+	}
+	
 	protected String xpath(String query, String fileName) {
 
 		try {
@@ -198,7 +161,26 @@ public class AbstractTestCase implements InfoListener {
 		return "";
 	}
 
-	protected void javadoc(String... options) {
+	protected String docComment(String comment) throws IOException, SAXException, ParserConfigurationException {
+		
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("public class DocComment {\n");
+		buffer.append("\n/**\n");
+		buffer.append(comment);
+		buffer.append("\n*/\n");
+		buffer.append("public void testDocComment() {}\n");		
+		buffer.append("}");
+		File genSrcFile = new File(generatedPath, "DocComment.java");
+		FileServices.writeFromString(genSrcFile, buffer.toString());
+		
+		javadoc("-d", destPath, genSrcFile.getAbsolutePath());
+				
+		File docBookFile = new File(destPath, "Reference.xml");
+		XmlServices.parse(docBookFile, true, ResourceServices.getResourceAsUrl("/xsd/docbook/docbook.xsd"));
+		return FileServices.readToString(docBookFile);
+	}
+	
+	protected void javadocTestPackage(String... options) {
 
 		String[] mandatoryOptions = { "-d", destPath, "-sourcepath",
 				sourcePath, "org.dbdoclet.music" };
@@ -206,6 +188,11 @@ public class AbstractTestCase implements InfoListener {
 		ArrayList<String> optionList = new ArrayList<String>();
 
 		for (String option : options) {
+			
+			if (option.endsWith(".her")) {
+				option = FileServices.appendPath(profilePath, option);
+			}
+			
 			optionList.add(option);
 		}
 
@@ -213,6 +200,28 @@ public class AbstractTestCase implements InfoListener {
 			optionList.add(option);
 		}
 
+		String[] cmd = optionList.toArray(new String[optionList.size()]);
+		javadoc(cmd);
+	}
+
+	protected void javadoc(String... options) {
+
+		ArrayList<String> optionList = new ArrayList<String>();
+
+		boolean foundDestDir = false;
+		
+		for (String option : options) {
+			optionList.add(option);
+			if (option.equals("-d")) {
+				foundDestDir = true;
+			}
+		}
+
+		if (foundDestDir == false) {
+			optionList.add("-d");
+			optionList.add(destPath);
+		}
+		
 		String[] cmd = optionList.toArray(new String[optionList.size()]);
 		Main.execute("Test", "org.dbdoclet.doclet.docbook.DocBookDoclet", cmd);
 	}

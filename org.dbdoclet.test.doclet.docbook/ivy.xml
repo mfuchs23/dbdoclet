@@ -8,6 +8,6 @@
     <dependency org="xml-apis" name="xml-apis" rev="1.3.04" revConstraint="latest.integration"/>
     <dependency org="org.junit" name="junit" rev="4.7"/>
     <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="8.0.0" revConstraint="latest.integration"/>
-    <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook" rev="8.0.0" revConstraint="latest.integration"/>
+    <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook" rev="8.0.2" revConstraint="latest.integration"/>
   </dependencies>
 </ivy-module>

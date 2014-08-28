@@ -15,118 +15,119 @@ import com.sun.javadoc.Tag;
 
 public class DbdServices {
 
-    public static void appendDoctype(DocBookDocument doc, String tagName) {
+	public static void appendDoctype(DocBookDocument doc, String tagName) {
 
-        DocumentTypeImpl doctype = new DocumentTypeImpl();
-        doctype.setName(tagName);
-        doctype.setPublicId("-//OASIS//DTD DocBook XML V4.5//EN");
-        doctype.setSystemId("http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd");
-        doc.appendChild(doctype);
-    }
+		DocumentTypeImpl doctype = new DocumentTypeImpl();
+		doctype.setName(tagName);
+		doctype.setPublicId("-//OASIS//DTD DocBook XML V4.5//EN");
+		doctype.setSystemId("http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd");
+		doc.appendChild(doctype);
+	}
 
-    public static void addNamespace(DocBookElement elem) {
+	public static void addNamespace(DocBookElement elem) {
 
-        elem.setAttribute("xmlns", "http://docbook.org/ns/docbook");
-        elem.setAttribute("xmlns:xl", "http://www.w3.org/1999/xlink");
-        elem.setAttribute("version", "5.0");
-    }
+		elem.setAttribute("xmlns", "http://docbook.org/ns/docbook");
+		elem.setAttribute("xmlns:xl", "http://www.w3.org/1999/xlink");
+		elem.setAttribute("version", "5.0");
+	}
 
-    public static final Tag findComment(String tag, Tag[] tags) {
+	public static final Tag findComment(Tag[] tags, String... tagNames) {
 
-        for (int i = 0; i < tags.length; i++) {
+		for (int i = 0; i < tags.length; i++) {
+			for (String tagName : tagNames) {
+				if (tags[i].kind().equals(tagName)) {
+					return tags[i];
+				}
+			}
+		}
 
-            if (tags[i].kind().equals(tag)) {
+		return null;
+	}
 
-                return tags[i];
-            }
-        }
+	public static final Tag[] findComments(Tag[] tags, String... tagNames) {
 
-        return null;
-    }
+		ArrayList<Tag> list = new ArrayList<Tag>();
 
-    public static final Tag[] findComments(String tag, Tag[] tags) {
+		for (int i = 0; i < tags.length; i++) {
+			for (String tagName : tagNames) {
+				if (tags[i].kind().equals(tagName)) {
+					list.add(tags[i]);
+				}
+			}
+		}
 
-        ArrayList<Tag> list = new ArrayList<Tag>();
+		Tag[] rtags = new Tag[list.size()];
 
-        for (int i = 0; i < tags.length; i++) {
+		for (int i = 0; i < list.size(); i++)
+			rtags[i] = list.get(i);
 
-            if (tags[i].kind().equals(tag)) {
+		return rtags;
+	}
 
-                list.add(tags[i]);
-            }
-        }
+	public static final Tag findReturnComment(Tag[] tags) {
 
-        Tag[] rtags = new Tag[list.size()];
+		for (int i = 0; i < tags.length; i++) {
 
-        for (int i = 0; i < list.size(); i++)
-            rtags[i] = list.get(i);
+			if (tags[i].kind().equals("@return")) {
+				return tags[i];
+			}
+		}
 
-        return rtags;
-    }
+		return null;
+	}
 
-    public static final Tag findReturnComment(Tag[] tags) {
+	public static ArrayList<Doc> createDocList(
+			TreeMap<String, TreeMap<String, ClassDoc>> pkgMap) {
 
-        for (int i = 0; i < tags.length; i++) {
+		ArrayList<Doc> docList = new ArrayList<Doc>();
 
-            if (tags[i].kind().equals("@return")) {
-                return tags[i];
-            }
-        }
+		for (String pkgName : pkgMap.keySet()) {
 
-        return null;
-    }
+			TreeMap<String, ClassDoc> classMap = pkgMap.get(pkgName);
 
-    public static ArrayList<Doc> createDocList(TreeMap<String, TreeMap<String, ClassDoc>> pkgMap) {
+			for (String className : classMap.keySet()) {
 
-        ArrayList<Doc> docList = new ArrayList<Doc>();
+				ClassDoc cdoc = classMap.get(className);
 
-        for (String pkgName : pkgMap.keySet()) {
+				if (cdoc != null) {
 
-            TreeMap<String, ClassDoc> classMap = pkgMap.get(pkgName);
+					docList.add(cdoc);
+					addClassDoc(docList, cdoc);
+				}
+			}
+		}
 
-            for (String className : classMap.keySet()) {
+		return docList;
+	}
 
-                ClassDoc cdoc = classMap.get(className);
+	private static void addClassDoc(ArrayList<Doc> docList, ClassDoc cdoc) {
 
-                if (cdoc != null) {
+		for (Doc doc : cdoc.constructors()) {
+			docList.add(doc);
+		}
 
-                    docList.add(cdoc);
-                    addClassDoc(docList, cdoc);
-                }
-            }
-        }
+		for (Doc doc : cdoc.fields()) {
+			docList.add(doc);
 
-        return docList;
-    }
+		}
 
-    private static void addClassDoc(ArrayList<Doc> docList, ClassDoc cdoc) {
+		for (Doc doc : cdoc.methods()) {
+			docList.add(doc);
+		}
 
-        for (Doc doc : cdoc.constructors()) {
-            docList.add(doc);
-        }
+		if (cdoc.isAnnotationType()) {
 
-        for (Doc doc : cdoc.fields()) {
-            docList.add(doc);
+			AnnotationTypeDoc atd = (AnnotationTypeDoc) cdoc;
 
-        }
+			if (atd.elements() != null) {
+				for (AnnotationTypeElementDoc ated : atd.elements()) {
+					docList.add(ated);
+				}
+			}
+		}
 
-        for (Doc doc : cdoc.methods()) {
-            docList.add(doc);
-        }
-
-        if (cdoc.isAnnotationType()) {
-
-            AnnotationTypeDoc atd = (AnnotationTypeDoc) cdoc;
-
-            if (atd.elements() != null) {
-                for (AnnotationTypeElementDoc ated : atd.elements()) {
-                    docList.add(ated);
-                }
-            }
-        }
-
-        for (ClassDoc doc : cdoc.innerClasses()) {
-            addClassDoc(docList, doc);
-        }
-    }
+		for (ClassDoc doc : cdoc.innerClasses()) {
+			addClassDoc(docList, doc);
+		}
+	}
 }

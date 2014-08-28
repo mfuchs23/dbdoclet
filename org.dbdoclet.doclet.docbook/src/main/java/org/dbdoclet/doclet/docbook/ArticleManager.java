@@ -294,7 +294,6 @@ public class ArticleManager extends MediaManager {
 		ExecutableMemberDoc memberDoc;
 		ExecutableMemberInfo memberInfo;
 
-		String comment;
 		String indexCategory = "Methods";
 
 		if ((members != null) && (members.length > 0)) {
@@ -309,16 +308,7 @@ public class ArticleManager extends MediaManager {
 					memberInfo.setImplemented(implementedDoc);
 				}
 
-				comment = members[i].getRawCommentText();
-
-				if ((comment == null) || (comment.trim().length() == 0)) {
-
-					if (implementedDoc != null) {
-						comment = implementedDoc.getRawCommentText();
-					}
-				}
-
-				if ((comment != null) && (comment.trim().length() > 0)) {
+				if (hasVisibleContent(memberInfo)) {
 					commentedMembers.add(memberInfo);
 				}
 			}

@@ -29,7 +29,9 @@ import org.dbdoclet.trafo.param.TextParam;
 import org.dbdoclet.trafo.script.Script;
 import org.dbdoclet.xiphias.dom.NodeImpl;
 import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.PackageDoc;
@@ -194,17 +196,23 @@ public class DbdTransformer {
 				String subPath = StringServices.replace(pkgDoc.name(), ".",
 						File.separator);
 
-				script.setVariable(new TextParam(
-						TrafoConstants.VAR_IMAGE_SUBPATH, subPath));
-			} else {
+				if (subPath != null && subPath.trim().length() > 0) {
+					script.setVariable(new TextParam(
+							TrafoConstants.VAR_IMAGE_SUBPATH, subPath));
+				} else {
+					script.unsetVariable(TrafoConstants.VAR_IMAGE_SUBPATH);					
+				}
 				
+			} else {
 				script.unsetVariable(TrafoConstants.VAR_IMAGE_SUBPATH);
 			}
 
 			script.setTextParameter(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
 					parent.getTagName());
 
-			transformer.setInputStream(new ByteArrayInputStream(comment.getBytes(script.getTextParameter("javadoc", TrafoConstants.PARAM_ENCODING, "UTF-8"))));
+			transformer.setInputStream(new ByteArrayInputStream(comment
+					.getBytes(script.getTextParameter("javadoc",
+							TrafoConstants.PARAM_ENCODING, "UTF-8"))));
 			TrafoResult result = transformer.transform(script);
 
 			NodeImpl elem = null;
@@ -212,7 +220,8 @@ public class DbdTransformer {
 			if (result.isFailed() == false) {
 				elem = result.getRootNode();
 			} else {
-				logger.error("Transformation failed!" + Sfv.LSEP + result.toString());
+				logger.error("Transformation failed!" + Sfv.LSEP
+						+ result.toString());
 			}
 
 			if (elem != null) {
@@ -225,30 +234,55 @@ public class DbdTransformer {
 
 						NodeImpl child = (NodeImpl) childList.item(i);
 
-						/*
-						 * Paragraphen dürfen nicht ineinander verschachtelt
-						 * werden.
-						 */
-						if (child instanceof Para && parent instanceof Para) {
-							parent = (DocBookElement) parent.getParentNode();
-						}
+						if (child instanceof DocBookElement) {
 
-						/*
-						 * Alle Elemente, die nicht vom Typ para sind, werden in
-						 * einen Absatz verpackt.
-						 */
-						if (child instanceof Para == false
-								&& parent instanceof Para == false
-								&& parent.findParent(Para.class) == null) {
+							DocBookElement childElem = (DocBookElement) child;
 
-							Para para = tagFactory.createPara();
-							if (para.isValidParent(parent)) {
+							if (parent instanceof Para == false && childElem.isInline()) {
+
+								Para para = tagFactory.createPara();
 								parent.appendChild(para);
 								parent = para;
 							}
-						}
+							
+							Node parentElem = parent;
 
-						parent.appendChild(child);
+							if ((childElem instanceof Para || childElem.isSection()) && parentElem instanceof Para) {
+								parentElem = parentElem.getParentNode();
+							}
+							
+							while (parentElem != null
+									&& childElem.isValidParent(String.format("Javadoc comment %s", doc.toString()), parentElem) == false) {
+								parentElem = parentElem.getParentNode();
+							}
+
+							if (parentElem != null) {
+								parentElem.appendChild(child);
+							} else {
+								logger.error(String
+										.format("[%s] Invalid child %s for parent %s and possible ancestors.",
+												doc.toString(),
+												child.getNodeName(),
+												parent.getNodeName()));
+								parent.appendChild(child);
+							}
+
+						} else if (child instanceof Text) {
+							
+							if (parent instanceof Para == false) {
+								
+								Para para = tagFactory.createPara();
+								parent.appendChild(para);
+								para.appendChild(child);
+								parent = para;
+							
+							} else {
+								parent.appendChild(child);								
+							}
+							
+						} else {
+							parent.appendChild(child);
+						}
 					}
 
 				} else {

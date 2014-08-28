@@ -136,9 +136,10 @@ public class BookManager extends MediaManager {
 			writeOverview(rootDoc, parent);
 
 			String pkgName;
-
-			TreeMap<String, ClassDoc> classMap;
 			String className;
+			String title;
+			
+			TreeMap<String, ClassDoc> classMap;
 
 			PackageDoc pkgDoc;
 			ClassDoc classDoc;
@@ -148,33 +149,47 @@ public class BookManager extends MediaManager {
 
 				pkgName = pkgIterator.next();
 
+				/* Default package */
+				if (pkgName.length() == 0) {
+				
+					title = "Default Package";
+					pkgDoc = null;
+					
+				} else {
+
+					pkgDoc = rootDoc.packageNamed(pkgName);
+
+					if (pkgDoc == null) {
+						continue;
+					}
+					
+					title = pkgDoc.name();
+				}
+				
 				logger.info(MessageFormat.format(
 						ResourceServices.getString(res, "C_PROCESSING_PACKAGE"),
-						pkgName));
+						title));
 
-				pkgDoc = rootDoc.packageNamed(pkgName);
-
-				if (pkgDoc == null) {
-					continue;
-				}
 
 				chapter = tagFactory.createChapter();
 				chapter.setId(getReference(pkgDoc));
 
 				if (script.setCreateXrefLabelEnabled()) {
-					chapter.setXrefLabel(XmlServices.textToXml(pkgDoc.name()));
+					chapter.setXrefLabel(XmlServices.textToXml(title));
 				}
 
 				chapter.appendChild(tagFactory.createTitle(
 						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
-						hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
+						hyphenation.hyphenateAfter(title, "\\.")));
 
-				htmlDocBookTrafo.transform(pkgDoc, chapter);
-
+				if (pkgDoc != null) {
+					htmlDocBookTrafo.transform(pkgDoc, chapter);
+				}
+				
 				Sect1 section = tagFactory.createSect1(ResourceServices
 						.getString(res, "C_ADDITIONAL_INFORMATION"));
 
-				if (style.addMetaInfo(pkgDoc, section)) {
+				if (pkgDoc != null && style.addMetaInfo(pkgDoc, section)) {
 					chapter.appendChild(section);
 				}
 
@@ -327,7 +342,6 @@ public class BookManager extends MediaManager {
 		ExecutableMemberDoc memberDoc;
 		ExecutableMemberInfo memberInfo;
 
-		String comment;
 		String indexCategory = "Methods";
 
 		if ((members != null) && (members.length > 0)) {
@@ -343,16 +357,7 @@ public class BookManager extends MediaManager {
 					memberInfo.setImplemented(implementedDoc);
 				}
 
-				comment = members[i].getRawCommentText();
-
-				if ((comment == null) || (comment.trim().length() == 0)) {
-
-					if (implementedDoc != null) {
-						comment = implementedDoc.getRawCommentText();
-					}
-				}
-
-				if ((comment != null) && (comment.trim().length() > 0)) {
+				if (hasVisibleContent(memberInfo)) {
 					commentedMembers.add(memberInfo);
 				}
 			}

@@ -16,16 +16,7 @@ public class LinkSourceTests extends AbstractTestCase {
         String srcpath = sourcePath + "org/dbdoclet/music/MusicElement.java";
         String classpath = sourcePath;
 
-        RootDocImpl root = javadoc(new String[] { srcpath }, classpath, 
-                    new String[][] { { "-linksource" },  { "-nostatistics" } });
-
-        if (root == null) {
-            fail("RootDoc == null");
-            return;
-        }
-
-        DocBookDoclet.start(root);
-        
+        javadoc("-linksource", "-cp", classpath, srcpath);
         String value = xpath("//db:title");
         assertEquals("org.dbdoclet.music", value);
     }

@@ -26,7 +26,7 @@
 			rev="8.0.0" revConstraint="latest.integration" changing="true" />
 		<dependency org="org.dbdoclet" name="org.dbdoclet.getopts"
 			rev="8.0.0" revConstraint="latest.integration" changing="true" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.tag" rev="8.0.0"
+		<dependency org="org.dbdoclet" name="org.dbdoclet.tag" rev="8.0.1"
 			revConstraint="latest.integration" changing="true" />
 		<dependency org="org.dbdoclet" name="org.dbdoclet.xiphias"
 			rev="8.0.0" revConstraint="latest.integration" changing="true" />

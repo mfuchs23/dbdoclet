@@ -122,7 +122,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		Tag tag;
 		String text;
 
-		tag = DbdServices.findComment("@deprecated", doc.tags());
+		tag = DbdServices.findComment(doc.tags(), "@deprecated");
 
 		if (tag != null) {
 

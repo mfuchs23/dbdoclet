@@ -414,8 +414,6 @@ public class RefentryManager extends MediaManager {
 		ExecutableMemberDoc memberDoc;
 		ExecutableMemberInfo memberInfo;
 
-		String comment;
-
 		if ((members != null) && (members.length > 0)) {
 
 			for (int i = 0; i < members.length; i++) {
@@ -429,16 +427,7 @@ public class RefentryManager extends MediaManager {
 					memberInfo.setImplemented(implementedDoc);
 				}
 
-				comment = members[i].getRawCommentText();
-
-				if ((comment == null) || (comment.trim().length() == 0)) {
-
-					if (implementedDoc != null) {
-						comment = implementedDoc.getRawCommentText();
-					}
-				}
-
-				if ((comment != null) && (comment.trim().length() > 0)) {
+				if (hasVisibleContent(memberInfo)) {
 					commentedMembers.add(memberInfo);
 				}
 			}

@@ -20,16 +20,17 @@ import org.xml.sax.SAXException;
 
 public class InfoSectionTests extends AbstractTestCase {
 
-	private static final String PROFILE_MAXIMAL = "src/main/resources/profile/showAll.her";
-	private static final String PROFILE_MINIMAL = "src/main/resources/profile/showMinimal.her";
+	private static final String PROFILE_MAXIMAL = "showAll.her";
+	private static final String PROFILE_MINIMAL = "showMinimal.her";
 	
 	@Test
 	public void abstractDefined() throws IOException, SAXException,
 			ParserConfigurationException {
 
-		javadoc("-profile", PROFILE_MAXIMAL);
+		javadocTestPackage("-profile", PROFILE_MAXIMAL);
 
 		String value = xpath("//db:abstract");
+		assertNotNull(value);
 		assertTrue(value.length() > 0);
 	}
 
@@ -37,15 +38,15 @@ public class InfoSectionTests extends AbstractTestCase {
 	public void abstractUndefined() throws IOException, SAXException,
 			ParserConfigurationException {
 
-		javadoc("-profile", PROFILE_MINIMAL);
+		javadocTestPackage("-profile", PROFILE_MINIMAL);
 		String value = xpath("//db:abstract");
-		assertEquals(0, value.length());
+		assertNull(value);
 	}
 
 	@Test
 	public void authorEmailDefined() {
 
-		javadoc("-profile", PROFILE_MAXIMAL);
+		javadocTestPackage("-profile", PROFILE_MAXIMAL);
 
 		String value = xpath("/db:book/db:info/db:author/db:affiliation/db:address/db:email");
 		assertNotNull(value);
@@ -55,7 +56,7 @@ public class InfoSectionTests extends AbstractTestCase {
 	@Test
 	public void authorEmailUndefined() {
 
-		javadoc("-profile", PROFILE_MINIMAL);
+		javadocTestPackage("-profile", PROFILE_MINIMAL);
 
 		String value = xpath("/db:book/db:info//db:author/db:affiliation/db:address/db:email");
 		assertNull(value);
@@ -64,7 +65,7 @@ public class InfoSectionTests extends AbstractTestCase {
 	@Test
 	public void authorFirstnameDefined() {
 
-		javadoc("-profile", PROFILE_MAXIMAL);
+		javadocTestPackage("-profile", PROFILE_MAXIMAL);
 
 		String value = xpath("/db:book/db:info/db:author/db:personname/db:firstname");
 		assertNotNull(value);
@@ -74,7 +75,7 @@ public class InfoSectionTests extends AbstractTestCase {
 	@Test
 	public void authorFirstnameUndefined() {
 
-		javadoc("-profile", PROFILE_MINIMAL);
+		javadocTestPackage("-profile", PROFILE_MINIMAL);
 
 		String value = xpath("/db:book/db:info//db:author/db:personname/db:firstname");
 		assertNull(value);
@@ -83,7 +84,7 @@ public class InfoSectionTests extends AbstractTestCase {
 	@Test
 	public void authorSurnameDefined() {
 
-		javadoc("-profile", PROFILE_MAXIMAL);
+		javadocTestPackage("-profile", PROFILE_MAXIMAL);
 
 		String value = xpath("/db:book/db:info/db:author/db:personname/db:surname");
 		assertNotNull(value);
@@ -93,7 +94,7 @@ public class InfoSectionTests extends AbstractTestCase {
 	@Test
 	public void authorSurnameUndefined() {
 
-		javadoc("-profile", PROFILE_MINIMAL);
+		javadocTestPackage("-profile", PROFILE_MINIMAL);
 
 		String value = xpath("/db:book/db:info//db:author/db:personname/db:surname");
 		assertNull(value);
@@ -102,16 +103,17 @@ public class InfoSectionTests extends AbstractTestCase {
 	@Test
 	public void corporationDefined() {
 
-		javadoc("-profile", PROFILE_MAXIMAL);
+		javadocTestPackage("-profile", PROFILE_MAXIMAL);
 
 		String value = xpath("/db:book/db:info/db:legalnotice/db:simpara");
+		assertNotNull(value);
 		assertTrue(value.indexOf("Michael Fuchs") != -1);
 	}
 
 	@Test
 	public void corporationUndefined() {
 
-		javadoc("-profile", PROFILE_MINIMAL);
+		javadocTestPackage("-profile", PROFILE_MINIMAL);
 
 		String value = xpath("/db:book/db:info/db:legalnotice/db:simpara");
 		assertNull(value);
@@ -121,7 +123,7 @@ public class InfoSectionTests extends AbstractTestCase {
 	public void testDocBookTitle() throws IOException, SAXException,
 			ParserConfigurationException {
 
-		javadoc("-profile", "src/main/resources/profile/title.her");
+		javadocTestPackage("-profile", "title.her");
 		Document doc = XmlServices.parse(new File(destPath, "Reference.xml"));
 		Node node = XPathServices.getNode(doc, "d", Sfv.NS_DOCBOOK,
 				"/d:book/d:title");

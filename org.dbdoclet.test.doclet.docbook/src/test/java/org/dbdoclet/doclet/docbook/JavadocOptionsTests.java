@@ -32,7 +32,7 @@ public class JavadocOptionsTests extends AbstractTestCase {
 	public void optionOverview() throws IOException, SAXException,
 			ParserConfigurationException {
 
-		javadoc("-overview", "src/main/resources/overview/overview.html");
+		javadocTestPackage("-overview", "src/main/resources/overview/overview.html");
 		String value = xpath("//db:chapter/db:title[contains(text(), 'Overview')]");
 		assertNotNull(value);
 	}

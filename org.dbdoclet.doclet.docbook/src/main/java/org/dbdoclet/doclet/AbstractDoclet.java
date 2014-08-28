@@ -6,7 +6,6 @@ import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 
-import org.dbdoclet.doclet.docbook.ExceptionHandler;
 import org.dbdoclet.option.Option;
 import org.dbdoclet.option.OptionException;
 import org.dbdoclet.option.OptionList;

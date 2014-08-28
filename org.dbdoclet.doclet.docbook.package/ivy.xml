@@ -10,6 +10,7 @@
 		<artifact name="dbdoclet" />
 	</publications>
 	<dependencies>
+	    <!--
 		<dependency org="javax.inject" name="javax.inject" rev="1" />
 		<dependency org="com.google.inject" name="guice"
 			rev="latest.integration" />
@@ -32,7 +33,8 @@
 			rev="8.0.0" revConstraint="latest.integration" changing="true" />
 		<dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook"
 			rev="8.0.0" revConstraint="latest.integration" changing="true" />
+		-->
 		<dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook"
-			rev="8.0.1" revConstraint="latest.integration" changing="true" />
+			rev="8.0.2" revConstraint="latest.integration" changing="true" />
 	</dependencies>
 </ivy-module>

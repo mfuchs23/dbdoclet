@@ -513,11 +513,11 @@ public class TagManager {
 				for (int i = 0; i < tags.length; i++) {
 					comment += processTag(tags[i]);
 				}
-				
+
 				comment += "</p>";
 			}
 		}
-		
+
 		return comment;
 	}
 
@@ -531,11 +531,12 @@ public class TagManager {
 			return false;
 		}
 
-		if (kind.equals("@throws")) {
+		if (kind.equals("@exception") || kind.equals("@throws")) {
 			return false;
 		}
 
-		if (kind.equals("@serialField")) {
+		if (kind.equals("@serial") || kind.equals("@serialData")
+				|| kind.equals("@serialField")) {
 			return false;
 		}
 

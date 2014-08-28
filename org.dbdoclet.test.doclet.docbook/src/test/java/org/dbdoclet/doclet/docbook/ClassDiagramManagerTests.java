@@ -16,15 +16,7 @@ public class ClassDiagramManagerTests extends AbstractTestCase {
         String srcpath = sourcePath + "org/dbdoclet/music/MusicXmlElement.java";
         String classpath = sourcePath + ":lib/jaxb-api.jar";
 
-        RootDocImpl root = javadoc(new String[] { srcpath }, classpath, new String[][] { { "-nostatistics" } });
-
-        if (root == null) {
-            fail("RootDoc == null");
-            return;
-        }
-
-        DocBookDoclet.start(root);
-
+        javadoc("-cp", classpath, srcpath);
         String value = xpath("//db:modifier[. = '@Deprecated']");
         assertEquals("@Deprecated", value);
     }

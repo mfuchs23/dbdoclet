@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.DeprecatedManager;
 import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.ExecutableMemberInfo;
 import org.dbdoclet.doclet.InstanceFactory;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
@@ -90,6 +91,7 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.RootDoc;
@@ -390,7 +392,7 @@ public abstract class MediaManager {
 			img.setAttribute("align", "center");
 			img.setAttribute("src", fileName);
 
-			tagFactory.createHtmlImageData(media, tagFactory, img, file);
+			tagFactory.createHtmlImageData(media, tagFactory, img, file, null);
 
 			fileName = filebase + ".svg";
 			file = new File(fileName);
@@ -399,7 +401,7 @@ public abstract class MediaManager {
 			img.setAttribute("align", "center");
 			img.setAttribute("src", fileName);
 
-			tagFactory.createFoImageData(media, tagFactory, img, file);
+			tagFactory.createFoImageData(media, tagFactory, img, file, null);
 
 		} catch (IOException oops) {
 			throw new DocletException(oops);
@@ -893,7 +895,7 @@ public abstract class MediaManager {
 				}
 
 				Tag comment = DbdServices
-						.findComment("@deprecated", doc.tags());
+						.findComment(doc.tags(), "@deprecated");
 
 				if (comment != null) {
 					htmlDocBookTrafo.transform(comment, para);
@@ -908,6 +910,12 @@ public abstract class MediaManager {
 
 	protected void writeFile(DocBookDocument doc, File fileName)
 			throws IOException {
+
+		File parentDir = fileName.getParentFile();
+
+		if (parentDir != null && parentDir.exists() == false) {
+			FileServices.createParentDir(fileName);
+		}
 
 		PrintWriter writer = new PrintWriter(
 				new OutputStreamWriter(new FileOutputStream(fileName),
@@ -940,7 +948,7 @@ public abstract class MediaManager {
 				DocBookElement dbElement = (DocBookElement) element;
 
 				if (parent instanceof Book
-						&& dbElement.isValidParent(parent) == false) {
+						&& dbElement.isValidParent("Overview", parent) == false) {
 
 					Chapter chapter = tagFactory.createChapter("???");
 					parent.appendChild(chapter);
@@ -1072,6 +1080,71 @@ public abstract class MediaManager {
 					.getItemList(), tagFactory);
 			section.appendChild(table);
 		}
+	}
+
+	protected boolean hasVisibleContent(ExecutableMemberInfo memberInfo) {
+
+		ExecutableMemberDoc memberDoc = memberInfo.getExecutableMember();
+		MethodDoc implementedDoc = memberInfo.getImplemented();
+
+		if (memberDoc != null) {
+
+			if (memberDoc.commentText() != null
+					&& memberDoc.commentText().trim().length() > 0) {
+				return true;
+			} else if (implementedDoc != null
+					&& implementedDoc.commentText() != null
+					&& implementedDoc.commentText().trim().length() > 0) {
+				return true;
+			}
+
+			if (script.isCreateParameterInfoEnabled()
+					&& memberDoc.paramTags().length > 0) {
+				return true;
+			}
+
+			if (script.isCreateDeprecatedInfoEnabled()
+					&& DbdServices.findComment(memberDoc.tags(), "@deprecated") != null) {
+				return true;
+			}
+
+			if (script.isCreateMetaInfoEnabled()
+					&& script.isCreateAuthorInfoEnabled()
+					&& DbdServices.findComment(memberDoc.tags(), "@author") != null) {
+				return true;
+			}
+
+			if (script.isCreateExceptionInfoEnabled()
+					&& DbdServices.findComment(memberDoc.tags(), "@exception",
+							"@throws") != null) {
+				return true;
+			}
+
+			if (script.isCreateSeeAlsoInfoEnabled()
+					&& DbdServices.findComment(memberDoc.tags(), "@see") != null) {
+				return true;
+			}
+
+			if (script.isCreateSerialFieldInfoEnabled()
+					&& DbdServices.findComment(memberDoc.tags(), "@serial",
+							"@serialField", "@serialData") != null) {
+				return true;
+			}
+
+			if (script.isCreateMetaInfoEnabled()
+					&& script.isCreateSinceInfoEnabled()
+					&& DbdServices.findComment(memberDoc.tags(), "@since") != null) {
+				return true;
+			}
+
+			if (script.isCreateMetaInfoEnabled()
+					&& script.isCreateVersionInfoEnabled()
+					&& DbdServices.findComment(memberDoc.tags(), "@version") != null) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }
