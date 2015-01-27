@@ -1,0 +1,10 @@
+<?xml version="1" encoding="UTF-8"?>
+<article xmlns="http://docbook.org/ns/docbook" version="5">
+  <info>
+    <title>dbdoclet - Bauen, Installieren und Ausliefern</title>
+  </info>
+  <section>
+    <title>Bauen</title>
+    <para>Je nach Anzahl und Ort der Änderungen müssen die Workspaces commonX, trafoX und dbdocletX neu gebaut werden. </para>
+  </section>
+</article>

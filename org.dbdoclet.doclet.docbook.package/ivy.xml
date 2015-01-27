@@ -10,31 +10,7 @@
 		<artifact name="dbdoclet" />
 	</publications>
 	<dependencies>
-	    <!--
-		<dependency org="javax.inject" name="javax.inject" rev="1" />
-		<dependency org="com.google.inject" name="guice"
-			rev="latest.integration" />
-		<dependency org="xml-apis" name="xml-apis" rev="latest.integration" />
-		<dependency org="org.apache" name="org.apache.commons.logging"
-			rev="latest.integration" />
-		<dependency org="org.apache" name="org.apache.log4j" rev="latest.integration" />
-		<dependency org="org.jfree" name="jfreechart" rev="latest.integration" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.commons"
-			rev="8.0.0" revConstraint="latest.integration" changing="true" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.getopts"
-			rev="8.0.0" revConstraint="latest.integration" changing="true" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.xiphias"
-			rev="8.0.0" revConstraint="latest.integration" changing="true" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.jive"
-			rev="8.0.0" revConstraint="latest.integration" changing="true" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="8.0.0"
-			revConstraint="latest.integration" changing="true" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.trafo"
-			rev="8.0.0" revConstraint="latest.integration" changing="true" />
-		<dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook"
-			rev="8.0.0" revConstraint="latest.integration" changing="true" />
-		-->
 		<dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook"
-			rev="8.0.2" revConstraint="latest.integration" changing="true" />
+			rev="8.0.3" revConstraint="latest.integration" changing="true" />
 	</dependencies>
 </ivy-module>

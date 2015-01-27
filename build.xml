@@ -21,10 +21,15 @@
     </sequential>
   </macrodef>
 
-  <target name="deploy">
-    <antcall target="clean.cache"/>
+  <target name="distclean">
     <iterate target="distclean"/>
+  </target>
+
+  <target name="build">
     <iterate target="build"/>
+  </target>
+
+  <target name="deploy">
     <ant dir="org.dbdoclet.doclet.docbook.package" target="install"/>
     <ant dir="org.dbdoclet.doclet.docbook.package" target="dist"/>
   </target>
