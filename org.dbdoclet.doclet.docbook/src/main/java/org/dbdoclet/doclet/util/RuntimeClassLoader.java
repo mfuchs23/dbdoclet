@@ -103,6 +103,7 @@ public class RuntimeClassLoader extends ClassLoader {
 								+ ".");
 
 						return jar.getInputStream(entry);
+						
 					} else {
 
 						file = new File(path + fsep + name);

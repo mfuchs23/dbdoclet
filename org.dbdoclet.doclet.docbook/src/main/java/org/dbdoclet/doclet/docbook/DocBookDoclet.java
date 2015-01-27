@@ -27,7 +27,9 @@ import org.dbdoclet.doclet.util.ReleaseServices;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.service.StringServices;
+import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.TrafoScriptManager;
+import org.dbdoclet.trafo.script.Script;
 
 import com.google.inject.Guice;
 import com.sun.javadoc.ClassDoc;
@@ -36,7 +38,7 @@ import com.sun.javadoc.RootDoc;
 
 /**
  * The class <code>DocBookDoclet</code> implements a javadoc doclet, which
- * creates DocBook XML..
+ * creates DocBook XML from javadoc comments.
  * 
  * @author <a href ="mailto:michael.fuchs@dbdoclet.org">Michael Fuchs</a>
  */
@@ -45,6 +47,16 @@ public final class DocBookDoclet extends AbstractDoclet {
 	private static Log logger = LogFactory
 			.getLog(DocBookDoclet.class.getName());
 
+	/**
+	 * The method <code>copyDocFiles</code> copies all files, which are located
+	 * in doc-files directories, from the source path to the destination path.
+	 * 
+	 * @param root
+	 * @param sourcepath
+	 * @param outdir
+	 * @param dbdScript
+	 * @throws IOException
+	 */
 	public static void copyDocFiles(RootDoc root, String sourcepath,
 			File outdir, DbdScript dbdScript) throws IOException {
 
@@ -128,7 +140,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 
 	/**
 	 * The method <code>start</code> is called from within the Doclet API. It is
-	 * the main entry point of the doclet. This method catches all Exceptions
+	 * the main entry point of the doclet. This method catches all exceptions
 	 * and prints a stacktrace if necessary.
 	 */
 	public static boolean start(RootDoc rootDoc) {
@@ -156,27 +168,31 @@ public final class DocBookDoclet extends AbstractDoclet {
 
 			File destFile = options.getDestinationFile();
 			if (destFile != null) {
-				logger.info(String.format("destination file (ignore destination directory)=" + destFile));
+				logger.info(String
+						.format("destination file (ignore destination directory)="
+								+ destFile));
 			} else {
 				File destDir = options.getDestinationDirectory();
 				logger.info(String.format("destination directory=" + destDir));
 				destFile = new File(destDir, "Reference.xml");
 			}
-			
+
 			dbdScript.setOutputFile(destFile);
 			dbdScript.setEncoding(options.getEncoding());
-			
+			Script script = dbdScript.getScript();
+
 			File scriptFile = options.getProfile();
 			if (scriptFile != null) {
-				logger.info("Using profile file " + scriptFile.getCanonicalPath());
+				logger.info("Using profile file "
+						+ scriptFile.getCanonicalPath());
 			}
-			
+
 			if (scriptFile != null) {
 
 				if (scriptFile.exists()) {
-					
+
 					TrafoScriptManager mgr = new TrafoScriptManager();
-					mgr.parseScript(dbdScript.getScript(), scriptFile);
+					mgr.parseScript(script, scriptFile);
 
 				} else {
 					logger.error(MessageFormat.format(ResourceServices
@@ -185,10 +201,15 @@ public final class DocBookDoclet extends AbstractDoclet {
 				}
 			}
 
+			if (script.getParameter(TrafoConstants.SECTION_DOCBOOK,
+					TrafoConstants.PARAM_IMAGE_PATH) == null) {
+				dbdScript.setImagePath("img/");
+			}
+
 			if (options.getTitle() != null) {
 				dbdScript.setTitle(options.getTitle());
 			}
-			
+
 			logger.debug("destination-encoding = "
 					+ dbdScript.getDestinationEncoding());
 

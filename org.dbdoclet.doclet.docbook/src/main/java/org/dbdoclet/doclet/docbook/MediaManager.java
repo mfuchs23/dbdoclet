@@ -948,7 +948,7 @@ public abstract class MediaManager {
 				DocBookElement dbElement = (DocBookElement) element;
 
 				if (parent instanceof Book
-						&& dbElement.isValidParent("Overview", parent) == false) {
+						&& dbElement.isValidParent(new TransformPosition(doc), parent) == false) {
 
 					Chapter chapter = tagFactory.createChapter("???");
 					parent.appendChild(chapter);

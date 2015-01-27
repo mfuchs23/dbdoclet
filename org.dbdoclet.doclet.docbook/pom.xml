@@ -4,7 +4,7 @@
 
   <groupId>org.dbdoclet</groupId>
   <artifactId>dbdoclet</artifactId>
-  <version>8.0.0</version>
+  <version>@VERSION@</version>
   <packaging>jar</packaging>
 
   <name>org.dbdoclet:dbdoclet</name>

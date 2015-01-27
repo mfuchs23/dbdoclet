@@ -213,6 +213,9 @@ public class DbdTransformer {
 			transformer.setInputStream(new ByteArrayInputStream(comment
 					.getBytes(script.getTextParameter("javadoc",
 							TrafoConstants.PARAM_ENCODING, "UTF-8"))));
+			
+			TransformPosition ctx = new TransformPosition(doc);
+			script.setTransformPosition(ctx);
 			TrafoResult result = transformer.transform(script);
 
 			NodeImpl elem = null;
@@ -252,7 +255,7 @@ public class DbdTransformer {
 							}
 							
 							while (parentElem != null
-									&& childElem.isValidParent(String.format("Javadoc comment %s", doc.toString()), parentElem) == false) {
+									&& childElem.isValidParent(ctx, parentElem) == false) {
 								parentElem = parentElem.getParentNode();
 							}
 

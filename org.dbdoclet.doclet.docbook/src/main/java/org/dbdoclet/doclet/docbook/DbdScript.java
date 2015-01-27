@@ -11,17 +11,17 @@ import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.script.Script;
 import org.dbdoclet.xiphias.Hyphenation.HyphenationChar;
 
+import com.google.inject.Inject;
+
 public class DbdScript {
 
 	public static final File DEFAULT_DESTINATION_FILE = new File(
 			"./dbdoclet/Reference.xml");
 
-	private File outputFile;
+	@Inject
 	private Script script;
 
-	public DbdScript() {
-		script = new Script();
-	}
+	private File outputFile;
 	
 	public String getAbstract() {
 		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
@@ -568,6 +568,11 @@ public class DbdScript {
 				"soft-hyphen");
 	}
 
+	public void setImagePath(String imagePath) {
+		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
+		script.setTextParameter(TrafoConstants.PARAM_IMAGE_PATH, imagePath);
+	}
+
 	public void setLanguage(String language) {
 
 		script.selectSection(TrafoConstants.SECTION_DOCBOOK);
@@ -612,6 +617,14 @@ public class DbdScript {
 	public void setEncoding(String encoding) {
 		script.selectSection("javadoc");
 		script.setTextParameter(TrafoConstants.PARAM_ENCODING, encoding);
+	}
+
+	public void setTransformPosition(TransformPosition context) {
+		script.setTransformPosition(context);
+	}
+
+	public void removeContext(TransformPosition context) {
+		script.getTransformPosition();
 	}
 
 	public void addContext(String context) {
