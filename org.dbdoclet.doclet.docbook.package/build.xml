@@ -72,10 +72,10 @@
 	<include name="bin/**" />
       </fileset>
       <filterset>
-	<filter token="VERSION" value="${project.version}" />
+	<filter token="VERSION" value="${release.version}" />
       </filterset>
     </copy>
-    <copy todir="${instdir}">
+    <copy todir="${instdir}" overwrite="true">
       <fileset dir="root">
 	<include name="conf/**" />
 	<include name="doc/**" />
@@ -105,6 +105,8 @@
   <!-- ========================================== -->
   <target name="dist">
 
+	<antcall target="resolve"/>
+	
     <copy file="spec/dbdoclet.xml" tofile="spec/packman.xml"
 	  overwrite="yes">
       <filterset>

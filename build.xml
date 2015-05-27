@@ -29,10 +29,13 @@
     <iterate target="build"/>
   </target>
 
-  <target name="deploy">
+  <target name="install">
     <ant dir="org.dbdoclet.doclet.docbook.package" target="install"/>
-    <ant dir="org.dbdoclet.doclet.docbook.package" target="dist"/>
   </target>
 
-  <echo>resolve mode = ${resolveMode}</echo>
+  <target name="deploy">
+    <ant dir="org.dbdoclet.doclet.docbook.package" target="dist"/>
+    <ant dir="org.dbdoclet.doclet.docbook" target="mvn-bundle"/>
+  </target>
+
 </project>
