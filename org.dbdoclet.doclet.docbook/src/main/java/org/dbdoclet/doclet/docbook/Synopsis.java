@@ -18,7 +18,7 @@ import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.tag.docbook.Modifier;
-import org.dbdoclet.tag.docbook.OoClass;
+import org.dbdoclet.tag.docbook.Ooclass;
 import org.dbdoclet.xiphias.Hyphenation;
 
 import com.sun.javadoc.AnnotationDesc;
@@ -124,7 +124,7 @@ public abstract class Synopsis {
 		}
 	}
 
-	protected final void createClassModifier(ClassDoc doc, OoClass parent) {
+	protected final void createClassModifier(ClassDoc doc, Ooclass parent) {
 
 		if (doc == null) {
 			throw new IllegalArgumentException(

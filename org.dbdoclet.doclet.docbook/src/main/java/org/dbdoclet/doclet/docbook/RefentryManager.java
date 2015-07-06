@@ -22,25 +22,25 @@ import org.dbdoclet.doclet.util.MethodServices;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Book;
 import org.dbdoclet.tag.docbook.BookInfo;
-import org.dbdoclet.tag.docbook.BridgeHead;
+import org.dbdoclet.tag.docbook.Bridgehead;
 import org.dbdoclet.tag.docbook.Date;
 import org.dbdoclet.tag.docbook.DocBookDocument;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.Info;
-import org.dbdoclet.tag.docbook.ManVolNum;
+import org.dbdoclet.tag.docbook.Manvolnum;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Part;
-import org.dbdoclet.tag.docbook.PartInfo;
-import org.dbdoclet.tag.docbook.PartIntro;
-import org.dbdoclet.tag.docbook.RefEntry;
-import org.dbdoclet.tag.docbook.RefEntryInfo;
-import org.dbdoclet.tag.docbook.RefMeta;
-import org.dbdoclet.tag.docbook.RefNameDiv;
-import org.dbdoclet.tag.docbook.RefPurpose;
-import org.dbdoclet.tag.docbook.RefSect1;
-import org.dbdoclet.tag.docbook.RefSect2;
-import org.dbdoclet.tag.docbook.RefSynopsisDiv;
+import org.dbdoclet.tag.docbook.Partinfo;
+import org.dbdoclet.tag.docbook.Partintro;
+import org.dbdoclet.tag.docbook.Refentry;
+import org.dbdoclet.tag.docbook.Refentryinfo;
 import org.dbdoclet.tag.docbook.Reference;
+import org.dbdoclet.tag.docbook.Refmeta;
+import org.dbdoclet.tag.docbook.Refnamediv;
+import org.dbdoclet.tag.docbook.Refpurpose;
+import org.dbdoclet.tag.docbook.Refsect1;
+import org.dbdoclet.tag.docbook.Refsect2;
+import org.dbdoclet.tag.docbook.Refsynopsisdiv;
 import org.dbdoclet.tag.docbook.Sect1;
 import org.dbdoclet.xiphias.XmlServices;
 import org.dbdoclet.xiphias.dom.NodeImpl;
@@ -105,7 +105,7 @@ public class RefentryManager extends MediaManager {
 
 				} else {
 
-					PartInfo partInfo = tagFactory.createPartInfo();
+					Partinfo partInfo = tagFactory.createPartinfo();
 					part.appendChild(partInfo);
 					createInfoSection(partInfo, summary);
 				}
@@ -182,7 +182,7 @@ public class RefentryManager extends MediaManager {
 						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
 						hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
 
-				PartIntro partIntro = tagFactory.createPartIntro();
+				Partintro partIntro = tagFactory.createPartintro();
 
 				htmlDocBookTrafo.transform(pkgDoc, partIntro);
 
@@ -242,7 +242,7 @@ public class RefentryManager extends MediaManager {
 			String indexCategory = getIndexCategory(classDoc);
 			// String prefix = getClassTypeAsText(classDoc);
 
-			RefEntry refEntry = tagFactory.createRefEntry();
+			Refentry refEntry = tagFactory.createRefentry();
 
 			refEntry.setId(getReference(classDoc));
 
@@ -251,60 +251,60 @@ public class RefentryManager extends MediaManager {
 						.qualifiedName()));
 			}
 
-			refEntry.appendChild(tagFactory.createIndexTerm()
+			refEntry.appendChild(tagFactory.createIndexterm()
 					.appendChild(tagFactory.createPrimary(indexCategory))
 					.appendChild(tagFactory.createSecondary(classDoc.name())));
 
-			refEntry.appendChild(tagFactory.createIndexTerm().appendChild(
+			refEntry.appendChild(tagFactory.createIndexterm().appendChild(
 					tagFactory.createPrimary(classDoc.name())));
 
-			RefEntryInfo refEntryInfo = tagFactory.createRefEntryInfo();
+			Refentryinfo refEntryInfo = tagFactory.createRefentryinfo();
 			refEntry.appendChild(refEntryInfo);
 
 			Date date = tagFactory.createDate();
 			refEntryInfo.appendChild(date);
 
-			RefMeta refMeta = tagFactory.createRefMeta();
+			Refmeta refMeta = tagFactory.createRefmeta();
 			refEntry.appendChild(refMeta);
 
-			ManVolNum manVolNum = tagFactory.createManVolNum("3");
+			Manvolnum manVolNum = tagFactory.createManvolnum("3");
 			refMeta.appendChild(manVolNum);
 
-			refMeta.appendChild(tagFactory.createRefMiscInfo("source",
+			refMeta.appendChild(tagFactory.createRefmiscinfo("source",
 					XmlServices.textToXml(classDoc.qualifiedName())));
-			refMeta.appendChild(tagFactory.createRefMiscInfo("version",
+			refMeta.appendChild(tagFactory.createRefmiscinfo("version",
 					XmlServices.textToXml("1.0")));
-			refMeta.appendChild(tagFactory.createRefMiscInfo("manual",
+			refMeta.appendChild(tagFactory.createRefmiscinfo("manual",
 					XmlServices.textToXml("dbdoclet reference handbook")));
 
-			RefNameDiv refNameDiv = tagFactory.createRefNameDiv();
+			Refnamediv refNameDiv = tagFactory.createRefnamediv();
 			refEntry.appendChild(refNameDiv);
 
-			refNameDiv.appendChild(tagFactory.createRefName(classDoc.name()));
+			refNameDiv.appendChild(tagFactory.createRefname(classDoc.name()));
 
-			RefPurpose purpose = tagFactory.createRefPurpose();
+			Refpurpose purpose = tagFactory.createRefpurpose();
 			htmlDocBookTrafo.transform(classDoc.firstSentenceTags(), purpose);
 			refNameDiv.appendChild(purpose);
 
-			RefSynopsisDiv refSynopsisDiv = tagFactory.createRefSynopsisDiv();
+			Refsynopsisdiv refSynopsisDiv = tagFactory.createRefsynopsisdiv();
 			refEntry.appendChild(refSynopsisDiv);
 
 			if (script.isCreateSynopsisEnabled() == true) {
 				style.addClassSynopsis(classDoc, refSynopsisDiv);
 			}
 
-			RefSect1 refSect1;
+			Refsect1 refSect1;
 
 			if (script.isCreateClassDiagramEnabled()) {
 
-				refSect1 = tagFactory.createRefSect1(ResourceServices
+				refSect1 = tagFactory.createRefsect1(ResourceServices
 						.getString(res, "C_INHERITANCE_PATH"));
 				refEntry.appendChild(refSect1);
 
 				createInheritanceDiagram(classDoc, refSect1);
 			}
 
-			refSect1 = tagFactory.createRefSect1(ResourceServices.getString(
+			refSect1 = tagFactory.createRefsect1(ResourceServices.getString(
 					res, "C_DESCRIPTION"));
 			htmlDocBookTrafo.transform(classDoc, refSect1);
 			style.addMetaInfo(classDoc, refSect1);
@@ -320,7 +320,7 @@ public class RefentryManager extends MediaManager {
 
 			if (script.isCreateMethodInfoEnabled()) {
 
-				refSect1 = tagFactory.createRefSect1(ResourceServices
+				refSect1 = tagFactory.createRefsect1(ResourceServices
 						.getString(res, "C_CONSTRUCTORS"));
 
 				wroteConstructors = writeExecutableMembers(classDoc,
@@ -335,7 +335,7 @@ public class RefentryManager extends MediaManager {
 
 			if (script.isCreateFieldInfoEnabled()) {
 
-				refSect1 = tagFactory.createRefSect1(ResourceServices
+				refSect1 = tagFactory.createRefsect1(ResourceServices
 						.getString(res, "C_FIELDS"));
 
 				FieldDoc[] fields;
@@ -357,7 +357,7 @@ public class RefentryManager extends MediaManager {
 
 			if (script.isCreateMethodInfoEnabled()) {
 
-				refSect1 = tagFactory.createRefSect1(ResourceServices
+				refSect1 = tagFactory.createRefsect1(ResourceServices
 						.getString(res, "C_METHODS"));
 
 				wroteMethods = writeExecutableMembers(classDoc,
@@ -372,7 +372,7 @@ public class RefentryManager extends MediaManager {
 			if (script.isCreateMethodInfoEnabled()
 					&& classDoc.isAnnotationType()) {
 
-				refSect1 = tagFactory.createRefSect1(ResourceServices
+				refSect1 = tagFactory.createRefsect1(ResourceServices
 						.getString(res, "C_ELEMENTS"));
 
 				AnnotationTypeDoc atdoc = (AnnotationTypeDoc) classDoc;
@@ -406,7 +406,7 @@ public class RefentryManager extends MediaManager {
 
 		boolean hasCommentedMembers = false;
 
-		RefSect2 section;
+		Refsect2 section;
 
 		ArrayList<ExecutableMemberInfo> commentedMembers = new ArrayList<ExecutableMemberInfo>();
 		Iterator<ExecutableMemberInfo> iterator;
@@ -444,7 +444,7 @@ public class RefentryManager extends MediaManager {
 				memberDoc = memberInfo.getExecutableMember();
 				implementedDoc = memberInfo.getImplemented();
 
-				section = tagFactory.createRefSect2();
+				section = tagFactory.createRefsect2();
 				section.setId(getReference(memberDoc));
 
 				if (memberDoc.isAnnotationTypeElement()) {
@@ -473,12 +473,12 @@ public class RefentryManager extends MediaManager {
 									+ memberDoc.flatSignature())));
 				}
 
-				section.appendChild(tagFactory.createIndexTerm().appendChild(
+				section.appendChild(tagFactory.createIndexterm().appendChild(
 						tagFactory.createPrimary(XmlServices
 								.textToXml(memberDoc.name()))));
 
 				section.appendChild(tagFactory
-						.createIndexTerm()
+						.createIndexterm()
 						.appendChild(tagFactory.createPrimary(indexCategory))
 						.appendChild(
 								tagFactory.createSecondary(XmlServices
@@ -509,7 +509,7 @@ public class RefentryManager extends MediaManager {
 
 				if ((implementedDoc != null) && (commentDoc == implementedDoc)) {
 
-					BridgeHead head = tagFactory.createBridgeHead();
+					Bridgehead head = tagFactory.createBridgehead();
 					head.setRenderAs("sect5");
 
 					section.appendChild(head);
@@ -548,7 +548,7 @@ public class RefentryManager extends MediaManager {
 
 		boolean hasCommentedFields = false;
 
-		RefSect2 section;
+		Refsect2 section;
 		String str;
 
 		ArrayList<FieldDoc> commentedFields = new ArrayList<FieldDoc>();
@@ -575,7 +575,7 @@ public class RefentryManager extends MediaManager {
 
 				fieldDoc = iterator.next();
 
-				section = tagFactory.createRefSect2();
+				section = tagFactory.createRefsect2();
 				section.setId(getReference(fieldDoc));
 
 				if (script.setCreateXrefLabelEnabled()) {
@@ -583,12 +583,12 @@ public class RefentryManager extends MediaManager {
 				}
 
 				section.appendChild(tagFactory.createTitle(fieldDoc.name()));
-				section.appendChild(tagFactory.createIndexTerm().appendChild(
+				section.appendChild(tagFactory.createIndexterm().appendChild(
 						tagFactory.createPrimary(XmlServices.textToXml(fieldDoc
 								.name()))));
 
 				section.appendChild(tagFactory
-						.createIndexTerm()
+						.createIndexterm()
 						.appendChild(tagFactory.createPrimary("Fields"))
 						.appendChild(
 								tagFactory.createSecondary(XmlServices

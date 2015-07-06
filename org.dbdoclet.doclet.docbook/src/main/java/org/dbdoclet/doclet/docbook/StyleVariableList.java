@@ -25,14 +25,14 @@ import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
-import org.dbdoclet.tag.docbook.ExceptionName;
-import org.dbdoclet.tag.docbook.ListItem;
+import org.dbdoclet.tag.docbook.Exceptionname;
+import org.dbdoclet.tag.docbook.Listitem;
 import org.dbdoclet.tag.docbook.Member;
 import org.dbdoclet.tag.docbook.Para;
-import org.dbdoclet.tag.docbook.SimpleList;
+import org.dbdoclet.tag.docbook.Simplelist;
 import org.dbdoclet.tag.docbook.Type;
-import org.dbdoclet.tag.docbook.VarName;
-import org.dbdoclet.tag.docbook.VariableList;
+import org.dbdoclet.tag.docbook.Variablelist;
+import org.dbdoclet.tag.docbook.Varname;
 import org.dbdoclet.xiphias.dom.ProcessingInstructionImpl;
 
 import com.sun.javadoc.ClassDoc;
@@ -80,7 +80,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 		if ((returnTag != null) || (paramTags.length > 0)) {
 
-			VariableList varlist = dbfactory.createVariableList();
+			Variablelist varlist = dbfactory.createVariablelist();
 			
 			if (script.getListPresentation() != null) {
 				varlist.appendChild(new ProcessingInstructionImpl("dbfo",
@@ -94,16 +94,16 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 			for (int j = 0; j < paramTags.length; j++) {
 
-				ListItem listItem = dbfactory.createListItem();
+				Listitem listItem = dbfactory.createListitem();
 
 				varlist.appendChild(dbfactory
-						.createVarListEntry()
+						.createVarlistentry()
 						.appendChild(
 								dbfactory
 										.createTerm()
 										.appendChild(
 												dbfactory
-														.createVarName(hyphenation
+														.createVarname(hyphenation
 																.hyphenateAfter(
 																		paramTags[j]
 																				.parameterName(),
@@ -117,9 +117,9 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 			if (returnTag != null) {
 
-				ListItem listItem = dbfactory.createListItem();
+				Listitem listItem = dbfactory.createListitem();
 				varlist.appendChild(dbfactory
-						.createVarListEntry()
+						.createVarlistentry()
 						.appendChild(
 								dbfactory
 										.createTerm()
@@ -128,7 +128,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 														.createEmphasis()
 														.appendChild(
 																dbfactory
-																		.createVarName("return"))))
+																		.createVarname("return"))))
 						.appendChild(listItem));
 
 				Para para = dbfactory.createPara();
@@ -148,7 +148,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 		if (tags.length > 0) {
 
-			VariableList varlist = dbfactory.createVariableList();
+			Variablelist varlist = dbfactory.createVariablelist();
 
 			if (script.getListPresentation() != null) {
 				varlist.appendChild(new ProcessingInstructionImpl("dbfo",
@@ -162,16 +162,16 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 			for (int i = 0; i < tags.length; i++) {
 
-				ExceptionName exceptionName = dbfactory.createExceptionName();
+				Exceptionname exceptionName = dbfactory.createExceptionname();
 				Para commentPara = dbfactory.createPara();
 
 				varlist.appendChild(dbfactory
-						.createVarListEntry()
+						.createVarlistentry()
 						.appendChild(
 								dbfactory.createTerm().appendChild(
 										exceptionName))
 						.appendChild(
-								dbfactory.createListItem().appendChild(
+								dbfactory.createListitem().appendChild(
 										commentPara)));
 
 				dbdTrafo.transform(tags[i].holder(), tags[i].exceptionName(),
@@ -208,7 +208,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 		if (tags.length > 0) {
 
-			VariableList varlist = dbfactory.createVariableList();
+			Variablelist varlist = dbfactory.createVariablelist();
 			varlist.appendChild(dbfactory.createTitle(ResourceServices
 					.getString(res, "C_SERIAL_FIELDS")));
 
@@ -216,17 +216,17 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 			for (int i = 0; i < tags.length; i++) {
 
-				VarName varName = dbfactory.createVarName();
+				Varname varName = dbfactory.createVarname();
 				Type type = dbfactory.createType();
 				Para description = dbfactory.createPara();
 
 				varlist.appendChild(dbfactory
-						.createVarListEntry()
+						.createVarlistentry()
 						.appendChild(
 								dbfactory.createTerm().appendChild(varName))
 						.appendChild(dbfactory.createTerm().appendChild(type))
 						.appendChild(
-								dbfactory.createListItem().appendChild(
+								dbfactory.createListitem().appendChild(
 										description)));
 
 				dbdTrafo.transform(tags[i].holder(), tags[i].fieldName(),
@@ -258,7 +258,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 			return false;
 		}
 
-		VariableList varlist = dbfactory.createVariableList();
+		Variablelist varlist = dbfactory.createVariablelist();
 		parent.appendChild(varlist);
 
 		LinkedHashMap<String, ArrayList<Tag>> tagMap = createTagMap(doc);
@@ -291,7 +291,6 @@ public class StyleVariableList extends StyleCoded implements Style {
 				}
 
 				if (addMetaInfoEntry(list, label, varlist)) {
-
 					foundSomething = true;
 				}
 			}
@@ -309,10 +308,10 @@ public class StyleVariableList extends StyleCoded implements Style {
 	}
 
 	private boolean addMetaInfoEntry(ArrayList<Tag> tagList, String label,
-			VariableList varlist) throws DocletException {
+			Variablelist varlist) throws DocletException {
 
 		Member member;
-		SimpleList list = dbfactory.createSimpleList(SimpleList.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
 
 		logger.debug("Adding tags size = " + tagList.size() + ".");
 
@@ -325,12 +324,12 @@ public class StyleVariableList extends StyleCoded implements Style {
 		}
 
 		varlist.appendChild(dbfactory
-				.createVarListEntry()
+				.createVarlistentry()
 				.appendChild(
 						dbfactory.createTerm().appendChild(
 								dbfactory.createEmphasis(label)))
 				.appendChild(
-						dbfactory.createListItem().appendChild(
+						dbfactory.createListitem().appendChild(
 								dbfactory.createPara().appendChild(list))));
 
 		for (Iterator<Tag> i = tagList.iterator(); i.hasNext();) {
@@ -346,7 +345,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 		return true;
 	}
 
-	private boolean addSeeAlsoInfo(Doc doc, String name, VariableList varlist)
+	private boolean addSeeAlsoInfo(Doc doc, String name, Variablelist varlist)
 			throws DocletException {
 
 		String label;
@@ -362,14 +361,14 @@ public class StyleVariableList extends StyleCoded implements Style {
 			return false;
 		}
 
-		SimpleList list = dbfactory.createSimpleList(SimpleList.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
 
 		varlist.appendChild(dbfactory
-				.createVarListEntry()
+				.createVarlistentry()
 				.appendChild(
 						dbfactory.createTerm().appendChild(
 								dbfactory.createEmphasis(name)))
-				.appendChild(dbfactory.createListItem().appendChild(list)));
+				.appendChild(dbfactory.createListitem().appendChild(list)));
 
 		for (int i = 0; i < tags.length; i++) {
 
@@ -384,7 +383,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 					list.appendChild(dbfactory.createMember().appendChild(
 							dbfactory.createLiteral().appendChild(
 									dbfactory.createLink(ref).appendChild(
-											dbfactory.createXRef(ref)))));
+											dbfactory.createXref(ref)))));
 				} else {
 
 					list.appendChild(dbfactory.createMember().appendChild(

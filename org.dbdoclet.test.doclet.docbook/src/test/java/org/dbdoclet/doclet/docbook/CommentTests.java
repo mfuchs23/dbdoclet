@@ -12,7 +12,6 @@ public class CommentTests extends AbstractTestCase {
                 sourcePath + "org/dbdoclet/music/AbstractElement.java",
                 sourcePath + "org/dbdoclet/music/Note.java" };
 
-        String classpath = sourcePath;
         javadoc(sources);
     }
 }

@@ -10,8 +10,8 @@ import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.Chapter;
 import org.dbdoclet.tag.docbook.DocBookDocument;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
-import org.dbdoclet.tag.docbook.FormalPara;
-import org.dbdoclet.tag.docbook.ProgramListing;
+import org.dbdoclet.tag.docbook.Formalpara;
+import org.dbdoclet.tag.docbook.Programlisting;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.dom.DocumentImpl;
 import org.dbdoclet.xiphias.dom.DocumentTypeImpl;
@@ -49,12 +49,12 @@ public class LinkSourceManager {
             doc.setDocumentElement(chapter);
             chapter.appendChild(dbf.createTitle(cdoc.qualifiedName()));
 
-            FormalPara formalPara = dbf.createFormalPara();
+            Formalpara formalPara = dbf.createFormalpara();
             formalPara.setDocument(doc);
             formalPara.setId("listing");
             chapter.appendChild(formalPara);
 
-            ProgramListing programlisting = dbf.createProgramListing();
+            Programlisting programlisting = dbf.createProgramlisting();
             programlisting.setAttribute("linenumbering", "numbered");
             programlisting.setDocument(doc);
             formalPara.appendChild(programlisting);

@@ -15,7 +15,7 @@ import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.Colspec;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.tag.docbook.Entry;
-import org.dbdoclet.tag.docbook.InformalTable;
+import org.dbdoclet.tag.docbook.Informaltable;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Row;
 import org.dbdoclet.tag.docbook.Tbody;
@@ -135,7 +135,7 @@ public abstract class Diagram {
 
 	public abstract void createDiagram() throws IOException;
 
-	public InformalTable createTable(String title,
+	public Informaltable createTable(String title,
 			List<LabeledInteger> itemList, DocBookTagFactory dbfactory) {
 
 		if (itemList == null) {
@@ -148,7 +148,7 @@ public abstract class Diagram {
 					"The argument dbfactory must not be null!");
 		}
 
-		InformalTable table = dbfactory.createInformalTable();
+		Informaltable table = dbfactory.createInformaltable();
 		table.setRole("parameter");
 		table.setFrame("all");
 

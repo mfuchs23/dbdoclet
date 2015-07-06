@@ -1,6 +1,6 @@
 package org.dbdoclet.doclet.docbook;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 

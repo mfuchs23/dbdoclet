@@ -178,8 +178,6 @@ public class DbdTransformer {
 			HtmlDocBookTrafo transformer = new HtmlDocBookTrafo();
 			transformer.setTagFactory(tagFactory);
 
-			script.selectSection(TrafoConstants.SECTION_DOCBOOK);
-
 			PackageDoc pkgDoc = null;
 
 			if (doc instanceof ProgramElementDoc) {
@@ -207,8 +205,10 @@ public class DbdTransformer {
 				script.unsetVariable(TrafoConstants.VAR_IMAGE_SUBPATH);
 			}
 
-			script.setTextParameter(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
-					parent.getTagName());
+			script.getNamespace()
+				.findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
+				.setParam(new TextParam(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
+					parent.getTagName()));
 
 			transformer.setInputStream(new ByteArrayInputStream(comment
 					.getBytes(script.getTextParameter("javadoc",

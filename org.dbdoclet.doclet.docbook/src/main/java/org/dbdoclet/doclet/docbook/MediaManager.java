@@ -54,30 +54,30 @@ import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.tag.docbook.DocBookVersion;
 import org.dbdoclet.tag.docbook.Email;
-import org.dbdoclet.tag.docbook.FirstName;
+import org.dbdoclet.tag.docbook.Firstname;
 import org.dbdoclet.tag.docbook.Holder;
-import org.dbdoclet.tag.docbook.ImageData;
-import org.dbdoclet.tag.docbook.ImageObject;
-import org.dbdoclet.tag.docbook.InformalFigure;
-import org.dbdoclet.tag.docbook.InformalTable;
-import org.dbdoclet.tag.docbook.LegalNotice;
+import org.dbdoclet.tag.docbook.Imagedata;
+import org.dbdoclet.tag.docbook.Imageobject;
+import org.dbdoclet.tag.docbook.Informalfigure;
+import org.dbdoclet.tag.docbook.Informaltable;
+import org.dbdoclet.tag.docbook.Legalnotice;
 import org.dbdoclet.tag.docbook.Link;
-import org.dbdoclet.tag.docbook.ListItem;
-import org.dbdoclet.tag.docbook.MediaObject;
+import org.dbdoclet.tag.docbook.Listitem;
+import org.dbdoclet.tag.docbook.Mediaobject;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Personname;
-import org.dbdoclet.tag.docbook.ReleaseInfo;
+import org.dbdoclet.tag.docbook.Releaseinfo;
 import org.dbdoclet.tag.docbook.Sect1;
 import org.dbdoclet.tag.docbook.Section;
-import org.dbdoclet.tag.docbook.SimPara;
+import org.dbdoclet.tag.docbook.Simpara;
 import org.dbdoclet.tag.docbook.Surname;
 import org.dbdoclet.tag.docbook.Table;
 import org.dbdoclet.tag.docbook.Tbody;
 import org.dbdoclet.tag.docbook.Term;
 import org.dbdoclet.tag.docbook.Tgroup;
 import org.dbdoclet.tag.docbook.Title;
-import org.dbdoclet.tag.docbook.VarListEntry;
-import org.dbdoclet.tag.docbook.VariableList;
+import org.dbdoclet.tag.docbook.Variablelist;
+import org.dbdoclet.tag.docbook.Varlistentry;
 import org.dbdoclet.tag.docbook.Year;
 import org.dbdoclet.tag.html.Img;
 import org.dbdoclet.xiphias.Hyphenation;
@@ -216,8 +216,8 @@ public abstract class MediaManager {
 					author.appendChild(personname);
 
 					if (isDefined(authorFirstname)) {
-						FirstName firstName = tagFactory
-								.createFirstName(authorFirstname);
+						Firstname firstName = tagFactory
+								.createFirstname(authorFirstname);
 						personname.appendChild(firstName);
 					}
 
@@ -231,8 +231,8 @@ public abstract class MediaManager {
 			} else {
 
 				if (isDefined(authorFirstname)) {
-					FirstName firstName = tagFactory
-							.createFirstName(authorFirstname);
+					Firstname firstName = tagFactory
+							.createFirstname(authorFirstname);
 					author.appendChild(firstName);
 				}
 
@@ -270,16 +270,16 @@ public abstract class MediaManager {
 
 		if (corporation != null && corporation.length() > 0) {
 
-			LegalNotice legalNotice = tagFactory.createLegalNotice();
+			Legalnotice legalNotice = tagFactory.createLegalnotice();
 			parent.appendChild(legalNotice);
 
-			SimPara para = tagFactory.createSimPara(corporation + ". "
+			Simpara para = tagFactory.createSimpara(corporation + ". "
 					+ ResourceServices.getString(res, "C_ALL_RIGHTS_RESERVED"));
 			legalNotice.appendChild(para);
 		}
 
 		if (releaseInfo != null && releaseInfo.length() > 0) {
-			ReleaseInfo child = tagFactory.createReleaseInfo(releaseInfo);
+			Releaseinfo child = tagFactory.createReleaseinfo(releaseInfo);
 			parent.appendChild(child);
 		}
 
@@ -338,9 +338,9 @@ public abstract class MediaManager {
 					}
 				}
 
-				MediaObject mediaObject = tagFactory.createMediaObject();
-				ImageObject imageObject = tagFactory.createImageObject();
-				ImageData imageData = tagFactory.createImageData();
+				Mediaobject mediaObject = tagFactory.createMediaobject();
+				Imageobject imageObject = tagFactory.createImageobject();
+				Imagedata imageData = tagFactory.createImagedata();
 
 				imageData.setFileRef(logoPath);
 				// imageData.setFormat(extension);
@@ -378,8 +378,8 @@ public abstract class MediaManager {
 
 		logger.debug("filebase ='" + filebase + "'");
 
-		InformalFigure figure = tagFactory.createInformalFigure();
-		media = tagFactory.createMediaObject();
+		Informalfigure figure = tagFactory.createInformalfigure();
+		media = tagFactory.createMediaobject();
 		media.setParentNode(figure);
 		figure.appendChild(media);
 
@@ -863,20 +863,20 @@ public abstract class MediaManager {
 
 			docList = deprecatedMap.get(title);
 
-			VariableList list = tagFactory.createVariableList();
+			Variablelist list = tagFactory.createVariablelist();
 			list.appendChild(new ProcessingInstructionImpl("dbfo",
 					"list-presentation=\"block\""));
 			section.appendChild(list);
 
 			for (Doc doc : docList) {
 
-				VarListEntry varListEntry = tagFactory.createVarListEntry();
+				Varlistentry varListEntry = tagFactory.createVarlistentry();
 				list.appendChild(varListEntry);
 
 				Term term = tagFactory.createTerm();
 				varListEntry.appendChild(term);
 
-				ListItem listItem = tagFactory.createListItem();
+				Listitem listItem = tagFactory.createListitem();
 				varListEntry.appendChild(listItem);
 
 				Para para = tagFactory.createPara();
@@ -1023,7 +1023,7 @@ public abstract class MediaManager {
 		parent.appendChild(component);
 
 		Section section;
-		InformalTable table;
+		Informaltable table;
 
 		section = tagFactory.createSection(ResourceServices.getString(res,
 				"C_TOTALS"));

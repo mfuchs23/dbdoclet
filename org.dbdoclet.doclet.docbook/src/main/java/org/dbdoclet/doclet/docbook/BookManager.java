@@ -22,14 +22,14 @@ import org.dbdoclet.doclet.util.MethodServices;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Book;
 import org.dbdoclet.tag.docbook.BookInfo;
-import org.dbdoclet.tag.docbook.BridgeHead;
+import org.dbdoclet.tag.docbook.Bridgehead;
 import org.dbdoclet.tag.docbook.Chapter;
 import org.dbdoclet.tag.docbook.DocBookDocument;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.Info;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Part;
-import org.dbdoclet.tag.docbook.PartInfo;
+import org.dbdoclet.tag.docbook.Partinfo;
 import org.dbdoclet.tag.docbook.Sect1;
 import org.dbdoclet.tag.docbook.Sect2;
 import org.dbdoclet.tag.docbook.Title;
@@ -97,7 +97,7 @@ public class BookManager extends MediaManager {
 
 				} else {
 
-					PartInfo partInfo = tagFactory.createPartInfo();
+					Partinfo partInfo = tagFactory.createPartinfo();
 					part.appendChild(partInfo);
 					createInfoSection(partInfo, summary);
 				}
@@ -244,11 +244,11 @@ public class BookManager extends MediaManager {
 			sect1.appendChild(
 					tagFactory.createTitle(hyphenation.hyphenateCamelCase(classDoc.name())))
 					.appendChild(
-							tagFactory.createIndexTerm().appendChild(
+							tagFactory.createIndexterm().appendChild(
 									tagFactory.createPrimary(classDoc.name())))
 					.appendChild(
 							tagFactory
-									.createIndexTerm()
+									.createIndexterm()
 									.appendChild(
 											tagFactory
 													.createPrimary(indexCategory))
@@ -402,12 +402,12 @@ public class BookManager extends MediaManager {
 							+ memberDoc.flatSignature());
 				}
 
-				title.appendChild(tagFactory.createIndexTerm().appendChild(
+				title.appendChild(tagFactory.createIndexterm().appendChild(
 						tagFactory.createPrimary(XmlServices
 								.textToXml(memberDoc.name()))));
 
 				title.appendChild(tagFactory
-						.createIndexTerm()
+						.createIndexterm()
 						.appendChild(tagFactory.createPrimary(indexCategory))
 						.appendChild(
 								tagFactory.createSecondary(XmlServices
@@ -440,7 +440,7 @@ public class BookManager extends MediaManager {
 
 				if ((implementedDoc != null) && (commentDoc == implementedDoc)) {
 
-					BridgeHead head = tagFactory.createBridgeHead();
+					Bridgehead head = tagFactory.createBridgehead();
 					head.setRenderAs("sect5");
 
 					section.appendChild(head);
@@ -513,12 +513,12 @@ public class BookManager extends MediaManager {
 				}
 
 				section.appendChild(tagFactory.createTitle(fieldDoc.name()));
-				section.appendChild(tagFactory.createIndexTerm().appendChild(
+				section.appendChild(tagFactory.createIndexterm().appendChild(
 						tagFactory.createPrimary(XmlServices.textToXml(fieldDoc
 								.name()))));
 
 				section.appendChild(tagFactory
-						.createIndexTerm()
+						.createIndexterm()
 						.appendChild(tagFactory.createPrimary("Fields"))
 						.appendChild(
 								tagFactory.createSecondary(XmlServices

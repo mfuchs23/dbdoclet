@@ -1,12 +1,9 @@
 package org.dbdoclet.doclet.docbook;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.dbdoclet.doclet.DocletException;
 import org.junit.Test;
-
-import com.sun.tools.javadoc.RootDocImpl;
 
 public class LinkSourceTests extends AbstractTestCase {
 

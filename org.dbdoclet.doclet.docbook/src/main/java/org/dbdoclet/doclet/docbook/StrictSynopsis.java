@@ -12,17 +12,17 @@ import java.util.Arrays;
 import java.util.TreeMap;
 
 import org.dbdoclet.doclet.DocletException;
-import org.dbdoclet.tag.docbook.ClassName;
-import org.dbdoclet.tag.docbook.ClassSynopsis;
-import org.dbdoclet.tag.docbook.ClassSynopsisInfo;
-import org.dbdoclet.tag.docbook.ConstructorSynopsis;
+import org.dbdoclet.tag.docbook.Classname;
+import org.dbdoclet.tag.docbook.Classsynopsis;
+import org.dbdoclet.tag.docbook.Classsynopsisinfo;
+import org.dbdoclet.tag.docbook.Constructorsynopsis;
 import org.dbdoclet.tag.docbook.DocBookElement;
-import org.dbdoclet.tag.docbook.ExceptionName;
-import org.dbdoclet.tag.docbook.FieldSynopsis;
-import org.dbdoclet.tag.docbook.MethodParam;
-import org.dbdoclet.tag.docbook.MethodSynopsis;
+import org.dbdoclet.tag.docbook.Exceptionname;
+import org.dbdoclet.tag.docbook.Fieldsynopsis;
+import org.dbdoclet.tag.docbook.Methodparam;
+import org.dbdoclet.tag.docbook.Methodsynopsis;
 import org.dbdoclet.tag.docbook.Olink;
-import org.dbdoclet.tag.docbook.OoClass;
+import org.dbdoclet.tag.docbook.Ooclass;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Type;
 
@@ -53,12 +53,12 @@ public class StrictSynopsis extends Synopsis {
 
 	public void addConstructorSynopsis(ConstructorDoc doc, DocBookElement parent) {
 
-		ConstructorSynopsis synopsis = dbfactory.createConstructorSynopsis();
+		Constructorsynopsis synopsis = dbfactory.createConstructorsynopsis();
 		parent.appendChild(synopsis);
 
 		createMemberModifier(doc, synopsis);
 
-		synopsis.appendChild(dbfactory.createMethodName(doc.name()));
+		synopsis.appendChild(dbfactory.createMethodname(doc.name()));
 
 		addParameters(synopsis, doc);
 		addExceptions(synopsis, doc);
@@ -78,12 +78,12 @@ public class StrictSynopsis extends Synopsis {
 
 		AnnotationTypeElementDoc elements[] = doc.elements();
 
-		FieldSynopsis synopsis;
+		Fieldsynopsis synopsis;
 		Type type;
 
 		for (int i = 0; i < elements.length; i++) {
 
-			synopsis = dbfactory.createFieldSynopsis();
+			synopsis = dbfactory.createFieldsynopsis();
 
 			createMemberModifier(elements[i], synopsis);
 
@@ -93,7 +93,7 @@ public class StrictSynopsis extends Synopsis {
 			createType(elements[i].returnType(), type,
 					script.isCreateFullyQualifiedNamesEnabled());
 
-			synopsis.appendChild(dbfactory.createVarName(elements[i].name()));
+			synopsis.appendChild(dbfactory.createVarname(elements[i].name()));
 
 			parent.appendChild(synopsis);
 		}
@@ -103,11 +103,11 @@ public class StrictSynopsis extends Synopsis {
 
 		ClassDoc[] exceptions = doc.thrownExceptions();
 
-		ExceptionName name;
+		Exceptionname name;
 
 		for (int i = 0; i < exceptions.length; i++) {
 
-			name = dbfactory.createExceptionName(exceptions[i].name());
+			name = dbfactory.createExceptionname(exceptions[i].name());
 			parent.appendChild(name);
 		}
 	}
@@ -216,7 +216,7 @@ public class StrictSynopsis extends Synopsis {
 			return;
 		}
 
-		ClassSynopsisInfo comment = dbfactory.createClassSynopsisInfo("// "
+		Classsynopsisinfo comment = dbfactory.createClasssynopsisinfo("// "
 				+ title);
 		comment.setRole("comment");
 		parent.appendChild(comment);
@@ -297,7 +297,7 @@ public class StrictSynopsis extends Synopsis {
 			return;
 		}
 
-		ClassSynopsisInfo comment = dbfactory.createClassSynopsisInfo("// "
+		Classsynopsisinfo comment = dbfactory.createClasssynopsisinfo("// "
 				+ title);
 		comment.setRole("comment");
 		parent.appendChild(comment);
@@ -310,7 +310,7 @@ public class StrictSynopsis extends Synopsis {
 
 	public void addFieldSynopsis(FieldDoc doc, DocBookElement parent) {
 
-		FieldSynopsis synopsis = dbfactory.createFieldSynopsis();
+		Fieldsynopsis synopsis = dbfactory.createFieldsynopsis();
 		parent.appendChild(synopsis);
 
 		createMemberModifier(doc, synopsis);
@@ -322,7 +322,7 @@ public class StrictSynopsis extends Synopsis {
 				script.isCreateFullyQualifiedNamesEnabled(), 1);
 		type.appendChild(typeName);
 
-		synopsis.appendChild(dbfactory.createVarName(doc.name()));
+		synopsis.appendChild(dbfactory.createVarname(doc.name()));
 
 		String value = doc.constantValueExpression();
 
@@ -358,16 +358,16 @@ public class StrictSynopsis extends Synopsis {
 
 			if (doc.isInterface()) {
 
-				ooelem = dbfactory.createOoClass();
+				ooelem = dbfactory.createOoclass();
 				ooelem.appendChild(dbfactory.createClassName(createTypeName(
 						interfaces[i],
 						script.isCreateFullyQualifiedNamesEnabled())));
 
 			} else {
 
-				ooelem = dbfactory.createOoInterface();
+				ooelem = dbfactory.createOointerface();
 				ooelem.appendChild(dbfactory
-						.createInterfaceName(createTypeName(interfaces[i],
+						.createInterfacename(createTypeName(interfaces[i],
 								script.isCreateFullyQualifiedNamesEnabled())));
 			}
 
@@ -393,7 +393,7 @@ public class StrictSynopsis extends Synopsis {
 
 	public void addMethodSynopsis(MethodDoc doc, DocBookElement parent) {
 
-		MethodSynopsis synopsis = dbfactory.createMethodSynopsis();
+		Methodsynopsis synopsis = dbfactory.createMethodsynopsis();
 		parent.appendChild(synopsis);
 
 		createMemberModifier(doc, synopsis);
@@ -405,7 +405,7 @@ public class StrictSynopsis extends Synopsis {
 				script.isCreateFullyQualifiedNamesEnabled());
 
 		String name = doc.name();
-		synopsis.appendChild(dbfactory.createMethodName(name));
+		synopsis.appendChild(dbfactory.createMethodname(name));
 
 		addParameters(synopsis, doc);
 		addExceptions(synopsis, doc);
@@ -421,11 +421,11 @@ public class StrictSynopsis extends Synopsis {
 			return;
 		}
 
-		MethodParam param;
+		Methodparam param;
 
 		for (int i = 0; i < parameters.length; i++) {
 
-			param = dbfactory.createMethodParam();
+			param = dbfactory.createMethodparam();
 
 			Type type = dbfactory.createType();
 			param.appendChild(type);
@@ -457,13 +457,13 @@ public class StrictSynopsis extends Synopsis {
 
 		try {
 
-			ClassSynopsis synopsis = dbfactory.createClassSynopsis();
+			Classsynopsis synopsis = dbfactory.createClasssynopsis();
 
 			if (doc.isInterface()) {
 				synopsis.setInterface(true);
 			}
 
-			OoClass ooclass = dbfactory.createOoClass();
+			Ooclass ooclass = dbfactory.createOoclass();
 			synopsis.appendChild(ooclass);
 
 			createClassModifier(doc, ooclass);
@@ -479,10 +479,10 @@ public class StrictSynopsis extends Synopsis {
 
 				if (name.equals("java.lang.Object") == false) {
 
-					OoClass extend = dbfactory.createOoClass();
+					Ooclass extend = dbfactory.createOoclass();
 					synopsis.appendChild(extend);
 
-					ClassName className = dbfactory.createClassName();
+					Classname className = dbfactory.createClassname();
 					String classNameText = createSuperClassName(superDoc,
 							script.isCreateFullyQualifiedNamesEnabled());
 

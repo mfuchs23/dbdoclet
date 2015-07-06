@@ -24,9 +24,9 @@ import java.util.Iterator;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
-import org.dbdoclet.tag.docbook.FormalPara;
+import org.dbdoclet.tag.docbook.Formalpara;
 import org.dbdoclet.tag.docbook.Para;
-import org.dbdoclet.tag.docbook.SimpleList;
+import org.dbdoclet.tag.docbook.Simplelist;
 import org.dbdoclet.tag.docbook.Warning;
 import org.dbdoclet.xiphias.XmlServices;
 
@@ -83,8 +83,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 						getEmphasisBoldRole()));
 				para.appendChild(": ");
 
-				SimpleList list = dbfactory
-						.createSimpleList(SimpleList.FORMAT_INLINE);
+				Simplelist list = dbfactory
+						.createSimplelist(Simplelist.FORMAT_INLINE);
 				para.appendChild(list);
 
 				for (Type cdoc : subclasses) {
@@ -97,10 +97,10 @@ public abstract class StyleCoded extends StyleBase implements Style {
 					if ((ref != null) && (ref.length() > 0)) {
 						list.appendChild(dbfactory.createMember().appendChild(
 								dbfactory.createLink(
-										dbfactory.createVarName(name), ref)));
+										dbfactory.createVarname(name), ref)));
 					} else {
 						list.appendChild(dbfactory.createMember().appendChild(
-								dbfactory.createVarName(name)));
+								dbfactory.createVarname(name)));
 					}
 				}
 			}
@@ -169,8 +169,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 			int fieldCount = 0;
 
-			SimpleList fieldList = dbfactory
-					.createSimpleList(SimpleList.FORMAT_INLINE);
+			Simplelist fieldList = dbfactory
+					.createSimplelist(Simplelist.FORMAT_INLINE);
 
 			for (int i = 0; i < fields.length; i++) {
 
@@ -193,7 +193,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 				} else {
 					fieldList.appendChild(dbfactory.createMember().appendChild(
-							dbfactory.createVarName(name)));
+							dbfactory.createVarname(name)));
 				}
 
 				fieldCount++;
@@ -246,7 +246,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			return false;
 		}
 
-		FormalPara fpara = dbfactory.createFormalPara();
+		Formalpara fpara = dbfactory.createFormalpara();
 		fpara.appendChild(dbfactory.createTitle(ResourceServices.getString(res,
 				"C_INHERITANCE_PATH")));
 
@@ -264,7 +264,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			id = referenceManager.getId(name);
 
 			if (id != null) {
-				para.appendChild(dbfactory.createXRef(id));
+				para.appendChild(dbfactory.createXref(id));
 			} else {
 				para.appendChild(name);
 			}
@@ -319,8 +319,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 			int methodCount = 0;
 
-			SimpleList methodList = dbfactory
-					.createSimpleList(SimpleList.FORMAT_INLINE);
+			Simplelist methodList = dbfactory
+					.createSimplelist(Simplelist.FORMAT_INLINE);
 
 			for (int i = 0; i < methods.length; i++) {
 
@@ -353,7 +353,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 				} else {
 					methodList.appendChild(dbfactory.createMember()
-							.appendChild(dbfactory.createVarName(name)));
+							.appendChild(dbfactory.createVarname(name)));
 				}
 
 				methodCount++;

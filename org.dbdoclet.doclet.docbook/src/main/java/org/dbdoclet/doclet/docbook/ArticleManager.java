@@ -23,7 +23,7 @@ import org.dbdoclet.doclet.ExecutableMemberInfo;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Article;
 import org.dbdoclet.tag.docbook.ArticleInfo;
-import org.dbdoclet.tag.docbook.BridgeHead;
+import org.dbdoclet.tag.docbook.Bridgehead;
 import org.dbdoclet.tag.docbook.DocBookDocument;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.Info;
@@ -196,11 +196,11 @@ public class ArticleManager extends MediaManager {
 			sect2.appendChild(
 					tagFactory.createTitle(hyphenation.hyphenateCamelCase(classDoc.name())))
 					.appendChild(
-							tagFactory.createIndexTerm().appendChild(
+							tagFactory.createIndexterm().appendChild(
 									tagFactory.createPrimary(classDoc.name())))
 					.appendChild(
 							tagFactory
-									.createIndexTerm()
+									.createIndexterm()
 									.appendChild(
 											tagFactory
 													.createPrimary(indexCategory))
@@ -353,12 +353,12 @@ public class ArticleManager extends MediaManager {
 							+ memberDoc.flatSignature());
 				}
 
-				title.appendChild(tagFactory.createIndexTerm().appendChild(
+				title.appendChild(tagFactory.createIndexterm().appendChild(
 						tagFactory.createPrimary(XmlServices
 								.textToXml(memberDoc.name()))));
 
 				title.appendChild(tagFactory
-						.createIndexTerm()
+						.createIndexterm()
 						.appendChild(tagFactory.createPrimary(indexCategory))
 						.appendChild(
 								tagFactory.createSecondary(XmlServices
@@ -391,7 +391,7 @@ public class ArticleManager extends MediaManager {
 
 				if ((implementedDoc != null) && (commentDoc == implementedDoc)) {
 
-					BridgeHead head = tagFactory.createBridgeHead();
+					Bridgehead head = tagFactory.createBridgehead();
 					head.setRenderAs("sect5");
 
 					section.appendChild(head);
@@ -464,12 +464,12 @@ public class ArticleManager extends MediaManager {
 				}
 
 				section.appendChild(tagFactory.createTitle(fieldDoc.name()));
-				section.appendChild(tagFactory.createIndexTerm().appendChild(
+				section.appendChild(tagFactory.createIndexterm().appendChild(
 						tagFactory.createPrimary(XmlServices.textToXml(fieldDoc
 								.name()))));
 
 				section.appendChild(tagFactory
-						.createIndexTerm()
+						.createIndexterm()
 						.appendChild(tagFactory.createPrimary("Fields"))
 						.appendChild(
 								tagFactory.createSecondary(XmlServices
