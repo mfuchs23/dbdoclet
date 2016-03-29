@@ -3,8 +3,7 @@
 <!-- <!DOCTYPE project PUBLIC "-//Apache Group//DTD Ant V1.0//EN" "ant.dtd"> -->
 <project name="org.dbdoclet.doclet.docbook.package" default="build">
 
-  <property file="../workspace.properties" />
-  <property file="module.properties" />
+  <property file="../module.properties" />
   <property file="../org.dbdoclet.doclet.docbook/src/main/resources/release.properties"
 	    prefix="release" />
   <property name="archives.dir" value="${user.home}/Webpräsenz/HTML/archives/dbdoclet"/>
@@ -96,6 +95,8 @@
 	<include name="*"/>
       </fileset>
     </chmod>
+    <copy file="root/doc/dbdoclet.1.gz" todir="${instdir}/../man/man1" overwrite="true">
+    </copy>
   </target>
 
   <target name="scratch" depends="clean.cache, distclean.all, build.all, install, dist, dist-deliver" />

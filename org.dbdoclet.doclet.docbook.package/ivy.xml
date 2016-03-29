@@ -6,11 +6,11 @@
 		status="integration" revision="${module.version}">
 	</info>
 	<publications>
-		<artifact name="org.dbdoclet.doclet.docbook.package" />
-		<artifact name="dbdoclet" />
+	  <artifact name="dbdoclet_${module.version}" />
 	</publications>
 	<dependencies>
-		<dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook"
-			rev="8.0.3" revConstraint="latest.integration" changing="true" />
+	  <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.docbook"
+		      rev="${module.version}" revConstraint="${module.version}"
+		      changing="true" />
 	</dependencies>
 </ivy-module>

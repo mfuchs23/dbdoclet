@@ -6,7 +6,7 @@
 
   <property name="resolveMode" value="default"/>
 
-  <property file="workspace.properties" />
+  <property file="module.properties" />
   <import file="../build/build.config/defaultBuild.xml"/>  
 
   <macrodef name="iterate">
@@ -26,7 +26,7 @@
   </target>
 
   <target name="build">
-    <iterate target="build"/>
+    <ant antfile="org.dbdoclet.doclet.docbook/build.xml" target="build" useNativeBasedir="true"/>
   </target>
 
   <target name="install">

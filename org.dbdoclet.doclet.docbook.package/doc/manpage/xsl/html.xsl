@@ -14,7 +14,7 @@
   <xsl:param name="appendix.autolabel">A</xsl:param>
   <xsl:param name="autotoc.label.in.hyperlink">1</xsl:param>
   <xsl:param name="autotoc.label.separator">. </xsl:param>
-  <xsl:param name="base.dir">./build/html/</xsl:param>
+  <xsl:param name="base.dir">/home/michael/Webpräsenz/HTML/projects/dbdoclet</xsl:param>
   <xsl:param name="bibliography.collection">http://docbook.sourceforge.net/release/bibliography/bibliography.xml</xsl:param>
   <xsl:param name="bibliography.numbered">0</xsl:param>
   <xsl:param name="bridgehead.in.toc">0</xsl:param>

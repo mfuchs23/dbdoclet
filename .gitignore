@@ -1,0 +1,8 @@
+**/RemoteSystemTempFiles/
+**/.recommenders/
+**/bin/
+**/build/
+**/lib/
+**/packman/
+*/packman.log
+**/packman.xml

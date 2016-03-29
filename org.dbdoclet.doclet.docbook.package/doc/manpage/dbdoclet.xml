@@ -2,7 +2,7 @@
 <project default="dbdoclet.pdf" name="dbdoclet manpage" xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- ========================================================== -->
   <!-- Generated from dbdoclet.TiDbit                             -->
-  <!-- Generated at 30.07.2014 11:00:41                           -->
+  <!-- Generated at 21.11.2015 11:47:55                           -->
   <!-- http://www.dbdoclet.org                                    -->
   <!-- ========================================================== -->
   <property file="${basedir}/dbdoclet.properties"/>
@@ -11,9 +11,9 @@
   <property name="dbdoclet.destination.path" value="${basedir}/build"/>
   <property name="dbdoclet.project.path" value="${basedir}"/>
   <property name="dbdoclet.overview.file" value=""/>
-  <property name="dbdoclet.docbook.file" value="/home/michael/Java/workspaces/dbdoclet8/org.dbdoclet.doclet.docbook.package/doc/manpage/manpage.xml"/>
-  <property name="dbdoclet.docbook.file.base" value="/home/michael/Java/workspaces/dbdoclet8/org.dbdoclet.doclet.docbook.package/doc/manpage/manpage"/>
-  <property name="dbdoclet.docbook.file.dir" value="/home/michael/Java/workspaces/dbdoclet8/org.dbdoclet.doclet.docbook.package/doc/manpage/"/>
+  <property name="dbdoclet.docbook.file" value="/home/michael/Java/workspaces/dbdoclet/org.dbdoclet.doclet.docbook.package/doc/manpage/manpage.xml"/>
+  <property name="dbdoclet.docbook.file.base" value="/home/michael/Java/workspaces/dbdoclet/org.dbdoclet.doclet.docbook.package/doc/manpage/manpage"/>
+  <property name="dbdoclet.docbook.file.dir" value="/home/michael/Java/workspaces/dbdoclet/org.dbdoclet.doclet.docbook.package/doc/manpage/"/>
   <property name="dbdoclet.docbook.name" value="manpage.xml"/>
   <property name="dbdoclet.docbook.name.base" value="manpage"/>
   <property name="dbdoclet.bootclasspath" value="${dbdoclet.home}jars/xml-apis.jar:${dbdoclet.home}jars/xercesImpl.jar:${dbdoclet.home}jars/serializer.jar:${dbdoclet.home}jars/xalan.jar"/>
@@ -211,18 +211,49 @@
     <!-- TARGET dbdoclet.docbook.html                               -->
     <!-- ========================================================== -->
     <property name="dbdoclet.media" value="html"/>
-    <delete dir="${dbdoclet.docbook.file.dir}/./build/html/"/>
+    <delete dir="/home/michael/Webpräsenz/HTML/projects/dbdoclet/"/>
     <antcall target="dbdoclet.xslt.html">
       <param name="in" value="${dbdoclet.docbook.file}"/>
       <param name="out" value="${dbdoclet.docbook.file.base}.html.log"/>
     </antcall>
-    <copy file="${dbdoclet.home}/xslt/html/dbdoclet.css" todir="${dbdoclet.docbook.file.dir}/./build/html/"/>
-    <copy todir="${dbdoclet.docbook.file.dir}/./build/html/images/">
+    <copy file="${dbdoclet.home}/xslt/html/dbdoclet.css" todir="/home/michael/Webpräsenz/HTML/projects/dbdoclet/"/>
+    <copy todir="/home/michael/Webpräsenz/HTML/projects/dbdoclet/images/">
       <fileset dir="${dbdoclet.home}/docbook/xsl/images"/>
       <fileset dir="${dbdoclet.home}/xslt/html/images"/>
       <fileset dir="${dbdoclet.home}/xslt/html">
         <include name="*.css"/>
       </fileset>
+    </copy>
+  </target>
+  <target name="dbdoclet.xslt.epub">
+    <!-- ========================================================== -->
+    <!-- TARGET dbdoclet.xslt.epub                                  -->
+    <!-- ========================================================== -->
+    <echo message="DocBook Transformation(epub)..."/>
+    <!--DocBook 5 Strip Namespaces                                  -->
+    <antcall target="dbdoclet.xslt">
+      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
+      <param name="in" value="${in}"/>
+      <param name="out" value="${in}.db5"/>
+    </antcall>
+    <antcall target="dbdoclet.xslt">
+      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/epub.xsl"/>
+      <param name="in" value="${in}.db5"/>
+      <param name="out" value="${out}"/>
+    </antcall>
+  </target>
+  <target name="dbdoclet.docbook.epub">
+    <!-- ========================================================== -->
+    <!-- TARGET dbdoclet.docbook.epub                               -->
+    <!-- ========================================================== -->
+    <property name="dbdoclet.media" value="epub"/>
+    <antcall target="dbdoclet.xslt.epub">
+      <param name="in" value="${dbdoclet.docbook.file}"/>
+      <param name="out" value="${dbdoclet.docbook.file.base}.epub"/>
+    </antcall>
+    <copy file="${dbdoclet.home}/xslt/epub/dbdoclet.css" todir="${dbdoclet.docbook.file.dir}/./build/epub/OEBPS/"/>
+    <copy todir="${dbdoclet.docbook.file.dir}/./build/epub/OEBPS/images/">
+      <fileset dir="${dbdoclet.home}/docbook/xsl/images"/>
     </copy>
   </target>
   <target name="dbdoclet.xslt.pdf">
@@ -256,37 +287,6 @@
       <param name="in" value="${dbdoclet.docbook.file.base}.fo"/>
       <param name="out" value="${dbdoclet.docbook.file.base}.pdf"/>
     </antcall>
-  </target>
-  <target name="dbdoclet.xslt.epub">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.xslt.epub                                  -->
-    <!-- ========================================================== -->
-    <echo message="DocBook Transformation(epub)..."/>
-    <!--DocBook 5 Strip Namespaces                                  -->
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.home}/docbook/xsl/common/stripns.xsl"/>
-      <param name="in" value="${in}"/>
-      <param name="out" value="${in}.db5"/>
-    </antcall>
-    <antcall target="dbdoclet.xslt">
-      <param name="stylesheet" value="${dbdoclet.project.path}/xsl/epub.xsl"/>
-      <param name="in" value="${in}.db5"/>
-      <param name="out" value="${out}"/>
-    </antcall>
-  </target>
-  <target name="dbdoclet.docbook.epub">
-    <!-- ========================================================== -->
-    <!-- TARGET dbdoclet.docbook.epub                               -->
-    <!-- ========================================================== -->
-    <property name="dbdoclet.media" value="epub"/>
-    <antcall target="dbdoclet.xslt.epub">
-      <param name="in" value="${dbdoclet.docbook.file}"/>
-      <param name="out" value="${dbdoclet.docbook.file.base}.epub"/>
-    </antcall>
-    <copy file="${dbdoclet.home}/xslt/epub/dbdoclet.css" todir="${dbdoclet.docbook.file.dir}/./build/epub/OEBPS/"/>
-    <copy todir="${dbdoclet.docbook.file.dir}/./build/epub/OEBPS/images/">
-      <fileset dir="${dbdoclet.home}/docbook/xsl/images"/>
-    </copy>
   </target>
   <target name="dbdoclet.docbook.webhelp">
     <!-- ========================================================== -->
