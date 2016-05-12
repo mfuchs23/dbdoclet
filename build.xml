@@ -9,23 +9,12 @@
   <property file="module.properties" />
   <import file="../build/build.config/defaultBuild.xml"/>  
 
-  <macrodef name="iterate">
-    <attribute name="target"/>
-    <sequential>
-      <subant target="@{target}" failonerror="true"> 
-	<fileset dir=".">
-	  <exclude name="org.dbdoclet.test.*/build.xml"/>
-	  <include name="*/build.xml"/>
-	</fileset>
-      </subant>
-    </sequential>
-  </macrodef>
-
   <target name="distclean">
     <iterate target="distclean"/>
   </target>
 
-  <target name="build">
+  <target name="rebuild">
+    <iterate target="distclean"/>
     <ant antfile="org.dbdoclet.doclet.docbook/build.xml" target="build" useNativeBasedir="true"/>
   </target>
 
