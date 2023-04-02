@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
+import org.dbdoclet.doclet.DocManager;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
@@ -14,41 +15,44 @@ import org.dbdoclet.xiphias.Hyphenation;
 public class MediaManagerProvider implements Provider<MediaManager> {
 
 	@Inject
-	Hyphenation hyphenation;
+	private DocManager docManager;
 	@Inject
-	ReferenceManager referenceManager;
+	private Hyphenation hyphenation;
 	@Inject
-	ResourceBundle res;
+	private ReferenceManager referenceManager;
 	@Inject
-	DbdScript script;
+	private ResourceBundle res;
 	@Inject
-	StatisticData statisticData;
+	private DbdScript script;
 	@Inject
-	Style style;
+	private StatisticData statisticData;
 	@Inject
-	DocBookTagFactory tagFactory;
+	private Style style;
 	@Inject
-	TagManager tagManager;
+	private DocBookTagFactory tagFactory;
 	@Inject
-	DbdTransformer transformer;
+	private TagManager tagManager;
+	@Inject
+	private DbdTransformer transformer;
 	
 	@Override
 	public MediaManager get() {
 
 		String mgr = script.getDocumentElement();
 
-		MediaManager mediaManager;
+		MediaManager mediaManager = new ArticleManager();
 
 		if (mgr != null && mgr.equals("reference")) {
-			mediaManager = new RefentryManager();
+			// mediaManager = new RefentryManager();
 		} else if (mgr != null && mgr.equalsIgnoreCase("article")) {
 			mediaManager = new ArticleManager();
 		} else if (mgr != null && mgr.equalsIgnoreCase("xmi")) {
-			mediaManager = new DodoManager();
+			// mediaManager = new DodoManager();
 		} else {
-			mediaManager = new BookManager();
+			// mediaManager = new BookManager();
 		}
 		
+		mediaManager.setDocManager(docManager);
 		mediaManager.setHyphenation(hyphenation);
 		mediaManager.setResourceBundle(res);
 		mediaManager.setReferenceManager(referenceManager);

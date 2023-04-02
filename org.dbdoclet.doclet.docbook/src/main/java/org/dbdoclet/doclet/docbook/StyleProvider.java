@@ -3,7 +3,7 @@ package org.dbdoclet.doclet.docbook;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import org.dbdoclet.doclet.InstanceFactory;
+import org.dbdoclet.doclet.CDI;
 
 public class StyleProvider implements Provider<Style> {
 
@@ -16,9 +16,9 @@ public class StyleProvider implements Provider<Style> {
 		String styleName = script.getDocumentStyle();
 
 		if (styleName.equals("table")) {
-			return InstanceFactory.getInstance(StyleTable.class);
+			return CDI.getInstance(StyleTable.class);
 		}
 
-		return InstanceFactory.getInstance(StyleVariableList.class);
+		return CDI.getInstance(StyleVariableList.class);
 	}
 }

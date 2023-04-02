@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 
 import org.dbdoclet.doclet.ClassDiagramManager;
+import org.dbdoclet.doclet.DocManager;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
@@ -45,6 +46,8 @@ public class StyleBase {
 	protected DbdTransformer dbdTrafo;
 	@Inject
 	protected DocBookTagFactory dbfactory;
+	@Inject
+	protected DocManager docManager;
 	@Inject
 	protected Hyphenation hyphenation;
 	@Inject

@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg contentScriptType="text/ecmascript" xmlns:xi="http://www.w3.org/2001/XInclude" width="885" xmlns:xlink="http://www.w3.org/1999/xlink" zoomAndPan="magnify" contentStyleType="text/css" viewBox="0 0 885 330" height="330" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" version="1.0">
+  <defs>
+    <filter xlink:actuate="onLoad" xlink:type="simple" id="blur" xlink:show="other" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <feGaussianBlur result="blur" stdDeviation="3" in="SourceGraphic"/>
+    </filter>
+    <radialGradient xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:actuate="onLoad" id="grad1" xlink:show="other" fx="30%" fy="30%">
+      <stop stop-color="#fff" offset="0%"/>
+      <stop stop-color="#99abc6" offset="100%"/>
+    </radialGradient>
+  </defs>
+  <rect fill="#ffffff" x="0" width="885" height="330" y="0" stroke="#ffffff"/>
+  <rect x="23" y="23" fill="dimgray" width="120" filter="url(#blur)" height="40" stroke="dimgray"/>
+  <rect fill="#ffc800" x="20" width="120" height="40" y="20" stroke="#000000"/>
+  <text fill="#000000" x="57" y="38" style="font-size:8;font-family:Helvetica" color="black">«interface»</text>
+  <text fill="#000000" x="48" y="48" style="font-size:8;font-family:Helvetica;font-weight:bold" color="black">MusicElement</text>
+  <rect x="183" y="23" fill="dimgray" width="120" filter="url(#blur)" height="40" stroke="dimgray"/>
+  <rect fill="#ffc800" x="180" width="120" height="40" y="20" stroke="#000000"/>
+  <text fill="#000000" x="217" y="38" style="font-size:8;font-family:Helvetica" color="black">«interface»</text>
+  <text fill="#000000" x="213" y="48" style="font-size:8;font-family:Helvetica;font-weight:bold" color="black">Serializable</text>
+  <rect x="429" y="28" fill="dimgray" width="120" filter="url(#blur)" height="30" stroke="dimgray"/>
+  <rect fill="#ffffe0" x="426" width="120" height="30" y="25" stroke="#000000"/>
+  <text fill="#000000" x="471" y="43" style="font-size:8;font-family:Helvetica;font-weight:bold" color="black">Object</text>
+  <rect x="675" y="23" fill="dimgray" width="193" filter="url(#blur)" height="40" stroke="dimgray"/>
+  <rect fill="#ffc800" x="672" width="193" height="40" y="20" stroke="#000000"/>
+  <text fill="#000000" x="746" y="38" style="font-size:8;font-family:Helvetica" color="black">«interface»</text>
+  <text fill="#000000" x="682" y="48" style="font-size:8;font-family:Helvetica;font-weight:bold" color="black">Comparable&lt;AbstractElement&lt;E, F&gt;&gt;</text>
+  <rect x="343" y="123" fill="dimgray" width="177" filter="url(#blur)" height="30" stroke="dimgray"/>
+  <rect fill="#ffffe0" x="340" width="177" height="30" y="120" stroke="#000000"/>
+  <text fill="#000000" x="350" y="138" style="font-size:8;font-family:Helvetica;font-weight:bold" color="black">AbstractElement&lt;String, Integer&gt;</text>
+  <rect x="404" y="113" fill="dimgray" width="231" filter="url(#blur)" height="20" stroke="dimgray"/>
+  <rect x="401" y="110" fill="#ffffe0" width="231" stroke-dasharray="5 3" height="20" stroke="#000000"/>
+  <text fill="#000000" x="411" y="118" style="font-size:8;font-family:Helvetica" color="black">E: E extends Comparable&lt;? super E&gt; &amp; Serializable</text>
+  <text fill="#000000" x="411" y="126" style="font-size:8;font-family:Helvetica" color="black">F: F extends Serializable</text>
+  <rect x="426" y="193" fill="dimgray" width="125" filter="url(#blur)" height="120" stroke="dimgray"/>
+  <rect fill="#ffffe0" x="423" width="125" height="120" y="190" stroke="#000000"/>
+  <text fill="#000000" x="474" y="208" style="font-size:8;font-family:Helvetica;font-weight:bold" color="black">Note</text>
+  <line y2="217" stroke-width="1" x1="423" x2="548" stroke="black" y1="217"/>
+  <text fill="#000000" x="433" y="232" style="font-size:8;font-family:Helvetica" color="black">+ PITCH_C: int</text>
+  <line y2="241" stroke-width="1" x1="423" x2="548" stroke="black" y1="241"/>
+  <text fill="#000000" x="433" y="256" style="font-size:8;font-family:Helvetica" color="black">+ Note(pitch: int)</text>
+  <text fill="#000000" x="433" y="266" style="font-size:8;font-family:Helvetica" color="black">+ getPitch(): int</text>
+  <text fill="#000000" x="433" y="276" style="font-size:8;font-family:Helvetica" color="black">+ setPitch(pitch: int): void</text>
+  <text fill="#000000" x="433" y="286" style="font-size:8;font-family:Helvetica" color="black">+ toElement(): String</text>
+  <text fill="#000000" x="433" y="296" style="font-size:8;font-family:Helvetica" color="black">+ play(): void</text>
+  <polygon fill="none" points="486,55 491,65 481,65 481,65 " stroke="black"/>
+  <polyline fill="none" points="486,110 486,91 486,91 486,65 " stroke="#000000"/>
+  <polygon fill="none" points="240,60 245,70 235,70 235,70 " stroke="black"/>
+  <polyline fill="none" stroke-dasharray="5, 5" points="476,100 476,80 240,80 240,70 " stroke="#000000"/>
+  <polygon fill="none" points="768,60 773,70 763,70 763,70 " stroke="black"/>
+  <polyline fill="none" stroke-dasharray="5, 5" points="496,100 496,80 768,80 768,70 " stroke="#000000"/>
+  <polygon fill="none" points="80,60 85,70 75,70 75,70 " stroke="black"/>
+  <polyline fill="none" stroke-dasharray="5, 5" points="476,100 476,80 80,80 80,70 " stroke="#000000"/>
+  <polygon fill="none" points="486,150 491,160 481,160 481,160 " stroke="black"/>
+  <polyline fill="none" points="486,190 486,176 486,176 486,160 " stroke="#000000"/>
+</svg>

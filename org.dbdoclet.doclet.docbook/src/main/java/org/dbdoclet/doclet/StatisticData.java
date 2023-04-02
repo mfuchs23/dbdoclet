@@ -68,7 +68,7 @@ public class StatisticData {
 		Integer key;
 
 		Iterator<Integer> iterator = classesPerPackageMap.keySet().iterator();
-		ClassesPerPackage classesPerPackage = InstanceFactory
+		ClassesPerPackage classesPerPackage = CDI
 				.getInstance(ClassesPerPackage.class);
 
 		while (iterator.hasNext()) {
@@ -101,7 +101,7 @@ public class StatisticData {
 
 		// System.out.println("Creating direct known subclasses diagram...");
 
-		DirectKnownSubclasses directKnownSubclasses = InstanceFactory
+		DirectKnownSubclasses directKnownSubclasses = CDI
 				.getInstance(DirectKnownSubclasses.class);
 
 		Iterator<String> iterator = directKnownSubclassesMap.keySet()
@@ -194,6 +194,7 @@ public class StatisticData {
 					"The argument qualifiedName must not be null!");
 		}
 
+		/*
 		ArrayList<Type> subclasses = directKnownSubclassesMap
 				.get(qualifiedName);
 
@@ -202,11 +203,14 @@ public class StatisticData {
 		}
 
 		return subclasses;
+		*/
+		
+		return new ArrayList<Type>();
 	}
 
 	public TotalsDiagram getTotalsDiagram() throws IOException {
 
-		TotalsDiagram totals = InstanceFactory.getInstance(TotalsDiagram.class);
+		TotalsDiagram totals = CDI.getInstance(TotalsDiagram.class);
 		totals.setTotalPackages(totalPackages);
 		totals.setTotalClasses(totalClasses);
 		totals.setTotalFields(totalFields);

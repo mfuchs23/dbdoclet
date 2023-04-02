@@ -12,16 +12,28 @@ package org.dbdoclet.doclet.docbook;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementScanner9;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.AbstractDoclet;
+import org.dbdoclet.doclet.DeprecatedDocletOptions;
+import org.dbdoclet.doclet.DocManager;
 import org.dbdoclet.doclet.DocletOptions;
-import org.dbdoclet.doclet.InstanceFactory;
+import org.dbdoclet.doclet.CDI;
 import org.dbdoclet.doclet.util.PackageServices;
 import org.dbdoclet.doclet.util.ReleaseServices;
 import org.dbdoclet.service.FileServices;
@@ -32,9 +44,14 @@ import org.dbdoclet.trafo.TrafoScriptManager;
 import org.dbdoclet.trafo.script.Script;
 
 import com.google.inject.Guice;
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
+import com.sun.source.doctree.DocCommentTree;
+import com.sun.source.doctree.DocTree;
+import com.sun.source.util.DocTreeScanner;
+import com.sun.source.util.DocTrees;
+
+import jdk.javadoc.doclet.DocletEnvironment;
+import jdk.javadoc.doclet.Reporter;
 
 /**
  * The class <code>DocBookDoclet</code> implements a javadoc doclet, which
@@ -44,12 +61,23 @@ import com.sun.javadoc.RootDoc;
  */
 public final class DocBookDoclet extends AbstractDoclet {
 
-	private static Log logger = LogFactory
-			.getLog(DocBookDoclet.class.getName());
+	private static Log logger = LogFactory.getLog(DocBookDoclet.class.getName());
+	private DocletOptions options;
+	private ResourceBundle res;
 
+	public DocBookDoclet() {
+		CDI.setInjector(Guice.createInjector(new DbdGuiceModule()));
+		res = CDI.getInstance(ResourceBundle.class);
+		options = new DocletOptions(res);
+	}
+	
+    @Override
+    public void init(Locale locale, Reporter reporter) {
+        this.reporter = reporter;
+    }
 	/**
-	 * The method <code>copyDocFiles</code> copies all files, which are located
-	 * in doc-files directories, from the source path to the destination path.
+	 * The method <code>copyDocFiles</code> copies all files, which are located in
+	 * doc-files directories, from the source path to the destination path.
 	 * 
 	 * @param root
 	 * @param sourcepath
@@ -57,11 +85,11 @@ public final class DocBookDoclet extends AbstractDoclet {
 	 * @param dbdScript
 	 * @throws IOException
 	 */
-	public static void copyDocFiles(RootDoc root, String sourcepath,
-			File outdir, DbdScript dbdScript) throws IOException {
+	public static void copyDocFiles(DocManager dm, String sourcepath, File outdir, DbdScript dbdScript)
+			throws IOException {
 
-		if (root == null) {
-			throw new IllegalArgumentException("Parameter root is null!");
+		if (dm == null) {
+			throw new IllegalArgumentException("Parameter DocManager is null!");
 		}
 
 		if (outdir == null) {
@@ -73,15 +101,14 @@ public final class DocBookDoclet extends AbstractDoclet {
 		}
 
 		if (dbdScript == null) {
-			throw new IllegalStateException(
-					"The field dbdScript must not be null!");
+			throw new IllegalStateException("The field dbdScript must not be null!");
 		}
 
 		logger.debug("docfilespath=" + sourcepath);
 
 		String fsep = System.getProperty("file.separator");
 
-		PackageDoc[] pkgs = root.specifiedPackages();
+		Set<PackageElement> pkgs = dm.getPackageElements();
 
 		String srcdir;
 		String destdir;
@@ -89,11 +116,11 @@ public final class DocBookDoclet extends AbstractDoclet {
 		ArrayList<String> dirs;
 		Iterator<String> iterator;
 
-		for (int i = 0; i < pkgs.length; i++) {
+		for (PackageElement pkg : pkgs) {
 
-			logger.debug("pkg=" + pkgs[i]);
+			logger.debug("pkg=" + pkg);
 
-			dirs = PackageServices.findDocFilesDirectories(pkgs[i], sourcepath);
+			dirs = PackageServices.findDocFilesDirectories(pkg, sourcepath);
 			iterator = dirs.iterator();
 
 			while (iterator.hasNext()) {
@@ -101,25 +128,21 @@ public final class DocBookDoclet extends AbstractDoclet {
 				srcdir = iterator.next();
 				logger.debug("srcdir=" + srcdir);
 
-				destdir = FileServices.appendPath(outdir,
-						dbdScript.getImagePath());
-				destdir = FileServices.appendPath(destdir,
-						StringServices.replace(pkgs[i].name(), ".", fsep));
+				destdir = FileServices.appendPath(outdir, dbdScript.getImagePath());
+				destdir = FileServices.appendPath(destdir, StringServices.replace(pkg.getQualifiedName().toString(), ".", fsep));
 				destdir = FileServices.appendPath(destdir, "doc-files");
 
 				FileServices.copyDir(srcdir, destdir);
 			}
 		}
 
-		ClassDoc[] cls = root.specifiedClasses();
+		Set<TypeElement> cls = dm.getClassElements();
 
-		for (int i = 0; i < cls.length; i++) {
+		for (TypeElement classElem : cls) {
 
-			logger.debug("cls=" + cls[i]);
+			PackageElement pkg = dm.containingPackage(classElem);
 
-			PackageDoc pkgDoc = cls[i].containingPackage();
-
-			dirs = PackageServices.findDocFilesDirectories(pkgDoc, sourcepath);
+			dirs = PackageServices.findDocFilesDirectories(pkg, sourcepath);
 			iterator = dirs.iterator();
 
 			while (iterator.hasNext()) {
@@ -127,10 +150,8 @@ public final class DocBookDoclet extends AbstractDoclet {
 				srcdir = iterator.next();
 				logger.debug("srcdir=" + srcdir);
 
-				destdir = FileServices.appendPath(outdir,
-						dbdScript.getImagePath());
-				destdir = FileServices.appendPath(destdir,
-						StringServices.replace(pkgDoc.name(), ".", fsep));
+				destdir = FileServices.appendPath(outdir, dbdScript.getImagePath());
+				destdir = FileServices.appendPath(destdir, StringServices.replace(pkg.getQualifiedName().toString(), ".", fsep));
 				destdir = FileServices.appendPath(destdir, "doc-files");
 
 				FileServices.copyDir(srcdir, destdir);
@@ -138,71 +159,53 @@ public final class DocBookDoclet extends AbstractDoclet {
 		}
 	}
 
-	/**
-	 * The method <code>start</code> is called from within the Doclet API. It is
-	 * the main entry point of the doclet. This method catches all exceptions
-	 * and prints a stacktrace if necessary.
-	 */
-	public static boolean start(RootDoc rootDoc) {
 
-		MediaManager mediaManager = null;
+	@Override
+	public Set<? extends Option> getSupportedOptions() {
+		return options.getSupportedOptions();
+	}
 
-		if (rootDoc == null) {
-			return false;
-		}
+	@Override
+	public boolean run(DocletEnvironment environment) {
 
 		try {
 
-			InstanceFactory.setInjector(Guice
-					.createInjector(new DbdGuiceModule()));
+			DbdScript dbdScript = CDI.getInstance(DbdScript.class);
 
-			ResourceBundle res = InstanceFactory
-					.getInstance(ResourceBundle.class);
-			DocBookDoclet doclet = InstanceFactory
-					.getInstance(DocBookDoclet.class);
-
-			doclet.setOptions(rootDoc.options());
-			DocletOptions options = doclet.getOptions();
-
-			DbdScript dbdScript = InstanceFactory.getInstance(DbdScript.class);
-
-			File destFile = options.getDestinationFile();
-			if (destFile != null) {
-				logger.info(String
-						.format("destination file (ignore destination directory)="
-								+ destFile));
+			String filename = options.getDestinationFile();
+			File destFile = null;
+			if (filename != null) {
+				logger.info(String.format("destination file (ignore destination directory)=" + filename));
+				destFile = new File(filename);
 			} else {
-				File destDir = options.getDestinationDirectory();
+				String destDir = options.getDestinationDirectory();
 				logger.info(String.format("destination directory=" + destDir));
 				destFile = new File(destDir, "Reference.xml");
 			}
 
 			dbdScript.setOutputFile(destFile);
 			dbdScript.setEncoding(options.getEncoding());
+			dbdScript.setDocumentElement("article");
+			
 			Script script = dbdScript.getScript();
 
-			File scriptFile = options.getProfile();
-			if (scriptFile != null) {
-				logger.info("Using profile file "
-						+ scriptFile.getCanonicalPath());
-			}
-
-			if (scriptFile != null) {
-
+			filename = options.getProfile();
+			if (filename!= null) {
+				
+				File scriptFile = new File(filename);
+				logger.info("Using profile file " + scriptFile.getCanonicalPath());
 				if (scriptFile.exists()) {
 
 					TrafoScriptManager mgr = new TrafoScriptManager();
 					mgr.parseScript(script, scriptFile);
 
 				} else {
-					logger.error(MessageFormat.format(ResourceServices
-							.getString(res, "C_ERROR_FILE_NOT_FOUND"),
+					logger.error(MessageFormat.format(ResourceServices.getString(res, "C_ERROR_FILE_NOT_FOUND"),
 							scriptFile.getAbsolutePath()));
 				}
 			}
 
-			if (script.getParameter(TrafoConstants.SECTION_DOCBOOK,
-					TrafoConstants.PARAM_IMAGE_PATH) == null) {
+			if (script.getParameter(TrafoConstants.SECTION_DOCBOOK, TrafoConstants.PARAM_IMAGE_PATH) == null) {
 				dbdScript.setImagePath("img/");
 			}
 
@@ -210,37 +213,88 @@ public final class DocBookDoclet extends AbstractDoclet {
 				dbdScript.setTitle(options.getTitle());
 			}
 
-			logger.debug("destination-encoding = "
-					+ dbdScript.getDestinationEncoding());
-
-			doclet.println(ResourceServices
-					.getString(res, "C_RUNNING_DBDOCLET"));
-			doclet.println("Copyright (c) 2001-2015 Michael Fuchs");
-			ReleaseServices releaseServices = new ReleaseServices();
-			doclet.println("Version " + releaseServices.getVersion()
-					+ " Build " + releaseServices.getBuild());
-
 			File destPath = dbdScript.getDestinationDirectory();
 
-			for (String sourcepath : options.getSourcepath()) {
-				copyDocFiles(rootDoc, sourcepath, destPath, dbdScript);
+			println(ResourceServices.getString(res, "C_RUNNING_DBDOCLET"));
+			println("Copyright (c) 2001-2023 Michael Fuchs");
+			ReleaseServices releaseServices = new ReleaseServices();
+			println("Version " + releaseServices.getVersion() + " Build " + releaseServices.getBuild());
+			println(String.format("destination-directory: %s", destPath));
+
+			DocManager docManager = CDI.getInstance(DocManager.class);
+			docManager.setDocletEnvironment(environment);
+			docManager.setReporter(reporter);
+
+			for (String sourcepath : options.getSourcepath().split(File.pathSeparator)) {
+				copyDocFiles(docManager, sourcepath, destPath, dbdScript);
 			}
 
+			/*
 			if (dbdScript.isLinkSourceEnabled()) {
-				LinkSourceManager lsm = InstanceFactory
-						.getInstance(LinkSourceManager.class);
-				lsm.createDocBook(rootDoc);
+			 	LinkSourceManager lsm = InstanceFactory.getInstance(LinkSourceManager.class);
+			 	lsm.createDocBook(docManager);
 			}
+			*/
+			
+			MediaManager mediaManager = CDI.getInstance(MediaManager.class);
+			mediaManager.writeContents();
 
-			mediaManager = InstanceFactory.getInstance(MediaManager.class);
-			mediaManager.writeContents(rootDoc);
-
-			doclet.println(ResourceServices.getString(res, "C_FINISHED"));
-
+			println(ResourceServices.getString(res, "C_FINISHED"));
+			return true;
+		
 		} catch (Throwable oops) {
 			ExceptionHandler.handleException(oops);
+			return false;
+		}
+	}
+
+	class ShowElements extends ElementScanner9<Void, Integer> {
+
+		final PrintStream out;
+		private DocTrees trees;
+
+		ShowElements(DocTrees trees, PrintStream out) {
+			this.trees = trees;
+			this.out = out;
 		}
 
-		return true;
+		void show(Set<? extends Element> elements) {
+			scan(elements, 0);
+		}
+
+		@Override
+		public Void scan(Element e, Integer depth) {
+			ElementKind kind = e.getKind();
+			if (kind == ElementKind.PACKAGE) {
+				out.println("========================== PACKAGE " + e.toString());
+			}
+			DocCommentTree dcTree = trees.getDocCommentTree(e);
+			String indent = "  ".repeat(depth);
+			if (dcTree != null) {
+				out.println(indent + "| " + e.getKind() + " " + e);
+			}
+			if (dcTree != null) {
+				new ShowDocTrees(out).scan(dcTree, depth + 1);
+			}
+			return super.scan(e, depth + 1);
+		}
+	}
+
+	/**
+	 * A scanner to display the structure of a documentation comment.
+	 */
+	class ShowDocTrees extends DocTreeScanner<Void, Integer> {
+		final PrintStream out;
+
+		ShowDocTrees(PrintStream out) {
+			this.out = out;
+		}
+
+		@Override
+		public Void scan(DocTree t, Integer depth) {
+			String indent = "  ".repeat(depth);
+			out.println(indent + "# " + t.getKind() + " " + t.toString().replace("\n", "\n" + indent + "#    "));
+			return super.scan(t, depth + 1);
+		}
 	}
 }

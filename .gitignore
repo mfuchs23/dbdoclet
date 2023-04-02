@@ -3,6 +3,8 @@
 **/bin/
 **/build/
 **/lib/
+**/distrib/
 **/packman/
 */packman.log
 **/packman.xml
+/.metadata/

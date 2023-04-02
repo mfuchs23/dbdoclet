@@ -2,51 +2,52 @@ package org.dbdoclet.doclet;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.inject.Inject;
+import javax.lang.model.SourceVersion;
+import javax.tools.Diagnostic.Kind;
 
-import org.dbdoclet.option.Option;
 import org.dbdoclet.option.OptionException;
 import org.dbdoclet.option.OptionList;
 import org.dbdoclet.service.ResourceServices;
 
-import com.sun.javadoc.DocErrorReporter;
-import com.sun.javadoc.Doclet;
-import com.sun.javadoc.LanguageVersion;
+import jdk.javadoc.doclet.Doclet;
+import jdk.javadoc.doclet.Reporter;
 
-public class AbstractDoclet extends Doclet {
+public abstract class AbstractDoclet implements Doclet {
 
-	@Inject
-	protected ResourceBundle res;
+	private static final boolean OK = true;
 
-	protected DocletOptions options = null;
+	protected DeprecatedDocletOptions deprecated_options = null;
+	protected Reporter reporter;
+
+	private Locale locale;
 
 	public AbstractDoclet() {
 		super();
 	}
 
-	public static LanguageVersion languageVersion() {
-		return LanguageVersion.JAVA_1_5;
-	}
-
-	public DocletOptions getOptions() {
-		return options;
+	public DeprecatedDocletOptions getOptions() {
+		return deprecated_options;
 	}
 
 	public void setOptions(String[][] args) throws OptionException {
-		options = new DocletOptions(args);
+		deprecated_options = new DeprecatedDocletOptions(args);
 	}
 
 	public static boolean validOptions(String[][] args,
-			DocErrorReporter reporter) {
+			Reporter reporter) {
 
-		DocletOptions options = new DocletOptions(args);
+		DeprecatedDocletOptions options = new DeprecatedDocletOptions(args);
 		OptionList optionList = options.getOptionList();
 		boolean rc = optionList.validate();
 
-		Option<?> destFileOption = optionList.findOption("destination-file");
-		Option<?> destDirOption = optionList.findOption("destination-directory");
+		org.dbdoclet.option.Option<?> destFileOption = optionList.findOption("destination-file");
+		org.dbdoclet.option.Option<?> destDirOption = optionList.findOption("destination-directory");
 		String usageText = "";
 		try {
 			usageText = ResourceServices
@@ -56,13 +57,13 @@ public class AbstractDoclet extends Doclet {
 		}
 		
 		if (destFileOption.isUnset() == false && destDirOption.isUnset() == false) {
-			reporter.printError("Options --destination-file and --destination-directory may not be used together!");
-			reporter.printNotice(usageText);
+			reporter.print(Kind.ERROR, "Options --destination-file and --destination-directory may not be used together!");
+			reporter.print(Kind.NOTE, usageText);
 		}
 		
 		if (rc == false) {
-			reporter.printError(optionList.getError());
-			reporter.printNotice(usageText);
+			reporter.print(Kind.ERROR, optionList.getError());
+			reporter.print(Kind.NOTE, usageText);
 		}
 
 		return rc;
@@ -98,7 +99,7 @@ public class AbstractDoclet extends Doclet {
 					"The argument str must not be null!");
 		}
 
-		if ((options == null) || (options.isQuiet() == false)) {
+		if ((deprecated_options == null) || (deprecated_options.isQuiet() == false)) {
 			System.out.println(str);
 		}
 	}
@@ -115,11 +116,28 @@ public class AbstractDoclet extends Doclet {
 					"The argument param1 must not be null!");
 		}
 
-		if ((options == null) || (options.isQuiet() == false)) {
+		if ((deprecated_options == null) || (deprecated_options.isQuiet() == false)) {
 
 			String buffer = MessageFormat.format(str, param1);
 			System.out.println(buffer);
 		}
+	}
+
+	@Override
+	public void init(Locale locale, Reporter reporter) {
+		this.locale = locale;
+		this.reporter = reporter;		
+	}
+
+	@Override
+	public String getName() {
+		return this.getClass().getSimpleName();
+	}
+
+
+	@Override
+	public SourceVersion getSupportedSourceVersion() {
+		return SourceVersion.latest();
 	}
 
 }

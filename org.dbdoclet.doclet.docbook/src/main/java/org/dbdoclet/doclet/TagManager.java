@@ -458,7 +458,9 @@ public class TagManager {
 
 			name = link.name();
 
-			label = referenceManager.createReferenceLabel(link);
+			// TODO Migration
+			label = "TODO Migration";
+			// label = referenceManager.createReferenceLabel(link);
 			label = HtmlServices.textToHtml(label);
 
 			reference = referenceManager.findReference(link);

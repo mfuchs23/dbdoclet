@@ -16,6 +16,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.tools.Diagnostic;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.DocletException;
@@ -33,29 +40,23 @@ import org.dbdoclet.tag.docbook.Title;
 import org.dbdoclet.xiphias.XmlServices;
 import org.dbdoclet.xiphias.dom.NodeImpl;
 
-import com.sun.javadoc.AnnotationTypeDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.PackageDoc;
-import com.sun.javadoc.RootDoc;
 
 public class ArticleManager extends MediaManager {
 
-	static Log logger = LogFactory.getLog(ArticleManager.class);
+ 	static Log logger = LogFactory.getLog(ArticleManager.class);
 
 	public ArticleManager() {
 		super();
 	}
 
 	@Override
-	protected void process(RootDoc rootDoc) throws DocletException {
+	protected void process() throws DocletException {
 
 		try {
-
-			DocBookElement parent;
-			Section sect1;
 
 			DocBookDocument doc = new DocBookDocument();
 
@@ -96,83 +97,90 @@ public class ArticleManager extends MediaManager {
 			}
 
 			doc.setDocumentElement(article);
-			parent = article;
 
-			writeOverview(rootDoc, parent);
+			// TODO Migration
+			// writeOverview(parent);
 
-			String pkgName;
-
-			TreeMap<String, ClassDoc> classMap;
-			String className;
-
-			PackageDoc pkgDoc;
-			ClassDoc classDoc;
-
-			for (Iterator<String> pkgIterator = pkgMap.keySet().iterator(); pkgIterator
-					.hasNext();) {
-
-				pkgName = pkgIterator.next();
-
-				logger.info(MessageFormat.format(
-						ResourceServices.getString(res, "C_PROCESSING_PACKAGE"),
-						pkgName));
-
-				pkgDoc = rootDoc.packageNamed(pkgName);
-
-				if (pkgDoc == null) {
-					continue;
+			for (Element specified : docManager.getSpecifiedElements()) {
+				
+				if (specified.getKind() == ElementKind.PACKAGE) {
+					writePackage(article, (PackageElement) specified);
 				}
+				
+				if (specified.getKind().isClass() || specified.getKind().isInterface()) {
 
-				sect1 = tagFactory.createSection();
-				sect1.setId(getReference(pkgDoc));
+					PackageElement pkgElem = docManager.containingPackage((TypeElement) specified);
+					String pkgName = pkgElem.getQualifiedName().toString();
+					
+					Section sect1 = tagFactory.createSection();
+					// sect1.setId(getReference(pkgDoc));
 
-				if (script.setCreateXrefLabelEnabled()) {
-					sect1.setXrefLabel(XmlServices.textToXml(pkgDoc.name()));
-				}
+					if (script.setCreateXrefLabelEnabled()) {
+						sect1.setXrefLabel(XmlServices.textToXml(pkgName));
+					}
 
-				sect1.appendChild(tagFactory.createTitle(
+					sect1.appendChild(tagFactory.createTitle(
 						// ResourceServices.getString(res, "C_PACKAGE") + " " + 
-						hyphenation.hyphenateAfter(pkgDoc.name(), "\\.")));
-
-				htmlDocBookTrafo.transform(pkgDoc, sect1);
-
-				Section section = tagFactory.createSection(ResourceServices
-						.getString(res, "C_ADDITIONAL_INFORMATION"));
-
-				if (style.addMetaInfo(pkgDoc, section)) {
-					sect1.appendChild(section);
+						hyphenation.hyphenateAfter(pkgName, "\\.")));
+					
+					writeClass(sect1, pkgElem, (TypeElement) specified);
 				}
-
-				classMap = pkgMap.get(pkgName);
-
-				for (Iterator<String> classIterator = classMap.keySet()
-						.iterator(); classIterator.hasNext();) {
-
-					className = classIterator.next();
-					classDoc = classMap.get(className);
-
-					script.addContext(classDoc.qualifiedTypeName());
-					writeClass(sect1, classDoc);
-					script.removeContext(classDoc.qualifiedTypeName());
-				}
-
-				parent.appendChild(sect1);
 			}
 
-			createAdditionalSections(parent);
+
+			// createAdditionalSections(parent);
 			writeFile(doc, script.getDestinationFile());
 
 		} catch (DocletException oops) {
-
 			throw oops;
-
 		} catch (Exception oops) {
-
 			throw new DocletException(oops);
 		}
 	}
 
-	private void writeClass(Section sect1, ClassDoc classDoc)
+	private void writePackage(DocBookElement parent, PackageElement pkgElem) throws DocletException {
+		
+		String pkgName = pkgElem.getQualifiedName().toString();
+				
+		logger.info(MessageFormat.format(
+				ResourceServices.getString(res, "C_PROCESSING_PACKAGE"),
+				pkgName));
+
+		Section sect1 = tagFactory.createSection();
+		// sect1.setId(getReference(pkgDoc));
+
+		if (script.setCreateXrefLabelEnabled()) {
+			sect1.setXrefLabel(XmlServices.textToXml(pkgName));
+		}
+
+		sect1.appendChild(tagFactory.createTitle(
+				// ResourceServices.getString(res, "C_PACKAGE") + " " +
+				hyphenation.hyphenateAfter(pkgName, "\\.")));
+
+		// htmlDocBookTrafo.transform(pkgDoc, sect1);
+
+		Section section = tagFactory.createSection(ResourceServices.getString(res, "C_ADDITIONAL_INFORMATION"));
+
+		// if (style.addMetaInfo(pkgDoc, section)) {
+		// sect1.appendChild(section);
+		// }
+
+		for (Element elem: pkgElem.getEnclosedElements()) {
+
+			if (elem.getKind().isClass() || elem.getKind().isInterface()) {
+				TypeElement typeElem = (TypeElement) elem;
+				script.addContext(typeElem.getQualifiedName().toString());
+				writeClass(sect1, pkgElem, typeElem);
+				script.removeContext(typeElem.getQualifiedName().toString());
+			} else {
+				docManager.getReporter().print(Diagnostic.Kind.ERROR, String.format("Unknown Element %s inside of package %s!", elem, pkgElem));
+			}
+		}
+
+		parent.appendChild(sect1);
+	}
+	
+	private void writeClass(Section sect1, PackageElement pkgElem, TypeElement typeElem)
 			throws DocletException {
 
 		try {
@@ -183,21 +191,23 @@ public class ArticleManager extends MediaManager {
 			DocBookElement parent;
 
 			// String prefix = getClassTypeAsText(classDoc);
-			String indexCategory = getIndexCategory(classDoc);
+			String indexCategory = getIndexCategory(typeElem);
 
 			sect2 = tagFactory.createSection();
-			sect2.setId(getReference(classDoc));
+			// sect2.setId(getReference(classDoc));
 
 			if (script.setCreateXrefLabelEnabled()) {
-				sect2.setXrefLabel(XmlServices.textToXml(classDoc
-						.qualifiedName()));
+				sect2.setXrefLabel(XmlServices.textToXml(typeElem
+						.getQualifiedName().toString()));
 			}
 
+			String className = typeElem.getSimpleName().toString();
+				
 			sect2.appendChild(
-					tagFactory.createTitle(hyphenation.hyphenateCamelCase(classDoc.name())))
+					tagFactory.createTitle(hyphenation.hyphenateCamelCase(className)))
 					.appendChild(
 							tagFactory.createIndexterm().appendChild(
-									tagFactory.createPrimary(classDoc.name())))
+									tagFactory.createPrimary(className)))
 					.appendChild(
 							tagFactory
 									.createIndexterm()
@@ -205,10 +215,9 @@ public class ArticleManager extends MediaManager {
 											tagFactory
 													.createPrimary(indexCategory))
 									.appendChild(
-											tagFactory.createSecondary(classDoc
-													.name())));
+											tagFactory.createSecondary(className)));
 
-			htmlDocBookTrafo.transform(classDoc, sect2);
+			htmlDocBookTrafo.transform(pkgElem, docManager.getDocCommentTree(typeElem), sect2);
 
 			if (sect2.hasContentChildren() == true) {
 
@@ -223,8 +232,9 @@ public class ArticleManager extends MediaManager {
 				parent = sect2;
 			}
 
-			createSynopsisSection(classDoc, parent);
+			createSynopsisSection(typeElem, parent);
 
+			/*
 			parent = sect2;
 
 			if (script.isCreateMethodInfoEnabled()) {
@@ -261,18 +271,19 @@ public class ArticleManager extends MediaManager {
 				writeExecutableMembers(atdoc, atdoc.elements(), parent,
 						ResourceServices.getString(res, "C_ELEMENT") + " ");
 			}
+			 */
 
 			if (script.isChunkDocBookEnabled() == false) {
 				sect1.appendChild(sect2);
 			} else {
-				createModuleFile(classDoc, sect1, sect2);
+				createModuleFile(typeElem, sect1, sect2);
 			}
-
+		/*	
 		} catch (DocletException oops) {
 
 			oops.printStackTrace();
 			throw oops;
-
+		*/
 		} catch (Exception oops) {
 
 			throw new DocletException(oops);

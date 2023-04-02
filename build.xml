@@ -2,7 +2,7 @@
 <!--
 ### Copyright (C) 2001-2012 Michael Fuchs ###
 -->
-<project name="common" default="deploy">
+<project name="dbdoclet" default="rebuild">
 
   <property name="resolveMode" value="default"/>
 

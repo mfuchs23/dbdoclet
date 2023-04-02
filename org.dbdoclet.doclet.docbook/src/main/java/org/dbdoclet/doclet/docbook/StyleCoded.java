@@ -16,10 +16,14 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.isNull;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import javax.lang.model.element.TypeElement;
 
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
@@ -48,15 +52,15 @@ import com.sun.javadoc.Type;
 public abstract class StyleCoded extends StyleBase implements Style {
 
 	@Override
-	public boolean addClassSynopsis(ClassDoc doc, DocBookElement parent)
+	public boolean addClassSynopsis(TypeElement typeElem, DocBookElement parent)
 			throws DocletException {
 
-		if (doc == null) {
+		if (isNull(typeElem)) {
 			throw new IllegalArgumentException(
-					"The argument doc must not be null!");
+					"The argument typeElem must not be null!");
 		}
 
-		if (parent == null) {
+		if (isNull(parent)) {
 			throw new IllegalArgumentException(
 					"The argument parent must not be null!");
 		}
@@ -65,12 +69,11 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		String name;
 		Para para;
 
-		boolean rc = synopsis.process(doc, parent);
+		boolean rc = synopsis.process(typeElem, parent);
 
 		if (script.isCreateInheritedFromInfoEnabled()) {
 
-			ArrayList<Type> subclasses = statisticData.getSubclasses(doc
-					.qualifiedName());
+			ArrayList<Type> subclasses = statisticData.getSubclasses(typeElem.getQualifiedName().toString());
 
 			if (subclasses.size() > 0) {
 
@@ -105,8 +108,9 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				}
 			}
 
-			addMethodsInheritedFrom(parent, doc.superclassType());
-			addFieldsInheritedFrom(parent, doc.superclassType());
+			// TODO Migration
+			// addMethodsInheritedFrom(parent, doc.superclassType());
+			// addFieldsInheritedFrom(parent, doc.superclassType());
 		}
 
 		return rc;
@@ -133,7 +137,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			text = tag.text();
 
 			if (text != null && text.trim().length() > 0) {
-				dbdTrafo.transform(tag, warning);
+				// TODO Migration
+				// dbdTrafo.transform(tag, warning);
 			} else {
 				warning.appendChild(dbfactory.createPara(ResourceServices
 						.getString(res, "C_DEPRECATED")));
@@ -224,7 +229,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	public boolean addFieldSynopsis(FieldDoc doc, DocBookElement parent)
 			throws DocletException {
 
-		synopsis.addFieldSynopsis(doc, parent);
+		// TODO synopsis.addFieldSynopsis(doc, parent);
 		return true;
 	}
 

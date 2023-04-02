@@ -369,7 +369,8 @@ public class StyleTable extends StyleCoded implements Style {
 			logger.debug("Adding tag " + tag + ".");
 			member = dbfactory.createMember();
 			list.appendChild(member);
-			dbdTrafo.transform(tag, member);
+			// TODO Migration
+			// dbdTrafo.transform(tag, member);
 		}
 
 		return true;

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DocBook Doclet
 Bundle-SymbolicName: org.dbdoclet.doclet.docbook
-Bundle-Version: 8.0.0
+Bundle-Version: 9.0.1
 Import-Package: com.google.inject,
  javax.inject,
  org.apache.commons.logging;version="1.0.4",

@@ -12,6 +12,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import javax.lang.model.element.PackageElement;
+
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 
@@ -77,14 +79,14 @@ public class PackageServices {
         return null;
     }
 
-    public static ArrayList<String> findDocFilesDirectories(PackageDoc pkg,
+    public static ArrayList<String> findDocFilesDirectories(PackageElement pkg,
 	        String sourcepath) {
 
         if (pkg == null) {
             throw new IllegalArgumentException("Parameter pkg is null!");
         }
 
-        return findDocFilesDirectories(pkg.name(), sourcepath);
+        return findDocFilesDirectories(pkg.getQualifiedName().toString(), sourcepath);
     }
 
     public static ArrayList<String> findDocFilesDirectories(String pkgName,

@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
+import javax.lang.model.element.TypeElement;
+import javax.tools.FileObject;
 
+import org.dbdoclet.doclet.DocManager;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.Chapter;
@@ -19,15 +22,11 @@ import org.dbdoclet.xiphias.dom.ElementImpl;
 import org.dbdoclet.xiphias.dom.EntityImpl;
 import org.dbdoclet.xiphias.dom.NodeImpl;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.RootDoc;
-import com.sun.javadoc.SourcePosition;
-
 public class LinkSourceManager {
 
 	@Inject DbdScript script;
 
-    public void createDocBook(RootDoc rootDoc) throws IOException {
+    public void createDocBook(DocManager docManager) throws IOException {
 
         File destDir = script.getDestinationDirectory();
         FileServices.createPath(destDir);
@@ -35,11 +34,10 @@ public class LinkSourceManager {
         DocumentImpl tdd = new DocumentImpl();
         ElementImpl targetSet = tdd.createElement("targetset");
         tdd.setDocumentElement(targetSet);
+        
+        for (TypeElement typeElem : docManager.getTypeElements()) {
 
-        for (ClassDoc cdoc : rootDoc.classes()) {
-
-            SourcePosition sp = cdoc.position();
-            File sourceFile = sp.file();
+        	FileObject sourceFileObject = docManager.getFileObject(typeElem);
 
             DocBookDocument doc = new DocBookDocument();
             DocBookTagFactory dbf = new DocBookTagFactory();
@@ -47,7 +45,7 @@ public class LinkSourceManager {
             Chapter chapter = dbf.createChapter();
             chapter.setDocument(doc);
             doc.setDocumentElement(chapter);
-            chapter.appendChild(dbf.createTitle(cdoc.qualifiedName()));
+            chapter.appendChild(dbf.createTitle(typeElem.getQualifiedName().toString()));
 
             Formalpara formalPara = dbf.createFormalpara();
             formalPara.setDocument(doc);
@@ -59,17 +57,14 @@ public class LinkSourceManager {
             programlisting.setDocument(doc);
             formalPara.appendChild(programlisting);
 
-            programlisting.appendChild(FileServices.readToString(sourceFile));
-
-            // FileServices.copyFileToFile(sourceFile, createOutputFile(destDir,
-            // cdoc));
-            FileServices.writeFromString(createOutputFile(cdoc), new NodeSerializer().toXML(doc));
+            programlisting.appendChild(FileServices.readToString(sourceFileObject.openInputStream()));
+            FileServices.writeFromString(createOutputFile(typeElem), new NodeSerializer().toXML(doc));
         }
 
-        createTargetDocumentDatabase(rootDoc);
+        createTargetDocumentDatabase(docManager);
     }
 
-    private void createTargetDocumentDatabase(RootDoc rootDoc) throws IOException {
+    private void createTargetDocumentDatabase(DocManager docManager) throws IOException {
 
         DocumentImpl tdd = new DocumentImpl();
         DocumentTypeImpl docType = new DocumentTypeImpl();
@@ -100,15 +95,15 @@ public class LinkSourceManager {
         dir.setAttribute("name", "src");
         sitemap.appendChild(dir);
 
-        for (ClassDoc cdoc : rootDoc.classes()) {
+        for (TypeElement typeElem : docManager.getTypeElements()) {
 
-            String tdbPath = getRelativeTargetFile(cdoc).getPath();
-            entity = new EntityImpl(cdoc.qualifiedName(), tdbPath);
+            String tdbPath = getRelativeTargetFile(typeElem).getPath();
+            entity = new EntityImpl(typeElem.getQualifiedName().toString(), tdbPath);
             docType.addEntity(entity);
 
             document = tdd.createElement("document");
             document.setFormatType(NodeImpl.FORMAT_CONTENT);
-            document.setAttribute("targetdoc", cdoc.qualifiedName());
+            document.setAttribute("targetdoc", typeElem.getQualifiedName().toString());
             document.appendChild(entity);
             dir.appendChild(document);
         }
@@ -118,31 +113,31 @@ public class LinkSourceManager {
         FileServices.writeFromString(file, new NodeSerializer().toXML(tdd));
     }
 
-    private File createOutputFile(ClassDoc cdoc) throws IOException {
+    private File createOutputFile(TypeElement typeElem) throws IOException {
 
-        File file = getDocBookFile(cdoc);
+        File file = getDocBookFile(typeElem);
         FileServices.createPath(file.getParentFile());
         return file;
     }
 
-    public File getDocBookFile(ClassDoc cdoc) {
+    public File getDocBookFile(TypeElement typeElem) {
 
-        File file = getRelativeDocBookFile(cdoc);
+        File file = getRelativeDocBookFile(typeElem);
         String fqfn = FileServices.appendFileName(script.getDestinationDirectory(), file.getPath());
 
         return new File(fqfn);
     }
 
-    public static File getRelativeDocBookFile(ClassDoc cdoc) {
+    public static File getRelativeDocBookFile(TypeElement typeElem) {
 
-        String fileName = StringServices.replace(cdoc.qualifiedName(), ".", File.separator) + ".xml";
+        String fileName = StringServices.replace(typeElem.getQualifiedName().toString(), ".", File.separator) + ".xml";
         fileName = FileServices.appendFileName("src", fileName);
         return new File(fileName);
     }
 
-    public static File getRelativeTargetFile(ClassDoc cdoc) {
+    public static File getRelativeTargetFile(TypeElement typeElem) {
 
-        String fileName = StringServices.replace(cdoc.qualifiedName(), ".", File.separator) + ".xml";
+        String fileName = StringServices.replace(typeElem.getQualifiedName().toString(), ".", File.separator) + ".xml";
         fileName = FileServices.appendFileName("targetdb", fileName);
         return new File(fileName);
     }
