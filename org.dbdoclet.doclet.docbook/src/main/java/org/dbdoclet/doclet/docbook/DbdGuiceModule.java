@@ -2,6 +2,7 @@ package org.dbdoclet.doclet.docbook;
 
 import java.util.ResourceBundle;
 
+import org.dbdoclet.doclet.DocManager;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
@@ -21,6 +22,7 @@ public class DbdGuiceModule extends AbstractModule {
 		bind(DocBookTagFactory.class).in(Scopes.SINGLETON);
 		bind(MediaManager.class).toProvider(MediaManagerProvider.class).in(
 				Scopes.SINGLETON);
+		bind(DocManager.class).in(Scopes.SINGLETON);
 		bind(ReferenceManager.class).in(Scopes.SINGLETON);
 		bind(StatisticData.class).in(Scopes.SINGLETON);
 		bind(ResourceBundle.class).toProvider(ResourceBundleProvider.class).in(

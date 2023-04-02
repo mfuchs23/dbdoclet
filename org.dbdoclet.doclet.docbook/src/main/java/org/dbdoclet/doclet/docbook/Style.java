@@ -29,6 +29,8 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import javax.lang.model.element.TypeElement;
+
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.tag.docbook.DocBookElement;
 
@@ -40,7 +42,7 @@ import com.sun.javadoc.MethodDoc;
 
 public interface Style {
 
-    public boolean addClassSynopsis(ClassDoc doc, DocBookElement parent)
+    public boolean addClassSynopsis(TypeElement typeElem, DocBookElement parent)
 	    throws DocletException;
 
     public boolean addFieldSynopsis(FieldDoc doc, DocBookElement parent)

@@ -1,8 +1,7 @@
 <!-- ### Copyright (C) 2001-2009 Michael Fuchs ### -->
 <project name="org.dbdoclet.test.doclet.docbook" default="build">
 
-	<property file="../workspace.properties" />
-	<property file="module.properties" />
+	<property file="../module.properties" />
 	<import file="${build.config.dir}/defaultBuild.xml" />
 
 	<target name="test">

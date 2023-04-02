@@ -17,19 +17,29 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TreeMap;
+
+import javax.inject.Inject;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dbdoclet.doclet.CDI;
 import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.DeprecatedManager;
+import org.dbdoclet.doclet.DocManager;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ExecutableMemberInfo;
-import org.dbdoclet.doclet.InstanceFactory;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
@@ -85,7 +95,6 @@ import org.dbdoclet.xiphias.ImageServices;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
 import org.dbdoclet.xiphias.dom.ProcessingInstructionImpl;
-import org.w3c.dom.Element;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
@@ -102,33 +111,33 @@ public abstract class MediaManager {
 
 	private static Log logger = LogFactory.getLog(MediaManager.class.getName());
 
-	protected DbdTransformer htmlDocBookTrafo;
-	protected TreeMap<String, TreeMap<String, ClassDoc>> pkgMap;
-	protected ReferenceManager referenceManager;
-	protected StatisticData statisticData;
-	protected ResourceBundle res;
 	protected DbdScript script;
-	protected Style style;
+	protected DbdTransformer htmlDocBookTrafo;
 	protected DocBookTagFactory tagFactory;
-	protected TagManager tagManager;
 	protected Hyphenation hyphenation;
+	protected ReferenceManager referenceManager;
+	protected ResourceBundle res;
+	protected StatisticData statisticData;
+	protected Style style;
+	protected TagManager tagManager;
+	protected DocManager docManager;
 
 	protected void createAdditionalSections(DocBookElement parent)
 			throws IOException, DocletException {
 
 		if (script.isCreateConstantValuesEnabled()) {
-			writeConstantFieldValues(pkgMap, parent);
+			writeConstantFieldValues(docManager.getSpecifiedElements(), parent);
 		}
 
 		if (script.isCreateDeprecatedListEnabled()) {
-			writeDeprecatedList(pkgMap, parent);
+			writeDeprecatedList(docManager.getSpecifiedElements(), parent);
 		}
 
 		if (script.isCreateStatisticsEnabled()) {
 
 			logger.info(ResourceServices.getString(res,
 					"C_CONSTRUCTING_STATISTICS"));
-			writeStatistics(pkgMap, parent);
+			writeStatistics(docManager.getSpecifiedElements(), parent);
 		}
 
 		if (script.isAddIndexEnabled()) {
@@ -136,8 +145,8 @@ public abstract class MediaManager {
 		}
 	}
 
-	private TreeMap<String, TreeMap<String, ClassDoc>> createClassMap(
-			PackageDoc[] pkgDocs, ClassDoc[] classDocs) {
+	private TreeMap<PackageElement, TreeMap<String, TypeElement>> createClassMap(
+			Set<PackageElement> pkgDocs, Set<TypeElement> classDocs) {
 
 		if (pkgDocs == null) {
 			throw new IllegalArgumentException(
@@ -149,41 +158,44 @@ public abstract class MediaManager {
 					"The argument classDocs must not be null!");
 		}
 
-		TreeMap<String, TreeMap<String, ClassDoc>> pkgMap = new TreeMap<String, TreeMap<String, ClassDoc>>();
-		TreeMap<String, ClassDoc> classMap;
+		TreeMap<PackageElement, TreeMap<String, TypeElement>> pkgMap = new TreeMap<PackageElement, TreeMap<String, TypeElement>>(
+				new Comparator<PackageElement>() {
+					@Override
+					public int compare(PackageElement o1, PackageElement o2) {
+						return o1.getQualifiedName().toString().compareTo(o2.getQualifiedName().toString());
+					}
+				});
 
-		String pkgName;
+		TreeMap<String, TypeElement> classMap;
 
-		for (int i = 0; i < pkgDocs.length; i++) {
 
-			pkgName = pkgDocs[i].name();
-			classMap = pkgMap.get(pkgName);
+		for (PackageElement pkgDoc : pkgDocs) {
+
+			classMap = pkgMap.get(pkgDoc);
 
 			if (classMap == null) {
-
-				classMap = new TreeMap<String, ClassDoc>();
-				pkgMap.put(pkgName, classMap);
+				classMap = new TreeMap<String, TypeElement>();
+				pkgMap.put(pkgDoc, classMap);
 			}
 
-			ClassDoc[] docs = pkgDocs[i].allClasses();
+			Set<TypeElement> docs = docManager.getTypeElements(pkgDoc);
 
-			for (int j = 0; j < docs.length; j++) {
-				classMap.put(docs[j].qualifiedName(), docs[j]);
+			for (TypeElement elem : docs) {
+				classMap.put(elem.getQualifiedName().toString(), elem);
 			}
 		}
 
-		for (int i = 0; i < classDocs.length; i++) {
+		for (TypeElement classDoc : classDocs) {
 
-			pkgName = classDocs[i].containingPackage().name();
-			classMap = pkgMap.get(pkgName);
+			PackageElement pkgDoc = docManager.containingPackage(classDoc);
+			classMap = pkgMap.get(pkgDoc);
 
 			if (classMap == null) {
-
-				classMap = new TreeMap<String, ClassDoc>();
-				pkgMap.put(pkgName, classMap);
+				classMap = new TreeMap<String, TypeElement>();
+				pkgMap.put(pkgDoc, classMap);
 			}
 
-			classMap.put(classDocs[i].qualifiedName(), classDocs[i]);
+			classMap.put(classDoc.getQualifiedName().toString(), classDoc);
 		}
 
 		return pkgMap;
@@ -370,7 +382,7 @@ public abstract class MediaManager {
 
 		DocBookElement media;
 
-		ClassDiagramManager classDiagramManager = InstanceFactory
+		ClassDiagramManager classDiagramManager = CDI
 				.getInstance(ClassDiagramManager.class);
 
 		String filebase = classDiagramManager.createClassDiagram(classDoc,
@@ -410,11 +422,11 @@ public abstract class MediaManager {
 		parent.appendChild(figure);
 	}
 
-	protected void createModuleFile(ClassDoc classDoc, DocBookElement parent,
+	protected void createModuleFile(TypeElement classDoc, DocBookElement parent,
 			DocBookElement moduleElement) throws IOException {
 
 		File destPath = script.getDestinationDirectory();
-		String fileName = StringServices.replace(classDoc.qualifiedName(), ".",
+		String fileName = StringServices.replace(classDoc.getQualifiedName().toString(), ".",
 				"-") + ".xml";
 		String fqfn = FileServices.appendFileName(destPath, fileName);
 
@@ -439,18 +451,20 @@ public abstract class MediaManager {
 
 	}
 
-	protected void createSynopsisSection(ClassDoc classDoc,
+	protected void createSynopsisSection(TypeElement typeElem,
 			DocBookElement parent) throws DocletException {
 
 		if (script.isCreateSynopsisEnabled() == true) {
-			style.addClassSynopsis(classDoc, parent);
+			style.addClassSynopsis(typeElem, parent);
 		}
 
-		style.addMetaInfo(classDoc, parent);
+		/*
+		style.addMetaInfo(typeElem, parent);
 
 		if (script.isCreateClassDiagramEnabled()) {
-			createInheritanceDiagram(classDoc, parent);
+			createInheritanceDiagram(typeElem, parent);
 		}
+		*/
 	}
 
 	protected String getClassTypeAsText(ClassDoc doc) {
@@ -486,32 +500,17 @@ public abstract class MediaManager {
 		return hyphenation;
 	}
 
-	protected String getIndexCategory(ClassDoc doc) {
+	protected String getIndexCategory(Element doc) {
 
 		String indexCategory = "Classes";
 
-		if (doc.isAnnotationType()) {
-
+		if (doc.getKind() == ElementKind.ANNOTATION_TYPE) {
 			indexCategory = "Annotations";
-
-		} else if (doc.isInterface()) {
-
+		} else if (doc.getKind() == ElementKind.INTERFACE) {
 			indexCategory = "Interfaces";
-
-		} else if (doc.isException()) {
-
-			indexCategory = "Exceptions";
-
-		} else if (doc.isError()) {
-
-			indexCategory = "Errors";
 		}
 
 		return indexCategory;
-	}
-
-	protected TreeMap<String, TreeMap<String, ClassDoc>> getPackageMap() {
-		return pkgMap;
 	}
 
 	protected String getReference(Doc doc) {
@@ -586,12 +585,13 @@ public abstract class MediaManager {
 
 		String title = script.getTitle();
 
-		if (title == null && pkgMap.size() > 0) {
-			title = pkgMap.firstKey();
-		}
-
 		if (title == null) {
-			title = "JavaDoc";
+			title = docManager.getSpecifiedElements().stream()
+					.filter(PackageElement.class::isInstance)
+					.map(PackageElement.class::cast)
+					.map(PackageElement::getQualifiedName)
+					.map(Name::toString)
+					.findFirst().orElse("JavaDoc");
 		}
 
 		return tagFactory.createTitle(title);
@@ -640,7 +640,7 @@ public abstract class MediaManager {
 		}
 	}
 
-	protected abstract void process(RootDoc rootDoc) throws DocletException;
+	protected abstract void process() throws DocletException;
 
 	public void setHtmlDocBookTrafo(DbdTransformer transformer) {
 		this.htmlDocBookTrafo = transformer;
@@ -679,7 +679,7 @@ public abstract class MediaManager {
 	}
 
 	protected void writeConstantFieldValues(
-			TreeMap<String, TreeMap<String, ClassDoc>> pkgMap,
+			Set<? extends Element> specifiedElements,
 			DocBookElement parent) throws IOException {
 
 		TreeMap<String, TreeMap<String, TreeMap<String, FieldDoc>>> pkgFieldMap = tagManager
@@ -786,16 +786,14 @@ public abstract class MediaManager {
 		}
 	}
 
-	public void writeContents(RootDoc rootDoc) throws DocletException {
+	public void writeContents() throws DocletException {
 
 		try {
-
-			pkgMap = createClassMap(rootDoc.specifiedPackages(),
-					rootDoc.specifiedClasses());
-
+			
 			logger.info(ResourceServices.getString(res,
 					"C_CONSTRUCTING_REFERENCE_MAP") + "...");
 
+			/*
 			referenceManager.init(script.getDocumentationId(), pkgMap,
 					script.getIdStyle());
 
@@ -805,7 +803,9 @@ public abstract class MediaManager {
 					"C_CONSTRUCTING_TAG_MAP") + "...");
 
 			tagManager.createTagMap(pkgMap);
-			process(rootDoc);
+			*/
+			
+			process();
 
 		} catch (Exception oops) {
 
@@ -818,13 +818,15 @@ public abstract class MediaManager {
 	}
 
 	protected void writeDeprecatedList(
-			TreeMap<String, TreeMap<String, ClassDoc>> pkgMap,
+			Set<? extends Element> set,
 			DocBookElement parent) throws IOException, DocletException {
 
 		boolean hasChild = true;
 
 		DocBookElement component;
-		ArrayList<Doc> docList = DbdServices.createDocList(pkgMap);
+		ArrayList<Doc> docList = new ArrayList<>();
+		// TODO Migration		
+		// .createDocList(pkgMap);
 
 		DeprecatedManager deprecatedManager = new DeprecatedManager();
 
@@ -898,7 +900,8 @@ public abstract class MediaManager {
 						.findComment(doc.tags(), "@deprecated");
 
 				if (comment != null) {
-					htmlDocBookTrafo.transform(comment, para);
+					// TODO Migration
+					// htmlDocBookTrafo.transform(comment, para);
 				}
 			}
 		}
@@ -943,7 +946,7 @@ public abstract class MediaManager {
 
 			htmlDocBookTrafo.transform(doc, section);
 
-			for (Element element : section.getChildElementList()) {
+			for (org.w3c.dom.Element element : section.getChildElementList()) {
 
 				DocBookElement dbElement = (DocBookElement) element;
 
@@ -1000,7 +1003,7 @@ public abstract class MediaManager {
 	}
 
 	protected void writeStatistics(
-			TreeMap<String, TreeMap<String, ClassDoc>> pkgMap,
+			Set<? extends Element> set,
 			DocBookElement parent) throws IOException {
 
 		DocBookElement component;
@@ -1145,6 +1148,14 @@ public abstract class MediaManager {
 		}
 
 		return false;
+	}
+
+	public DocManager getDocManager() {
+		return docManager;
+	}
+
+	public void setDocManager(DocManager docManager) {
+		this.docManager = docManager;
 	}
 
 }

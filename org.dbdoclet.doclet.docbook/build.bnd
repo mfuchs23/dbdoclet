@@ -1,5 +1,6 @@
+-classpath: build/main/classes/
 Main-Class: org.dbdoclet.doclet.docbook
-version=8.0.5
+version=9.0.1-SNAPSHOT
 Bundle-Name=org.dbdoclet.doclet.docbook
 Bundle-SymbolicName=org.dbdoclet.doclet.docbook
 Bundle-Version=${version}
@@ -18,3 +19,4 @@ Include-Resource: \
 
 Export-Package: org.dbdoclet.doclet.*
 Import-Package: org.dbdoclet.*, *;resolution:=optional
+

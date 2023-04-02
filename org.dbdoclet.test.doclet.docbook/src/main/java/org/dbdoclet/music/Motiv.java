@@ -19,6 +19,7 @@ public class Motiv {
 	 *
 	 * @exception WrongNoteException
 	 *                - Ein falscher Ton wurde hinzugefügt!
+	 * @see Note
 	 */
 	public void addNote(Note note) throws WrongNoteException {
 
@@ -39,7 +40,7 @@ public class Motiv {
 	 * 
 	 * @param notes
 	 */
-	public void addNotes(ArrayList<Note> notes) {
+	public void addNotes(ArrayList<? super Note> notes) {
 
 	}
 

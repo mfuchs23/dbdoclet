@@ -1,0 +1,15 @@
+transformation html2docbook;
+
+section dbdoclet {	
+	chunk-docbook = false;
+	create-author-info = true;
+	create-meta-info = false;
+	class-diagram-width = 0;
+	class-diagram-height = 0;
+} 
+
+section DocBook {
+	add-index = false;
+	document-element = "article";
+	image-data-formats = [ "png", "svg", "jpeg" ];
+} 
