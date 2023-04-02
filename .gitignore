@@ -5,6 +5,7 @@
 **/lib/
 **/distrib/
 **/packman/
+**/target/
 */packman.log
 **/packman.xml
 /.metadata/

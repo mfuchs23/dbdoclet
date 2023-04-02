@@ -1,5 +1,0 @@
-transformation html2docbook;
-
-section dbdoclet {
-	chunk-docbook = true;
-} 
