@@ -379,7 +379,7 @@ public class ArticleManager extends MediaManager {
 
 				if (script.isCreateSynopsisEnabled() == true) {
 
-					style.addMemberSynopsis(memberDoc, section);
+					// style.addMemberSynopsis(memberDoc, section);
 
 					if (implementedDoc != null) {
 						style.addMethodSpecifiedBy(implementedDoc, section);

@@ -2,7 +2,7 @@
 <!--
 ### Copyright (C) 2001-2012 Michael Fuchs ###
 -->
-<project name="dbdoclet" default="rebuild">
+<project name="dbdoclet" default="build">
 
   <property name="resolveMode" value="default"/>
 
@@ -15,6 +15,12 @@
 
   <target name="rebuild">
     <iterate target="distclean"/>
+    <ant antfile="org.dbdoclet.doclet.common/build.xml" target="build"/>
+    <ant antfile="org.dbdoclet.doclet.docbook/build.xml" target="build" useNativeBasedir="true"/>
+  </target>
+
+  <target name="build">
+    <ant antfile="org.dbdoclet.doclet.common/build.xml" target="build" useNativeBasedir="true"/>
     <ant antfile="org.dbdoclet.doclet.docbook/build.xml" target="build" useNativeBasedir="true"/>
   </target>
 

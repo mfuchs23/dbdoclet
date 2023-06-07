@@ -1,4 +1,4 @@
-package org.dbdoclet.doclet;
+package org.dbdoclet.doclet.option;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
 import org.dbdoclet.doclet.DocletException;
@@ -286,15 +287,15 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	}
 
 	@Override
-	public boolean addMemberSynopsis(ExecutableMemberDoc doc,
+	public boolean addMemberSynopsis(ExecutableElement doc,
 			DocBookElement parent) throws DocletException {
 
-		if (doc.isMethod()) {
-			synopsis.addMethodSynopsis((MethodDoc) doc, parent);
+		if (docManager.isMethod(doc)) {
+			synopsis.addMethodSynopsis(doc, parent);
 		}
 
-		if (doc.isConstructor()) {
-			synopsis.addConstructorSynopsis((ConstructorDoc) doc, parent);
+		if (docManager.isConstructor(doc)) {
+			synopsis.addConstructorSynopsis(doc, parent);
 		}
 
 		return true;

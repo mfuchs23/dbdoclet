@@ -14,7 +14,8 @@ public class ArticleManagerTests extends AbstractTestCase {
 		String classpath = sourcePath;
 
 		javadocTestPackage("-cp", classpath, srcpath);
-		//javadocStandardTestPackage("-cp", classpath, srcpath);
+		javadocStandardTestPackage("-cp", classpath, srcpath);
 		printDocBookFile();
+		viewPdf();
 	}
 }

@@ -11,11 +11,14 @@ package org.dbdoclet.doclet.docbook;
 import static java.util.Objects.isNull;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
@@ -25,9 +28,9 @@ import javax.lang.model.util.Elements;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
-import org.dbdoclet.doclet.DocManager;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ReferenceManager;
+import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
@@ -61,10 +64,10 @@ public abstract class Synopsis {
 	@Inject
 	protected DbdScript script;
 	
-	protected final void createAnnotationElements(AnnotationDesc desc,
+	protected final void createAnnotationElements(AnnotationMirror annotation,
 			DocBookElement parent) {
 
-		if (desc == null) {
+		if (annotation == null) {
 			throw new IllegalArgumentException(
 					"The argument desc must not be null!");
 		}
@@ -74,34 +77,30 @@ public abstract class Synopsis {
 					"The argument parent must not be null!");
 		}
 
-		AnnotationDesc.ElementValuePair[] elements = desc.elementValues();
-		String buffer;
+		Map<? extends ExecutableElement, ? extends AnnotationValue> elements = annotation.getElementValues();
+		StringBuilder buffer = new StringBuilder();
 
-		if (elements.length > 0) {
+		if (elements.size() > 0) {
 			parent.appendChild("(");
 		}
 
-		for (int i = 0; i < elements.length; i++) {
-
-			buffer = elements[i].toString();
-
-			if (i < (elements.length - 1)) {
-				buffer += ",";
-			}
-
-			parent.appendChild(buffer);
+		for (var entry : elements.entrySet()) {
+			buffer.append(entry.getValue().toString());
+			buffer.append(", ");
 		}
+		
+		parent.appendChild(StringServices.cutSuffix(buffer.toString().trim(), ","));
 
-		if (elements.length > 0) {
+		if (elements.size() > 0) {
 			parent.appendChild(")");
 		}
 
 	}
 
-	protected final void createAnnotations(TypeElement typeElem,
+	protected final void createAnnotations(Element elem,
 			DocBookElement parent) {
 
-		if (typeElem == null) {
+		if (elem == null) {
 			throw new IllegalArgumentException(
 					"The argument doc must not be null!");
 		}
@@ -111,16 +110,20 @@ public abstract class Synopsis {
 					"The argument parent must not be null!");
 		}
 
-		List<? extends AnnotationMirror> annotationList = typeElem.getAnnotationMirrors();
+		List<? extends AnnotationMirror> annotationList = elem.getAnnotationMirrors();
 		for (AnnotationMirror annotation : annotationList) {
 
 			Element annotationType = annotation.getAnnotationType().asElement();
-			logger.debug("Annotation: " + annotationType.getSimpleName());
 			
-			Modifier modifier = dbfactory.createModifier("@" + annotation.toString());
+			String buffer = annotation.toString();
+			if (buffer.startsWith("@java.lang.")) {
+				buffer = "@" + annotationType.getSimpleName().toString();
+			}
+			
+			Modifier modifier = dbfactory.createModifier(buffer);
 			modifier.setRole("annotation");
 			
-			// createAnnotationElements(annotation, modifier);
+			createAnnotationElements(annotation, modifier);
 			
 			parent.appendChild(modifier);
 		}
@@ -146,9 +149,6 @@ public abstract class Synopsis {
 		} else if (docManager.isInterface(typeElem)) {
 			parent.appendChild(dbfactory.createModifier("interface"));
 		} else {
-			if (docManager.isAbstract(typeElem)) {
-				parent.appendChild(dbfactory.createModifier("abstract"));
-			}
 			parent.appendChild(dbfactory.createModifier("class"));
 		}
 	}
@@ -178,9 +178,9 @@ public abstract class Synopsis {
 		return buffer.toString();
 	}
 
-	public final void createMemberModifier(VariableElement varElem, DocBookElement parent) {
+	public final void createMemberModifier(Element elem, DocBookElement parent) {
 
-		if (varElem == null) {
+		if (elem == null) {
 			throw new IllegalArgumentException(
 					"The argument doc must not be null!");
 		}
@@ -190,8 +190,8 @@ public abstract class Synopsis {
 					"The argument parent# must not be null!");
 		}
 
-		// TODO createAnnotations(doc, parent);
-		createVisibility(varElem, parent);
+		createAnnotations(elem, parent);
+		createVisibility(elem, parent);
 	}
 
 	protected final String createSuperClassName(TypeElement superElem,
@@ -208,7 +208,7 @@ public abstract class Synopsis {
 		return buffer.toString();
 	}
 
-	public final void createType(Type type, DocBookElement parent,
+	public final void createType(TypeMirror type, DocBookElement parent,
 			boolean showFullQualifiedName) {
 
 		if (type == null) {
@@ -221,9 +221,9 @@ public abstract class Synopsis {
 					"The argument parent must not be null!");
 		}
 
-		// TODO String buffer = typeToString(type, showFullQualifiedName);
-		// buffer = buffer.replace(".", ".&#x200b;");
-		// parent.appendChild(buffer);
+		String buffer = docManager.typeToString(type, showFullQualifiedName);
+		buffer = buffer.replace(".", ".&#x200b;");
+		parent.appendChild(buffer);
 	}
 
 	private void createTypeParameters(StringBuilder buffer,

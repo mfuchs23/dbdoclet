@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
@@ -37,87 +37,49 @@ import org.dbdoclet.tag.docbook.Ooclass;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Type;
 
-import com.sun.javadoc.AnnotationTypeDoc;
-import com.sun.javadoc.AnnotationTypeElementDoc;
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.ConstructorDoc;
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.MethodDoc;
 
 public class StrictSynopsis extends Synopsis {
 
-	private void addConstructors(DocBookElement parent, ClassDoc doc) {
+	private void addConstructors(DocBookElement parent, TypeElement typeElem) {
 
 		if (parent == null) {
 			throw new IllegalArgumentException("The argument parent must not be null!");
 		}
 
-		if (doc == null) {
+		if (typeElem == null) {
 			throw new IllegalArgumentException("The argument doc must not be null!");
 		}
 
-		addExecutableMembers(parent, doc.constructors(), "Constructors");
+		addExecutableMembers(parent, docManager.getConstructorElements(typeElem), "Constructors");
 	}
 
-	public void addConstructorSynopsis(ConstructorDoc doc, DocBookElement parent) {
+	public void addConstructorSynopsis(ExecutableElement elem, DocBookElement parent) {
 
 		Constructorsynopsis synopsis = dbfactory.createConstructorsynopsis();
 		parent.appendChild(synopsis);
 
-		// createMemberModifier(doc, synopsis);
+		createMemberModifier(elem, synopsis);
 
-		synopsis.appendChild(dbfactory.createMethodname(doc.name()));
+		synopsis.appendChild(dbfactory.createMethodname(elem.getEnclosingElement().getSimpleName().toString()));
 
-		addParameters(synopsis, doc);
-		addExceptions(synopsis, doc);
+		addParameters(synopsis, elem);
+		addExceptions(synopsis, elem);
 	}
+	
+	private void addExceptions(DocBookElement parent, ExecutableElement doc) {
 
-	private void addElements(DocBookElement parent, AnnotationTypeDoc doc) {
-
-		if (parent == null) {
-			throw new IllegalArgumentException("The argument parent must not be null!");
-		}
-
-		if (doc == null) {
-			throw new IllegalArgumentException("The argument doc must not be null!");
-		}
-
-		AnnotationTypeElementDoc elements[] = doc.elements();
-
-		Fieldsynopsis synopsis;
-		Type type;
-
-		for (int i = 0; i < elements.length; i++) {
-
-			synopsis = dbfactory.createFieldsynopsis();
-
-			// createMemberModifier(elements[i], synopsis);
-
-			type = dbfactory.createType();
-			synopsis.appendChild(type);
-
-			createType(elements[i].returnType(), type, script.isCreateFullyQualifiedNamesEnabled());
-
-			synopsis.appendChild(dbfactory.createVarname(elements[i].name()));
-
-			parent.appendChild(synopsis);
-		}
-	}
-
-	private void addExceptions(DocBookElement parent, ExecutableMemberDoc doc) {
-
-		ClassDoc[] exceptions = doc.thrownExceptions();
+		List<? extends TypeMirror> exceptions = doc.getThrownTypes();
 
 		Exceptionname name;
 
-		for (int i = 0; i < exceptions.length; i++) {
+		for (var type : exceptions) {
 
-			name = dbfactory.createExceptionname(exceptions[i].name());
+			name = dbfactory.createExceptionname(type.toString());
 			parent.appendChild(name);
 		}
 	}
 
-	private void addExecutableMembers(DocBookElement parent, ExecutableMemberDoc[] members, String title) {
+	private void addExecutableMembers(DocBookElement parent, Set<ExecutableElement> members, String title) {
 
 		if (parent == null) {
 			throw new IllegalArgumentException("The argument parent must not be null!");
@@ -133,52 +95,48 @@ public class StrictSynopsis extends Synopsis {
 
 		String qualifiedName;
 
-		TreeMap<String, ExecutableMemberDoc> publicMembers = new TreeMap<String, ExecutableMemberDoc>();
-		TreeMap<String, ExecutableMemberDoc> publicStaticMembers = new TreeMap<String, ExecutableMemberDoc>();
-		TreeMap<String, ExecutableMemberDoc> protectedMembers = new TreeMap<String, ExecutableMemberDoc>();
-		TreeMap<String, ExecutableMemberDoc> packagePrivateMembers = new TreeMap<String, ExecutableMemberDoc>();
-		TreeMap<String, ExecutableMemberDoc> privateMembers = new TreeMap<String, ExecutableMemberDoc>();
+		TreeMap<String, ExecutableElement> publicMembers = new TreeMap<String, ExecutableElement>();
+		TreeMap<String, ExecutableElement> publicStaticMembers = new TreeMap<String, ExecutableElement>();
+		TreeMap<String, ExecutableElement> protectedMembers = new TreeMap<String, ExecutableElement>();
+		TreeMap<String, ExecutableElement> packagePrivateMembers = new TreeMap<String, ExecutableElement>();
+		TreeMap<String, ExecutableElement> privateMembers = new TreeMap<String, ExecutableElement>();
 
-		if ((members != null) && (members.length > 0)) {
+		if (nonNull(members) && members.size() > 0) {
 
-			for (int i = 0; i < members.length; i++) {
+			for (ExecutableElement member : members) {
 
-				if (members[i].isAnnotationTypeElement()) {
-
-					qualifiedName = members[i].qualifiedName();
-
+				if (docManager.isAnnotationType(member)) {
+					qualifiedName = member.getSimpleName().toString();
 				} else {
-
-					qualifiedName = members[i].qualifiedName() + "(" + members[i].signature() + ")";
+					qualifiedName = member.getSimpleName().toString() + "(" + docManager.createMethodSignature(member) + ")";
 				}
 
-				if (members[i].isPublic()) {
+				if (docManager.isPublic(member)) {
 
-					if (members[i].isStatic()) {
+					if (docManager.isStatic(member)) {
 
-						publicStaticMembers.put(qualifiedName, members[i]);
+						publicStaticMembers.put(qualifiedName, member);
 
 					} else {
 
-						publicMembers.put(qualifiedName, members[i]);
+						publicMembers.put(qualifiedName, member);
 					}
 
-				} else if (members[i].isProtected()) {
+				} else if (docManager.isProtected(member)) {
 
-					protectedMembers.put(qualifiedName, members[i]);
+					protectedMembers.put(qualifiedName, member);
 
-				} else if (members[i].isPackagePrivate()) {
+				} else if (docManager.isPackagePrivate(member)) {
 
-					packagePrivateMembers.put(qualifiedName, members[i]);
+					packagePrivateMembers.put(qualifiedName, member);
 
-				} else if (members[i].isPrivate()) {
+				} else if (docManager.isPrivate(member)) {
 
-					privateMembers.put(qualifiedName, members[i]);
+					privateMembers.put(qualifiedName, member);
 				}
 			}
 
 			if (publicStaticMembers.size() > 0) {
-
 				addExecutableMemberSection(parent, publicStaticMembers, "Public Static " + title);
 			}
 
@@ -204,10 +162,10 @@ public class StrictSynopsis extends Synopsis {
 		}
 	}
 
-	private void addExecutableMemberSection(DocBookElement parent, TreeMap<String, ExecutableMemberDoc> map,
+	private void addExecutableMemberSection(DocBookElement parent, TreeMap<String, ExecutableElement> publicStaticMembers,
 			String title) {
 
-		if (map.size() == 0) {
+		if (publicStaticMembers.size() == 0) {
 			return;
 		}
 
@@ -215,12 +173,12 @@ public class StrictSynopsis extends Synopsis {
 		comment.setRole("comment");
 		parent.appendChild(comment);
 
-		for (ExecutableMemberDoc doc : map.values()) {
+		for (ExecutableElement doc : publicStaticMembers.values()) {
 
-			if (doc.isConstructor()) {
-				addConstructorSynopsis((ConstructorDoc) doc, parent);
+			if (docManager.isConstructor(doc)) {
+				addConstructorSynopsis(doc, parent);
 			} else {
-				addMethodSynopsis((MethodDoc) doc, parent);
+				addMethodSynopsis(doc, parent);
 			}
 		}
 	}
@@ -299,7 +257,7 @@ public class StrictSynopsis extends Synopsis {
 		Type type = dbfactory.createType();
 		synopsis.appendChild(type);
 
-		String typeName = typeToString(varElem.asType(), script.isCreateFullyQualifiedNamesEnabled());
+		String typeName = docManager.typeToString(varElem.asType(), script.isCreateFullyQualifiedNamesEnabled());
 		type.appendChild(typeName);
 
 		synopsis.appendChild(dbfactory.createVarname(varElem.getSimpleName().toString()));
@@ -345,7 +303,7 @@ public class StrictSynopsis extends Synopsis {
 
 	}
 
-	private void addMethods(DocBookElement parent, ClassDoc doc) {
+	private void addMethods(DocBookElement parent, TypeElement doc) {
 
 		if (parent == null) {
 			throw new IllegalArgumentException("The argument parent must not be null!");
@@ -355,33 +313,33 @@ public class StrictSynopsis extends Synopsis {
 			throw new IllegalArgumentException("The argument doc must not be null!");
 		}
 
-		addExecutableMembers(parent, doc.methods(), "Methods");
+		addExecutableMembers(parent, docManager.getMethodElements(doc), "Methods");
 	}
 
-	public void addMethodSynopsis(MethodDoc doc, DocBookElement parent) {
+	public void addMethodSynopsis(ExecutableElement doc, DocBookElement parent) {
 
 		Methodsynopsis synopsis = dbfactory.createMethodsynopsis();
 		parent.appendChild(synopsis);
 
-		// createMemberModifier(doc, synopsis);
+		createMemberModifier(doc, synopsis);
 
 		Type type = dbfactory.createType();
 		synopsis.appendChild(type);
 
-		createType(((MethodDoc) doc).returnType(), type, script.isCreateFullyQualifiedNamesEnabled());
+		createType(doc.getReturnType(), type, script.isCreateFullyQualifiedNamesEnabled());
 
-		String name = doc.name();
+		String name = doc.getSimpleName().toString();
 		synopsis.appendChild(dbfactory.createMethodname(name));
 
 		addParameters(synopsis, doc);
 		addExceptions(synopsis, doc);
 	}
 
-	private void addParameters(DocBookElement parent, ExecutableMemberDoc doc) {
+	private void addParameters(DocBookElement parent, ExecutableElement doc) {
 
-		com.sun.javadoc.Parameter[] parameters = doc.parameters();
+		List<? extends VariableElement> parameters = doc.getParameters();
 
-		if (parameters.length == 0) {
+		if (parameters.size() == 0) {
 
 			parent.appendChild(dbfactory.createVoid());
 			return;
@@ -389,17 +347,17 @@ public class StrictSynopsis extends Synopsis {
 
 		Methodparam param;
 
-		for (int i = 0; i < parameters.length; i++) {
+		for (VariableElement ve : parameters) {
 
 			param = dbfactory.createMethodparam();
 
 			Type type = dbfactory.createType();
 			param.appendChild(type);
 
-			// TODO String typeName = typeToString(parameters[i].type(),
-			// script.isCreateFullyQualifiedNamesEnabled(), 1);
-			// type.appendChild(typeName);
-			String name = parameters[i].name();
+			String typeName = docManager.typeToString(ve.asType(), script.isCreateFullyQualifiedNamesEnabled());
+			type.appendChild(typeName);
+			
+			String name = ve.getSimpleName().toString();
 			param.appendChild(dbfactory.createParameter(name));
 
 			parent.appendChild(param);
@@ -456,8 +414,8 @@ public class StrictSynopsis extends Synopsis {
 
 			addInterfaces(synopsis, typeElem);
 			addFields(synopsis, typeElem);
-			// addConstructors(synopsis, typeElem);
-			// addMethods(synopsis, typeElem);
+			addConstructors(synopsis, typeElem);
+			addMethods(synopsis, typeElem);
 
 			if (docManager.isAnnotationType(typeElem)) {
 				// TODO addElements(synopsis, (AnnotationTypeDoc) typeElem);
@@ -481,26 +439,8 @@ public class StrictSynopsis extends Synopsis {
 		}
 	}
 
-	public String typeToString(TypeMirror type, boolean showFullQualifiedName) {
-
-		if (docManager.isPrimitiveType(type)) {
-			return type.toString();
-		}
-
-		Element elem = docManager.getTypeUtils().asElement(type);
-		if (nonNull(elem)) {
-			if (showFullQualifiedName && elem instanceof TypeElement) {
-				return ((TypeElement) elem).getQualifiedName().toString();
-			} else {
-				return elem.getSimpleName().toString();
-			}
-		} else {
-			return type.toString();
-		}
-	}
-
-	public String typeToString(com.sun.javadoc.Type doc, boolean showFullQualifiedName) {
+	public String typeToString(com.sun.javadoc.Type type, boolean b) {
 		// TODO Auto-generated method stub
-		return null;
+		return "// TODO";
 	}
 }

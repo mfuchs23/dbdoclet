@@ -8,6 +8,8 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.nonNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 
@@ -83,6 +85,11 @@ public class DbdTransformer {
 		}
 
 		StringBuilder buffer = new StringBuilder();
+		
+		if (nonNull(dcTree.getFirstSentence())) {
+			buffer.append(dcTree.getFirstSentence());
+			buffer.append(String.format("%n"));
+		}
 		
 		for (DocTree dtree : dcTree.getBody()) {
 			

@@ -29,6 +29,7 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
 import org.dbdoclet.doclet.DocletException;
@@ -54,7 +55,7 @@ public interface Style {
     public boolean addMethodSpecifiedBy(MethodDoc doc, DocBookElement parent)
 	    throws DocletException;
 
-    public boolean addMemberSynopsis(ExecutableMemberDoc doc, DocBookElement parent) throws DocletException;
+    public boolean addMemberSynopsis(ExecutableElement elem, DocBookElement parent) throws DocletException;
 
     public boolean addMetaInfo(Doc doc, DocBookElement parent)
 	    throws DocletException;

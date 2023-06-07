@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 
-import org.dbdoclet.doclet.DocManager;
+import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.Chapter;

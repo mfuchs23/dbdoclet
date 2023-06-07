@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.spi.ToolProvider;
 
@@ -145,6 +143,12 @@ public class AbstractTestCase implements InfoListener {
 
 	}
 
+	protected void viewPdf() throws IOException {
+		
+		ProcessBuilder builder = new ProcessBuilder("/home/michael/bin/test.py");
+		Process process = builder.start();
+	}
+	
 	protected String docComment(String comment) throws IOException, SAXException, ParserConfigurationException {
 		
 		StringBuilder buffer = new StringBuilder();

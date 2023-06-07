@@ -3,7 +3,10 @@ package org.dbdoclet.music;
 import java.io.Serializable;
 
 /**
- * Abstrakte Vaterklasse für Musikelemente.
+ * Abstrakte Vaterklasse für Musikelemente. 
+ * 
+ * Musikelemente sind Noten, Pausen, Taktstriche, Notenschlüssel, Taktarten und so weiter. Alle grafischen
+ * Darstellungen die auf einem Notenblatt erscheinen können.
  * 
  * @author Michael Fuchs
  * 
