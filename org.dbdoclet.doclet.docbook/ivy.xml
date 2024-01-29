@@ -16,14 +16,14 @@
     <dependency org="org.apache" name="org.apache.commons.logging" rev="1.1.0" />
     <dependency org="org.apache" name="org.apache.log4j" rev="1.2.16" />
     <dependency org="org.jfree" name="jfreechart" rev="1.0.14" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.getopts" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.tag" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.xiphias" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.jive" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook" rev="${module.version}" revConstraint="latest.integration" />
-    <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.common" rev="${module.version}" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.getopts" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.tag" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.xiphias" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.jive" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.svg" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.trafo.html.docbook" rev="11.0.1" revConstraint="latest.integration" />
+    <dependency org="org.dbdoclet" name="org.dbdoclet.doclet.common" rev="11.0.1" revConstraint="latest.integration" />
   </dependencies>
 </ivy-module>

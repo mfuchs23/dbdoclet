@@ -83,6 +83,7 @@ public class DocletOptions {
     private String destinationDirectory;
 	private ResourceBundle res;
 	private String destinationFile;
+	private String overviewFile;
 	private String profile;
 	private String title;
 	private String encoding;
@@ -91,6 +92,7 @@ public class DocletOptions {
     public DocletOptions(ResourceBundle res) {
     	
     	this.res = res;
+		options.add(new Option("-o -overviewfile --overview-file", 1, Kind.STANDARD, args -> overviewFile = args.get(0)));
 		options.add(new Option("-d -dir --destination-directory", 1, Kind.OTHER, args -> destinationDirectory = args.get(0)));
 		options.add(new Option("-sourcepath", 1, Kind.OTHER, args -> sourcepath = args.get(0)));
 		options.add(new Option("-e", 1, Kind.OTHER, args -> encoding = args.get(0)));
@@ -105,6 +107,10 @@ public class DocletOptions {
 
 	public String getDestinationFile() {
 		return destinationFile;
+	}
+
+	public String getOverviewFile() {
+		return overviewFile;
 	}
 
 	public String getProfile() {

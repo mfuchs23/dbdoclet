@@ -1,6 +1,6 @@
 -classpath: build/main/classes/
 Main-Class: org.dbdoclet.doclet.docbook
-version=9.0.1-SNAPSHOT
+version=11.0.1-SNAPSHOT
 Bundle-Name=org.dbdoclet.doclet.docbook
 Bundle-SymbolicName=org.dbdoclet.doclet.docbook
 Bundle-Version=${version}

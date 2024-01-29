@@ -224,6 +224,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 			DocManager docManager = CDI.getInstance(DocManager.class);
 			docManager.setDocletEnvironment(environment);
 			docManager.setReporter(reporter);
+			docManager.setOverviewFile(options.getOverviewFile());
 
 			for (String sourcepath : options.getSourcepath().split(File.pathSeparator)) {
 				copyDocFiles(docManager, sourcepath, destPath, dbdScript);

@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
+import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
@@ -31,6 +32,8 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 	@Inject
 	private DocBookTagFactory tagFactory;
 	@Inject
+	private ClassDiagramManager classDiagramManager;
+	@Inject
 	private TagManager tagManager;
 	@Inject
 	private DbdTransformer transformer;
@@ -49,7 +52,7 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 		} else if (mgr != null && mgr.equalsIgnoreCase("xmi")) {
 			// mediaManager = new DodoManager();
 		} else {
-			// mediaManager = new BookManager();
+			mediaManager = new BookManager();
 		}
 		
 		mediaManager.setDocManager(docManager);
@@ -62,7 +65,11 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 		mediaManager.setTagFactory(tagFactory);
 		mediaManager.setTagManager(tagManager);
 		mediaManager.setHtmlDocBookTrafo(transformer);
-
+		
+		tagManager.setDocManager(docManager);
+		referenceManager.setDocManager(docManager);
+		classDiagramManager.setDocManager(docManager);
+		
 		return mediaManager;
 	}
 

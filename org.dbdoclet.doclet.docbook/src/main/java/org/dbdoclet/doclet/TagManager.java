@@ -8,30 +8,58 @@
  */
 package org.dbdoclet.doclet;
 
+import static java.util.Objects.isNull;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import javax.inject.Inject;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.print.Doc;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.docbook.DbdScript;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.service.StringServices;
+import org.dbdoclet.tag.docbook.Tag;
 import org.dbdoclet.xiphias.HtmlServices;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.Doc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.PackageDoc;
-import com.sun.javadoc.ProgramElementDoc;
-import com.sun.javadoc.SeeTag;
-import com.sun.javadoc.Tag;
+import com.sun.source.doctree.DocCommentTree;
+import com.sun.source.doctree.DocTree;
+import com.sun.source.doctree.DocTree.Kind;
+
+class CompiledTag {
+
+	private String label = "";
+
+	public CompiledTag(String name, String flags, String label) {
+
+		if (name == null) {
+			throw new IllegalArgumentException(
+					"The argument name must not be null!");
+		}
+
+		if (label != null) {
+			this.label = label;
+		} else {
+			label = StringServices.capFirstLetter(name);
+		}
+	}
+
+	public String getLabel() {
+		return label;
+	}
+}
 
 /**
  * The class <code>TagManager</code> is reponsible for handling the javadoc
@@ -48,28 +76,30 @@ public class TagManager {
 	private static Log logger = LogFactory.getLog(TagManager.class);
 
 	private LinkedHashMap<String, CompiledTag> tagMap = new LinkedHashMap<String, CompiledTag>();
-	private TreeMap<String, TreeMap<String, TreeMap<String, FieldDoc>>> constantFieldMap;
+	private TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> constantFieldMap;
 
 	@Inject
 	private ReferenceManager referenceManager;
 	@Inject
 	private DbdScript script;
 
-	public static TreeMap<String, TreeMap<String, TreeMap<String, FieldDoc>>> createConstantFieldMap(
-			TreeMap<String, TreeMap<String, ClassDoc>> pkgMap) {
+	private DocManager docManager;
+
+	public TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> createConstantFieldMap(
+			TreeMap<String, TreeMap<String, TypeElement>> pkgMap) {
 
 		if (pkgMap == null) {
 			throw new IllegalArgumentException(
 					"The argument pkgMap must not be null!");
 		}
 
-		ClassDoc cdoc;
+		TypeElement cdoc;
 		String className;
 		String pkgName;
-		TreeMap<String, TreeMap<String, FieldDoc>> constantClassMap;
-		TreeMap<String, FieldDoc> constantFieldMap;
-		TreeMap<String, ClassDoc> classMap;
-		TreeMap<String, TreeMap<String, TreeMap<String, FieldDoc>>> constantMap = new TreeMap<String, TreeMap<String, TreeMap<String, FieldDoc>>>();
+		TreeMap<String, TreeMap<String, VariableElement>> constantClassMap;
+		TreeMap<String, VariableElement> constantFieldMap;
+		TreeMap<String, TypeElement> classMap;
+		TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> constantMap = new TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>>();
 
 		for (Iterator<String> iterator = pkgMap.keySet().iterator(); iterator
 				.hasNext();) {
@@ -89,24 +119,24 @@ public class TagManager {
 
 					if (constantClassMap == null) {
 
-						constantClassMap = new TreeMap<String, TreeMap<String, FieldDoc>>();
+						constantClassMap = new TreeMap<String, TreeMap<String, VariableElement>>();
 						constantMap.put(pkgName, constantClassMap);
 					}
 
-					FieldDoc[] fields = cdoc.fields(false);
+					Set<VariableElement> fields = docManager.getFieldElements(cdoc);
 
-					for (int j = 0; j < fields.length; j++) {
+					for (var field : fields) {
 
-						if (fields[j].isPublic() && fields[j].isStatic()
-								&& fields[j].isFinal()
-								&& fields[j].constantValue() != null) {
+						if (fields.isPublic() && fields.isStatic()
+								&& fields.isFinal()
+								&& fields.constantValue() != null) {
 
 							constantFieldMap = constantClassMap
 									.get(cdoc.name());
 
 							if (constantFieldMap == null) {
 
-								constantFieldMap = new TreeMap<String, FieldDoc>();
+								constantFieldMap = new TreeMap<String, VariableElement>();
 								constantClassMap.put(cdoc.name(),
 										constantFieldMap);
 							}
@@ -121,7 +151,7 @@ public class TagManager {
 		return constantMap;
 	}
 
-	public void createTagMap(TreeMap<String, TreeMap<String, ClassDoc>> pkgMap) {
+	public void createTagMap(TreeMap<String, TreeMap<String, TypeElement>> pkgMap) {
 
 		if (pkgMap == null) {
 			throw new IllegalArgumentException(
@@ -210,7 +240,26 @@ public class TagManager {
 		}
 	}
 
-	public TreeMap<String, TreeMap<String, TreeMap<String, FieldDoc>>> getConstantFieldMap() {
+	public DocTree findDeprecatedTag(Element modelElem) {
+		
+		if (isNull(modelElem)) {
+			return null;
+		}
+		
+		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
+		if (isNull(dctree)) {
+			return null;
+		}
+		
+		Optional<? extends DocTree> hit = dctree.getBlockTags().stream().filter(t -> Kind.DEPRECATED.equals(t.getKind())).findFirst();
+		if (hit.isPresent()) {
+			return hit.get();
+		}
+		
+		return null;
+	}
+
+	public TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> getConstantFieldMap() {
 		return constantFieldMap;
 	}
 
@@ -236,7 +285,7 @@ public class TagManager {
 				return className;
 			} else {
 
-				ClassDoc cdoc = doc.containingClass();
+				TypeElement cdoc = doc.containingClass();
 
 				if (cdoc != null) {
 					return cdoc.name();
@@ -389,9 +438,9 @@ public class TagManager {
 			doc = tag.holder();
 			logger.debug("@value holder=" + doc + ", text=" + text);
 
-			if (text.length() == 0 && doc instanceof FieldDoc) {
+			if (text.length() == 0 && doc instanceof VariableElement) {
 
-				FieldDoc fdoc = (FieldDoc) doc;
+				VariableElement fdoc = (VariableElement) doc;
 				value = fdoc.constantValueExpression();
 			}
 
@@ -403,7 +452,7 @@ public class TagManager {
 						text);
 				logger.debug("pkgName=" + pkgName);
 
-				TreeMap<String, TreeMap<String, FieldDoc>> classMap = getConstantFieldMap()
+				TreeMap<String, TreeMap<String, VariableElement>> classMap = getConstantFieldMap()
 						.get(pkgName);
 
 				if (classMap != null) {
@@ -412,7 +461,7 @@ public class TagManager {
 							text);
 					logger.debug("className=" + className);
 
-					TreeMap<String, FieldDoc> fieldMap = classMap
+					TreeMap<String, VariableElement> fieldMap = classMap
 							.get(className);
 
 					if (fieldMap != null) {
@@ -420,7 +469,7 @@ public class TagManager {
 						String fieldName = getSeeNameMember(text);
 						logger.debug("fieldName=" + fieldName);
 
-						FieldDoc fdoc = fieldMap.get(fieldName);
+						VariableElement fdoc = fieldMap.get(fieldName);
 
 						if (fdoc != null) {
 							value = fdoc.constantValueExpression();
@@ -594,27 +643,7 @@ public class TagManager {
 		tagMap.put("@author", tag);
 	}
 
-}
-
-class CompiledTag {
-
-	private String label = "";
-
-	public CompiledTag(String name, String flags, String label) {
-
-		if (name == null) {
-			throw new IllegalArgumentException(
-					"The argument name must not be null!");
-		}
-
-		if (label != null) {
-			this.label = label;
-		} else {
-			label = StringServices.capFirstLetter(name);
-		}
-	}
-
-	public String getLabel() {
-		return label;
+	public void setDocManager(DocManager docManager) {
+		this.docManager = docManager;
 	}
 }

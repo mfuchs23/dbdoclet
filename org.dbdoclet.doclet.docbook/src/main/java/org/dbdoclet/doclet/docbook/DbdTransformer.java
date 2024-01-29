@@ -8,19 +8,24 @@
  */
 package org.dbdoclet.doclet.docbook;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.TagManager;
+import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
@@ -37,8 +42,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import com.sun.javadoc.Doc;
-import com.sun.javadoc.Tag;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.LinkTree;
@@ -60,144 +63,103 @@ public class DbdTransformer {
 	DocBookTagFactory tagFactory;
 	@Inject
 	Script script;
-
-	/**
-	 * The method <code>transform</code> transforms the documentation of a
-	 * javadoc tag.
-	 * 
-	 * @param classDoc
-	 *            a <code>Tag</code> value
-	 * @param parent
-	 *            a <code>DocBookElement</code> value
-	 * @return a <code>Element</code> value
-	 * @exception DocletException
-	 *                if an error occurs
-	 */
-	public NodeImpl transform(PackageElement pkgElem, DocCommentTree dcTree, DocBookElement parent)
+	@Inject
+	DocManager docManager;
+	
+	public NodeImpl transform(Element pkgElem, Element classElem, DocBookElement parent)
 			throws DocletException {
 
 		if (parent == null) {
 			throw new IllegalArgumentException("Parameter parent is null!");
 		}
 
-		if (dcTree  == null) {
-			return null;
+		if (classElem == null) {
+			throw new IllegalArgumentException("Parameter elemis null!");
 		}
 
-		StringBuilder buffer = new StringBuilder();
-		
-		if (nonNull(dcTree.getFirstSentence())) {
-			buffer.append(dcTree.getFirstSentence());
-			buffer.append(String.format("%n"));
+		DocCommentTree commentTree = docManager.getDocCommentTree(classElem);
+		String buffer = docTreeToString(commentTree.getFullBody());
+		return transform(pkgElem, buffer, parent);
+	}
+
+	public NodeImpl transform(DocTree docTree, DocBookElement parent) throws DocletException {
+		ArrayList<DocTree> docTreeList = new ArrayList<>();
+		docTreeList.add(docTree);
+		return transform(docTreeList, parent);
+	}
+	
+	public NodeImpl transform(List<? extends DocTree> docTreeList, DocBookElement parent) throws DocletException {
+
+		if (parent == null) {
+			throw new IllegalArgumentException("Parameter parent is null!");
 		}
-		
-		for (DocTree dtree : dcTree.getBody()) {
+
+		String buffer = docTreeToString(docTreeList);
+
+		HtmlDocBookTrafo transformer = new HtmlDocBookTrafo();
+		transformer.setTagFactory(tagFactory);
+		try {
+			transformer.setInputStream(new ByteArrayInputStream(
+					buffer.getBytes(script.getTextParameter("javadoc", TrafoConstants.PARAM_ENCODING, "UTF-8"))));
+			TrafoResult result = transformer.transform(script);
 			
+			NodeImpl node = null;
+			if (result.isFailed() == false) {
+				node = result.getRootNode();
+			} else {
+				logger.error("Transformation failed!" + Sfv.LSEP + result.toString());
+				return null;
+			}
+			
+			appendToParent(parent, node);
+			return node;
+			
+		} catch (Exception e) {
+			throw new DocletException(e);
+		}
+
+	}
+
+	private String docTreeToString(List<? extends DocTree> docTreeList) {
+
+		StringBuilder buffer = new StringBuilder();
+
+		for (DocTree dtree : docTreeList) {
+
 			if (dtree.getKind() == DocTree.Kind.LINK_PLAIN) {
-			
+
 				LinkTree linkTree = (LinkTree) dtree;
-				
+
 				// String label = referenceManager.createReferenceLabel(link);
 				String label = linkTree.getLabel().toString();
 				label = HtmlServices.textToHtml(label);
 
 				// reference = referenceManager.findReference(link);
-			
-				String comment = "<javadoc:linkplain" + " ref=\"" + linkTree.getReference().toString()
-							+ "\"" + " name=\"" + label + "\">" + label
-							+ "</javadoc:linkplain>";
+
+				String comment = "<javadoc:linkplain" + " ref=\"" + linkTree.getReference().toString() + "\""
+						+ " name=\"" + label + "\">" + label + "</javadoc:linkplain>";
 				buffer.append(comment);
 
 			} else {
 				buffer.append(dtree.toString());
 			}
 		}
-		
-		return transform(pkgElem, buffer.toString(), parent);
+
+		return buffer.toString();
 	}
 
 	/**
-	 * The method <code>transform</code> transforms the documentation of java
-	 * language constructs (class, package, method, ...), which are represented
-	 * by a Doc object.
+	 * The method <code>transform</code> transforms the content of a String buffer
+	 * into a DocBook tree.
 	 * 
-	 * @param doc
-	 *            a <code>Doc</code> value
-	 * @param parent
-	 *            a <code>DocBookElement</code> value
-	 * @return a <code>Element</code> value
-	 * @exception DocletException
-	 *                if an error occurs
-	 */
-	public NodeImpl transform(Doc doc, DocBookElement parent)
-			throws DocletException {
-
-		if (doc == null) {
-			throw new IllegalArgumentException("Parameter doc is null!");
-		}
-
-		if (parent == null) {
-			throw new IllegalArgumentException("Parameter parent is null!");
-		}
-
-		Tag[] tags = doc.inlineTags();
-		return transform(tags, parent);
-	}
-
-	/**
-	 * The method <code>transform</code> transforms the documentation of an
-	 * array of javadoc tag.
-	 * 
-	 * @param tags
-	 *            a <code>Tag[]</code> value
-	 * @param parent
-	 *            a <code>DocBookElement</code> value
-	 * @return a <code>Element</code> value
-	 * @exception DocletException
-	 *                if an error occurs
-	 */
-	public NodeImpl transform(Tag[] tags, DocBookElement parent)
-			throws DocletException {
-
-		if (tags == null) {
-			throw new IllegalArgumentException("Parameter tags is null!");
-		}
-
-		if (parent == null) {
-			throw new IllegalArgumentException("Parameter parent is null!");
-		}
-
-		if (tags.length == 0) {
-			return null;
-		}
-
-		String comment = "";
-
-		for (int i = 0; i < tags.length; i++) {
-			comment += tagManager.processTag(tags[i]);
-		}
-
-		// return transform(tags[0].holder(), comment, parent);
-		return null;
-	}
-
-	/**
-	 * The method <code>transform</code> transforms the content of a String
-	 * buffer into a DocBook tree.
-	 * 
-	 * @param comment
-	 *            a <code>String</code> value
-	 * @param parent
-	 *            a <code>DocBookElement</code> value
-	 * @param skipTo
-	 *            skip all lines until the the tag <code>skipTo</code> is found.
+	 * @param comment a <code>String</code> value
+	 * @param parent  a <code>DocBookElement</code> value
+	 * @param skipTo  skip all lines until the the tag <code>skipTo</code> is found.
 	 * @return a <code>Element</code> value
 	 * 
-	 * @exception DocletException
-	 *                if an error occurs
+	 * @exception DocletException if an error occurs
 	 */
-	public NodeImpl transform(PackageElement pkgElem, String comment, DocBookElement parent)
-			throws DocletException {
+	public NodeImpl transform(Element pkgElem, String comment, DocBookElement parent) throws DocletException {
 
 		if (comment == null) {
 			throw new IllegalArgumentException("Parameter comment is null!");
@@ -212,27 +174,22 @@ public class DbdTransformer {
 			HtmlDocBookTrafo transformer = new HtmlDocBookTrafo();
 			transformer.setTagFactory(tagFactory);
 
-			String subPath = StringServices.replace(pkgElem.getQualifiedName().toString(), ".",
-					File.separator);
+			String subPath = StringServices.replace(docManager.getQualifiedName(pkgElem), ".", File.separator);
 
 			if (subPath != null && subPath.trim().length() > 0) {
-				script.setVariable(new TextParam(
-						TrafoConstants.VAR_IMAGE_SUBPATH, subPath));
+				script.setVariable(new TextParam(TrafoConstants.VAR_IMAGE_SUBPATH, subPath));
 			} else {
-				script.unsetVariable(TrafoConstants.VAR_IMAGE_SUBPATH);					
+				script.unsetVariable(TrafoConstants.VAR_IMAGE_SUBPATH);
 			}
 
-			script.getNamespace()
-			.findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
-			.setParam(new TextParam(TrafoConstants.PARAM_DOCUMENT_ELEMENT,
-					parent.getTagName()));
+			script.getNamespace().findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
+					.setParam(new TextParam(TrafoConstants.PARAM_DOCUMENT_ELEMENT, parent.getTagName()));
 
-			transformer.setInputStream(new ByteArrayInputStream(comment
-					.getBytes(script.getTextParameter("javadoc",
-							TrafoConstants.PARAM_ENCODING, "UTF-8"))));
-			
-			// TransformPosition ctx = new TransformPosition(doc);
-			// script.setTransformPosition(ctx);
+			transformer.setInputStream(new ByteArrayInputStream(
+					comment.getBytes(script.getTextParameter("javadoc", TrafoConstants.PARAM_ENCODING, "UTF-8"))));
+
+			TransformPosition ctx = new TransformPosition(pkgElem);
+			script.setTransformPosition(ctx);
 			TrafoResult result = transformer.transform(script);
 
 			NodeImpl node = null;
@@ -240,81 +197,15 @@ public class DbdTransformer {
 			if (result.isFailed() == false) {
 				node = result.getRootNode();
 			} else {
-				logger.error("Transformation failed!" + Sfv.LSEP
-						+ result.toString());
+				logger.error("Transformation failed!" + Sfv.LSEP + result.toString());
 			}
 
-			if (node != null) {
-
-				if (node instanceof DocumentFragment) {
-
-					NodeList childList = node.getChildNodes();
-
-					for (int i = 0; i < childList.getLength(); i++) {
-
-						NodeImpl child = (NodeImpl) childList.item(i);
-
-						if (child instanceof DocBookElement) {
-
-							DocBookElement childElem = (DocBookElement) child;
-
-							if (parent instanceof Para == false && childElem.isInline()) {
-
-								Para para = tagFactory.createPara();
-								parent.appendChild(para);
-								parent = para;
-							}
-							
-							Node parentElem = parent;
-
-							if ((childElem instanceof Para || childElem.isSection()) && parentElem instanceof Para) {
-								parentElem = parentElem.getParentNode();
-							}
-							
-							while (parentElem != null
-									&& childElem.isValidParent(null, parentElem) == false) {
-								parentElem = parentElem.getParentNode();
-							}
-
-							if (parentElem != null) {
-								parentElem.appendChild(child);
-							} else {
-								logger.error(String
-										.format("Invalid child %s for parent %s and possible ancestors.",
-												child.getNodeName(),
-												parent.getNodeName()));
-								parent.appendChild(child);
-							}
-
-						} else if (child instanceof Text) {
-							
-							if (parent instanceof Para == false) {
-								
-								Para para = tagFactory.createPara();
-								parent.appendChild(para);
-								para.appendChild(child);
-								parent = para;
-							
-							} else {
-								parent.appendChild(child);								
-							}
-							
-						} else {
-							parent.appendChild(child);
-						}
-					}
-
-				} else {
-					parent.appendChild(node);
-				}
-
-			} else {
+			if (isNull(node)) {
 				logger.error(result.toString());
-				throw new NullPointerException(
-						"Transformation failed. Root element is null!");
+				throw new NullPointerException("Transformation failed. Root element is null!");
 			}
 
-			node.traverse(new HyphenationVisitor());
+			appendToParent(parent, node);
 			return node;
 
 		} catch (Exception oops) {
@@ -325,6 +216,76 @@ public class DbdTransformer {
 		return null;
 	}
 
-	public void transform(Doc holder, String exceptionName, DocBookElement parent) {
+	private void appendToParent(DocBookElement parent, NodeImpl node) throws Exception {
+
+		if (node instanceof DocumentFragment) {
+
+			NodeList childList = node.getChildNodes();
+
+			for (int i = 0; i < childList.getLength(); i++) {
+
+				NodeImpl child = (NodeImpl) childList.item(i);
+
+				if (child instanceof DocBookElement) {
+
+					DocBookElement childElem = (DocBookElement) child;
+
+					if (parent instanceof Para == false && childElem.isInline()) {
+
+						Para para = tagFactory.createPara();
+						parent.appendChild(para);
+						parent = para;
+					}
+
+					Node parentElem = parent;
+
+					if ((childElem instanceof Para || childElem.isSection()) && parentElem instanceof Para) {
+						parentElem = parentElem.getParentNode();
+					}
+
+					while (parentElem != null && childElem.isValidParent(null, parentElem) == false) {
+						parentElem = parentElem.getParentNode();
+					}
+
+					if (parentElem != null) {
+						parentElem.appendChild(child);
+					} else {
+						logger.error(String.format("Invalid child %s for parent %s and possible ancestors.",
+								child.getNodeName(), parent.getNodeName()));
+						parent.appendChild(child);
+					}
+
+				} else if (child instanceof Text) {
+
+					if (parent instanceof Para == false) {
+
+						Para para = tagFactory.createPara();
+						parent.appendChild(para);
+						para.appendChild(child);
+						parent = para;
+
+					} else {
+						parent.appendChild(child);
+					}
+
+				} else {
+					parent.appendChild(child);
+				}
+			}
+
+		} else {
+			parent.appendChild(node);
+		}
+
+		node.traverse(new HyphenationVisitor());
+
+	}
+
+	public void transform(PackageElement elem, DocBookElement parent) throws DocletException {
+		transform(docManager.getDocCommentTree(elem).getFullBody(), parent);
+	}
+
+	public void transform(TypeElement elem, DocBookElement parent) throws DocletException {
+		transform(docManager.getDocCommentTree(elem).getFullBody(), parent);
 	}
 }

@@ -13,9 +13,14 @@
     <iterate target="distclean"/>
   </target>
 
+  <target name="rebuild-dependencies">
+    <iterate target="distclean"/>
+    <ant antfile="../common/org.dbdoclet.commons/build.xml" target="build" useNativeBasedir="true"/>
+  </target>
+
   <target name="rebuild">
     <iterate target="distclean"/>
-    <ant antfile="org.dbdoclet.doclet.common/build.xml" target="build"/>
+    <ant antfile="org.dbdoclet.doclet.common/build.xml" target="build" useNativeBasedir="true"/>
     <ant antfile="org.dbdoclet.doclet.docbook/build.xml" target="build" useNativeBasedir="true"/>
   </target>
 

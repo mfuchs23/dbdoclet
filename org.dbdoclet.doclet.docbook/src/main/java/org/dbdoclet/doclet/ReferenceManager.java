@@ -1,28 +1,28 @@
 package org.dbdoclet.doclet;
 
+import static java.util.Objects.nonNull;
+
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.service.StringServices;
 
-import com.sun.javadoc.AnnotationTypeDoc;
-import com.sun.javadoc.AnnotationTypeElementDoc;
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.ConstructorDoc;
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MemberDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.PackageDoc;
-import com.sun.javadoc.Parameter;
-import com.sun.javadoc.ProgramElementDoc;
-import com.sun.javadoc.SeeTag;
-import com.sun.javadoc.Type;
+import com.sun.source.doctree.SeeTree;
 
 public class ReferenceManager {
 
@@ -32,9 +32,10 @@ public class ReferenceManager {
 
 	private HashMap<String, String> idMap;
 	private String documentationId;
+	private DocManager docManager;
 
 	public void init(String documentationId,
-			TreeMap<String, TreeMap<String, ClassDoc>> pkgMap, XmlIdType type) {
+			TreeMap<String, TreeMap<String, TypeElement>> pkgMap, XmlIdType type) {
 
 		if (pkgMap == null) {
 			throw new IllegalArgumentException("Parameter pkgMap is null");
@@ -52,15 +53,11 @@ public class ReferenceManager {
 		int classCounter = 1;
 
 		HashMap<String, String> map = new HashMap<String, String>();
-		String pkgName;
 		String className;
-		TreeMap<String, ClassDoc> classMap;
-		ClassDoc cdoc;
+		TreeMap<String, TypeElement> classMap;
+		TypeElement cdoc;
 
-		for (Iterator<String> iterator = pkgMap.keySet().iterator(); iterator
-				.hasNext();) {
-
-			pkgName = iterator.next();
+		for (String pkgName : pkgMap.keySet()) {
 
 			if (type == XmlIdType.JAVA) {
 
@@ -93,159 +90,60 @@ public class ReferenceManager {
 		idMap = map;
 	}
 
-	public String createReferenceLabel(SeeTag tag) throws DocletException {
+	public String createReferenceLabel(SeeTree tag) throws DocletException {
 
 		if (tag == null) {
 			throw new IllegalArgumentException("Parameter tag is null!");
 		}
 
-		String label = "";
-		String str;
-
-		PackageDoc pdoc;
-		ClassDoc cdoc;
-		MemberDoc mdoc;
-
-		str = tag.referencedClassName();
-
-		if ((str != null) && (str.length() > 0)) {
-			label = str;
-		}
-
-		str = tag.referencedMemberName();
-
-		if ((str != null) && (str.length() > 0)) {
-			label += ("#" + str);
-		}
-
-		pdoc = tag.referencedPackage();
-
-		if (pdoc != null) {
-			label = pdoc.name();
-		}
-
-		cdoc = tag.referencedClass();
-
-		if (cdoc != null) {
-			label = cdoc.qualifiedName();
-		}
-
-		mdoc = tag.referencedMember();
-
-		if (mdoc != null) {
-			label = mdoc.toString();
-		}
-
-		str = tag.label();
-
-		if ((str != null) && (str.length() > 0)) {
-			label = str;
-		}
-
-		if ((label == null) || (label.length() == 0)) {
-			label = tag.text();
-		}
-
-		if ((label == null) || (label.length() == 0)) {
-
-			label = "???";
-		}
-
+		String label = docManager.getCommentText(tag.getReference());
 		logger.debug("Label for reference " + tag.toString() + " is " + label
 				+ ".");
 
 		return label;
 	}
 
-	public String findReference(SeeTag tag) {
+	public String findReference(SeeTree tag) {
 
 		if (tag == null) {
-
 			throw new IllegalArgumentException("Parameter tag is null!");
 		}
 
 		if (idMap == null) {
-
 			throw new IllegalStateException("Variable idMap is null!");
 		}
 
 		logger.debug("Find reference for tag " + tag.toString());
 
-		String key = null;
-		String reference = null;
-
-		PackageDoc pdoc;
-		ClassDoc cdoc;
-		MemberDoc mdoc;
-
-		pdoc = tag.referencedPackage();
-
-		if (pdoc != null) {
-
-			key = pdoc.name();
-			reference = getId(key);
-			logger.debug("Reference for package " + key + " = " + reference
-					+ ".");
-		}
-
-		cdoc = tag.referencedClass();
-
-		if (cdoc != null) {
-
-			key = cdoc.qualifiedName();
-			reference = getId(key);
-			logger.debug("Reference for class " + key + " = " + reference + ".");
-		}
-
-		mdoc = tag.referencedMember();
-
-		if (mdoc != null) {
-
-			if (mdoc instanceof ExecutableMemberDoc) {
-				key = createMethodKey((ExecutableMemberDoc) mdoc);
-			} else {
-				key = mdoc.qualifiedName();
-			}
-
-			reference = getId(key);
-			logger.debug("Reference for menber " + key + " = " + reference
-					+ ".");
-
-			if (reference == null) {
-
-				cdoc = mdoc.containingClass();
-				key = cdoc.qualifiedName();
-				reference = idMap.get(key);
-			}
-		}
-
+		String key = docManager.getCommentText(tag.getReference());
+		String reference = getId(key);
 		logger.debug("Reference = " + reference + ".");
 
 		return reference;
 	}
 
-	public String findReference(ProgramElementDoc elemDoc) {
+	public String findReference(Element element) {
 
-		if (elemDoc == null) {
+		if (element == null) {
 			throw new IllegalArgumentException(
-					"The argument classDoc must not be null!");
+					"The argument element must not be null!");
 		}
 
-		if (elemDoc instanceof ExecutableMemberDoc) {
-			return findReference((ExecutableMemberDoc) elemDoc);
+		if (ElementKind.METHOD.equals(element.getKind())) {
+			return findReference((ExecutableElement) element);
 		}
 
-		if (elemDoc instanceof FieldDoc) {
-			return findReference((FieldDoc) elemDoc);
+		if (ElementKind.FIELD.equals(element.getKind())) {
+			return findReference((VariableElement) element);
 		}
 
-		String key = elemDoc.qualifiedName();
+		String key = docManager.getQualifiedName(element);
 		String reference = getId(key);
 
 		return reference;
 	}
 
-	public String findReference(FieldDoc fieldDoc) {
+	public String findReference(VariableElement fieldDoc) {
 
 		if (fieldDoc == null) {
 			throw new IllegalArgumentException(
@@ -257,15 +155,15 @@ public class ReferenceManager {
 
 		if (reference == null) {
 
-			ClassDoc cdoc = fieldDoc.containingClass();
-			key = cdoc.qualifiedName();
+			TypeElement cdoc = docManager.getContainingClass(fieldDoc);
+			key = docManager.getQualifiedName(cdoc);
 			reference = idMap.get(key);
 		}
 
 		return reference;
 	}
 
-	public String findReference(ExecutableMemberDoc methodDoc) {
+	public String findReference(ExecutableElement methodDoc) {
 
 		if (methodDoc == null) {
 			throw new IllegalArgumentException(
@@ -277,40 +175,31 @@ public class ReferenceManager {
 
 		if (reference == null) {
 
-			ClassDoc cdoc = methodDoc.containingClass();
-			key = cdoc.qualifiedName();
+			TypeElement cdoc = docManager.getContainingClass(methodDoc);
+			key = docManager.getQualifiedName(cdoc);
 			reference = idMap.get(key);
 		}
 
 		return reference;
 	}
 
-	public String createMethodKey(ExecutableMemberDoc doc) {
+	public String createMethodKey(ExecutableElement doc) {
 
-		StringBuilder id = new StringBuilder(doc.qualifiedName());
+		String qualifiedName = docManager.getQualifiedName(doc);
+		StringBuilder id = new StringBuilder(qualifiedName);
 		id.append('(');
 
-		for (Parameter param : doc.parameters()) {
+		for (VariableElement param : doc.getParameters()) {
 
 			if (param == null) {
 				continue;
 			}
 
-			Type type = param.type();
+			TypeMirror type = param.asType();
 
 			if (type != null) {
 
-				id.append(type.qualifiedTypeName());
-
-				String dim = type.dimension();
-				// System.out.println("Dim: " + dim + ", " + dim.length());
-				if (dim != null && dim.length() > 0) {
-
-					for (int i = 0; i < (dim.length() / 2); i++) {
-						id.append("_A");
-					}
-				}
-
+				id.append(docManager.getQualifiedName(type));
 				id.append(",");
 			}
 		}
@@ -318,10 +207,8 @@ public class ReferenceManager {
 		return StringServices.cutSuffix(id.toString(), ",") + ")";
 	}
 
-	public String createFieldKey(FieldDoc doc) {
-
-		String id = doc.qualifiedName();
-
+	public String createFieldKey(VariableElement variableElement) {
+		String id = docManager.getQualifiedName(variableElement);
 		return id;
 	}
 
@@ -367,7 +254,6 @@ public class ReferenceManager {
 		}
 
 		if (idMap == null) {
-
 			throw new IllegalStateException("Variable idMap is null!");
 		}
 
@@ -388,129 +274,127 @@ public class ReferenceManager {
 		return (String) obj;
 	}
 
-	private void createClassIds(HashMap<String, String> map, ClassDoc cdoc,
+	private void createClassIds(HashMap<String, String> map, TypeElement classElement,
 			int index, XmlIdType type) {
 
-		String str;
 		String id;
-
-		ConstructorDoc[] constructors;
-		MethodDoc[] methods;
-		FieldDoc[] fields;
-		AnnotationTypeElementDoc[] elements;
 
 		int constructorCounter = 1;
 		int methodCounter = 1;
 		int fieldCounter = 1;
 
+		String qname = docManager.getQualifiedName(classElement);
 		if (type == XmlIdType.JAVA) {
 
-			id = "class-" + cdoc.qualifiedName();
-			id = createJavaId(id);
-			map.put(cdoc.qualifiedName(), id);
+			String name = "class-" + qname;
+			id = createJavaId(name);
+			map.put(name, id);
 
 		} else {
 
 			id = "CLASS-" + index;
 			id = createNumberedId(id);
-			map.put(cdoc.qualifiedName(), id);
+			map.put(qname, id);
 		}
 
-		constructors = cdoc.constructors();
+		Set<ExecutableElement> constructors = docManager.getConstructorElements(classElement);
 
-		for (int k = 0; k < constructors.length; k++) {
+		for (ExecutableElement constructor : constructors) {
 
-			str = constructors[k].getRawCommentText();
+			String comment = docManager.getCommentText(constructor);
 
-			if ((str != null) && !str.equals("")) {
+			if (nonNull(comment) && !comment.isBlank()) {
 
 				if (type == XmlIdType.JAVA) {
 
-					id = "constructor-" + createMethodKey(constructors[k]);
+					id = "constructor-" + createMethodKey(constructor);
 					id = createJavaId(id);
-					map.put(createMethodKey(constructors[k]), id);
+					map.put(createMethodKey(constructor), id);
 
 				} else {
 
 					id = "CONSTRUCTOR-" + index + "-" + constructorCounter++;
 					id = createNumberedId(id);
-					map.put(createMethodKey(constructors[k]), id);
+					map.put(createMethodKey(constructor), id);
 				}
 			}
 		}
 
-		methods = cdoc.methods();
+		Set<ExecutableElement> methods = docManager.getMethodElements(classElement);
 
-		for (int k = 0; k < methods.length; k++) {
+		for (ExecutableElement method : methods) {
 
-			str = methods[k].getRawCommentText();
+			String comment = docManager.getCommentText(method);
 
-			if ((str != null) && !str.equals("")) {
+			if (nonNull(comment) && !comment.isBlank()) {
 
 				if (type == XmlIdType.JAVA) {
 
-					id = "method-" + createMethodKey(methods[k]);
+					id = "method-" + createMethodKey(method);
 					id = createJavaId(id);
-					map.put(createMethodKey(methods[k]), id);
+					map.put(createMethodKey(method), id);
 
 				} else {
 
 					id = "METHOD-" + index + "-" + methodCounter++;
 					id = createNumberedId(id);
-					map.put(createMethodKey(methods[k]), id);
+					map.put(createMethodKey(method), id);
 				}
 			}
 		}
 
-		fields = cdoc.fields();
+		Set<VariableElement> fields = docManager.getFieldElements(classElement);
 
-		for (int k = 0; k < fields.length; k++) {
+		for (VariableElement field : fields) {
 
-			str = fields[k].getRawCommentText();
+			String comment = docManager.getCommentText(field);
 
-			if ((str != null) && !str.equals("")) {
+			if ((comment != null) && !comment.equals("")) {
 
 				if (type == XmlIdType.JAVA) {
 
-					id = "field-" + fields[k].qualifiedName();
+					id = "field-" + docManager.getQualifiedName(field);
 					id = createJavaId(id);
-					map.put(fields[k].qualifiedName(), id);
+					map.put(docManager.getQualifiedName(field), id);
 
 				} else {
 
 					id = "FIELD-" + index + "-" + fieldCounter++;
 					id = createNumberedId(id);
-					map.put(fields[k].qualifiedName(), id);
+					map.put(docManager.getQualifiedName(field), id);
 				}
 			}
 		}
 
-		if (cdoc.isAnnotationType()) {
+		if (docManager.isAnnotationType(classElement)) {
 
-			AnnotationTypeDoc atdoc = (AnnotationTypeDoc) cdoc;
+			TypeElement atdoc = (TypeElement) classElement;
+			List<? extends Element> elements = atdoc.getEnclosedElements();
 
-			elements = atdoc.elements();
+			for (Element element : elements) {
 
-			for (int k = 0; k < elements.length; k++) {
+				String comment = docManager.getCommentText(element);
 
-				str = elements[k].getRawCommentText();
-
-				if ((str != null) && !str.equals("")) {
+				if (nonNull(comment) && !comment.isBlank()) {
 
 					if (type == XmlIdType.JAVA) {
 
-						id = "method-" + createMethodKey(elements[k]);
+						id = "method-" + createMethodKey((ExecutableElement) element);
 						id = createJavaId(id);
-						map.put(createMethodKey(elements[k]), id);
+						map.put(createMethodKey((ExecutableElement) element), id);
 
 					} else {
 
 						id = "METHOD-" + index + "-" + methodCounter++;
 						id = createNumberedId(id);
-						map.put(createMethodKey(elements[k]), id);
+						map.put(createMethodKey((ExecutableElement) element), id);
 					}
 				}
 			}
 		}
+	}
+
+	public void setDocManager(DocManager docManager) {
+		this.docManager = docManager;
 	}
 }

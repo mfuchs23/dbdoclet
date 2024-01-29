@@ -108,7 +108,7 @@ public class StrictSynopsis extends Synopsis {
 				if (docManager.isAnnotationType(member)) {
 					qualifiedName = member.getSimpleName().toString();
 				} else {
-					qualifiedName = member.getSimpleName().toString() + "(" + docManager.createMethodSignature(member) + ")";
+					qualifiedName = member.getSimpleName().toString() + docManager.createMethodPrettySignature(member);
 				}
 
 				if (docManager.isPublic(member)) {

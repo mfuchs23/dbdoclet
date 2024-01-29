@@ -29,43 +29,39 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.tag.docbook.DocBookElement;
-
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.Doc;
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MethodDoc;
 
 public interface Style {
 
     public boolean addClassSynopsis(TypeElement typeElem, DocBookElement parent)
 	    throws DocletException;
 
-    public boolean addFieldSynopsis(FieldDoc doc, DocBookElement parent)
+    public boolean addFieldSynopsis(VariableElement doc, DocBookElement parent)
 	    throws DocletException;
 
-    public boolean addInheritancePath(ClassDoc doc, DocBookElement parent)
+    public boolean addInheritancePath(TypeElement doc, DocBookElement parent)
 	    throws DocletException;
 
-    public boolean addMethodSpecifiedBy(MethodDoc doc, DocBookElement parent)
+    public boolean addMethodSpecifiedBy(ExecutableElement doc, DocBookElement parent)
 	    throws DocletException;
 
     public boolean addMemberSynopsis(ExecutableElement elem, DocBookElement parent) throws DocletException;
 
-    public boolean addMetaInfo(Doc doc, DocBookElement parent)
+    public boolean addMetaInfo(Element memberElem, DocBookElement parent)
 	    throws DocletException;
 
-    public boolean addParamInfo(ExecutableMemberDoc doc, DocBookElement parent)
+    public boolean addParamInfo(ExecutableElement doc, DocBookElement parent)
 	    throws DocletException;
 
-    public boolean addSerialFieldsInfo(FieldDoc doc, DocBookElement parent)
+    public boolean addSerialFieldsInfo(VariableElement doc, DocBookElement parent)
 	    throws DocletException;
 
-    public boolean addThrowsInfo(ExecutableMemberDoc doc, DocBookElement parent)
+    public boolean addThrowsInfo(ExecutableElement commentDoc, DocBookElement parent)
 	    throws DocletException;
 }

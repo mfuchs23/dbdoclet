@@ -1,7 +1,12 @@
 package org.dbdoclet.doclet.doc;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -12,8 +17,10 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 
 import org.dbdoclet.doclet.scanner.ClassScanner;
@@ -22,11 +29,11 @@ import org.dbdoclet.doclet.scanner.FieldScanner;
 import org.dbdoclet.doclet.scanner.MethodScanner;
 import org.dbdoclet.doclet.scanner.PackageScanner;
 import org.dbdoclet.doclet.scanner.TypeScanner;
-import org.dbdoclet.service.StringServices;
 
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.LinkTree;
+import com.sun.source.doctree.ParamTree;
 import com.sun.source.doctree.ProvidesTree;
 import com.sun.source.doctree.ReferenceTree;
 import com.sun.source.doctree.SeeTree;
@@ -43,7 +50,8 @@ public class DocManager {
 
 	private DocletEnvironment env;
 	private Reporter reporter;
-	
+	private String overviewFile;
+
 	public PackageElement containingPackage(TypeElement classElem) {
 
 		Element parent = classElem.getEnclosingElement();
@@ -53,15 +61,47 @@ public class DocManager {
 		return (PackageElement) parent;
 	}
 
-	public String createMethodSignature(ExecutableElement executableElement) {
+	public String createMethodPrettySignature(ExecutableElement executableElement) {
 		StringBuilder buffer = new StringBuilder();
+		buffer.append('(');
 		for (VariableElement param : executableElement.getParameters()) {
 			buffer.append(typeToString(param.asType(), false));
+			buffer.append(" ");
 			buffer.append(param.getSimpleName());
 			buffer.append(", ");
 		}
-		
-		return StringServices.cutSuffix(buffer.toString().trim(), ",");
+		buffer.delete(buffer.length()-2, buffer.length());
+		buffer.append(')');
+		return buffer.toString();
+	}
+	
+	public String createMethodSignature(ExecutableElement executableElement) {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append('(');
+		for (VariableElement param : executableElement.getParameters()) {
+			buffer.append(typeToString(param.asType(), true));
+			buffer.append(", ");
+		}
+		buffer.delete(buffer.length()-2, buffer.length());
+		buffer.append(')');
+		return buffer.toString();
+	}
+
+	public String createMethodFlatSignature(ExecutableElement executableElement) {
+		StringBuilder buffer = new StringBuilder();
+		buffer.append('(');
+		for (VariableElement param : executableElement.getParameters()) {
+			buffer.append(typeToString(param.asType(), false));
+			buffer.append(", ");
+		}
+		buffer.delete(buffer.length()-2, buffer.length());
+		buffer.append(')');
+		return buffer.toString();
+	}
+
+	public Set<ExecutableElement> getAnnotationElements(TypeElement annotationElem) {
+		MethodScanner scanner = new MethodScanner(annotationElem.getEnclosedElements());
+		return scanner.getMethodElements();
 	}
 
 	public Set<TypeElement> getClassElements() {
@@ -71,20 +111,82 @@ public class DocManager {
 
 	public Set<ExecutableElement> getConstructorElements(TypeElement typeElem) {
 		ConstructorScanner scanner = new ConstructorScanner(typeElem.getEnclosedElements());
-		return scanner.getConstructorElements();		
+		return scanner.getConstructorElements();
 	}
 
+	public TypeElement getContainingClass(Element element) {
+		Element parent = element.getEnclosingElement();
+		if (nonNull(parent) && ElementKind.CLASS.equals(parent.getKind())) {
+			return (TypeElement) parent;
+		}
+		return null;
+	}
+	
 	public DocCommentTree getDocCommentTree(Element element) {
 		return getDocletEnvironment().getDocTrees().getDocCommentTree(element);
 	}
 
+	public String getCommentText(Element elem) {
+
+		if (isNull(elem)) {
+			return null;
+		}
+
+		StringBuilder buffer = new StringBuilder();
+
+		DocCommentTree docTreeList = getDocCommentTree(elem);
+		if (nonNull(docTreeList)) {
+			for (DocTree dtree : docTreeList.getFullBody()) {
+				buffer.append(dtree.toString());
+			}
+		}
+
+		return buffer.toString();
+	}
+
+	public String getCommentText(List<? extends DocTree> docTreeList) {
+		if (isNull(docTreeList)) {
+			return "";
+		}
+		StringBuilder buffer = new StringBuilder();
+		for (DocTree dtree : docTreeList) {
+			buffer.append(dtree.toString());
+		}
+		return buffer.toString();
+	}
+	
 	public DocletEnvironment getDocletEnvironment() {
 		return env;
 	}
 
 	// TODO: getElement
-	public Element getElement(DocTree tree) {
+	public Element getElement(ReferenceTree tree) {
+		tree.getSignature();
 		return null;
+	}
+
+	public List<? extends DocTree> getOverviewComment() {
+
+		if (isNull(overviewFile)) {
+			return Collections.emptyList();
+		}
+
+		Set<TypeElement> typeList = ElementFilter.typesIn(getDocletEnvironment().getSpecifiedElements());
+		TypeElement element = typeList.iterator().next();
+
+		DocCommentTree docCommentTree;
+		try {
+			docCommentTree = getDocletEnvironment().getDocTrees().getDocCommentTree(element, overviewFile);
+		} catch (IOException e) {
+			reporter.print(Diagnostic.Kind.WARNING, "The overview file could not be read: " + e.getMessage());
+			return Collections.emptyList();
+		}
+
+		if (docCommentTree != null) {
+			return docCommentTree.getFullBody();
+		}
+
+		return Collections.emptyList();
 	}
 
 	public Elements getElementUtils() {
@@ -93,17 +195,24 @@ public class DocManager {
 
 	public Set<VariableElement> getFieldElements(TypeElement typeElem) {
 		FieldScanner scanner = new FieldScanner(typeElem.getEnclosedElements());
-		return scanner.getFieldElements();		
+		return scanner.getFieldElements();
 	}
 
 	public FileObject getFileObject(TypeElement typeElem) {
 		DocTrees docTrees = getDocletEnvironment().getDocTrees();
 		return docTrees.getPath(typeElem).getCompilationUnit().getSourceFile();
-    }
+	}
 
 	public Set<ExecutableElement> getMethodElements(TypeElement typeElem) {
 		MethodScanner scanner = new MethodScanner(typeElem.getEnclosedElements());
-		return scanner.getMethodElements();		
+		return scanner.getMethodElements();
+	}
+
+	public String getName(Element element) {
+		if (isNull(element)) {
+			return "";
+		}
+		return element.getSimpleName().toString();
 	}
 	
 	public Set<PackageElement> getPackageElements() {
@@ -114,50 +223,50 @@ public class DocManager {
 	public Element getReferencedElement(DocTree docTree) {
 
 		return new SimpleDocTreeVisitor<Element, Void>() {
-            @Override
-            protected Element defaultAction(DocTree node, Void p) {
-               return null;
-            }
+			@Override
+			protected Element defaultAction(DocTree node, Void p) {
+				return null;
+			}
 
-            @Override
-            public Element visitLink(LinkTree node, Void p) {
-                return visit(node.getReference(), null);
-            }
+			@Override
+			public Element visitLink(LinkTree node, Void p) {
+				return visit(node.getReference(), null);
+			}
 
-            @Override
-            public Element visitProvides(ProvidesTree node, Void p) {
-                return visit(node.getServiceType(), null);
-            }
+			@Override
+			public Element visitProvides(ProvidesTree node, Void p) {
+				return visit(node.getServiceType(), null);
+			}
 
-            @Override
-            public Element visitReference(ReferenceTree node, Void p) {
-                return getElement(node);
-            }
+			@Override
+			public Element visitReference(ReferenceTree node, Void p) {
+				return getElement(node);
+			}
 
-            @Override
-            public Element visitSee(SeeTree node, Void p) {
-                for (DocTree dt : node.getReference()) {
-                    return visit(dt, null);
-                }
-                return null;
-            }
+			@Override
+			public Element visitSee(SeeTree node, Void p) {
+				for (DocTree dt : node.getReference()) {
+					return visit(dt, null);
+				}
+				return null;
+			}
 
-            @Override
-            public Element visitSerialField(SerialFieldTree node, Void p) {
-                return visit(node.getType(), null);
-            }
+			@Override
+			public Element visitSerialField(SerialFieldTree node, Void p) {
+				return visit(node.getType(), null);
+			}
 
-            @Override
-            public Element visitUses(UsesTree node, Void p) {
-                return visit(node.getServiceType(), null);
-            }
+			@Override
+			public Element visitUses(UsesTree node, Void p) {
+				return visit(node.getServiceType(), null);
+			}
 
-            @Override
-            public Element visitValue(ValueTree node, Void p) {
-                return visit(node.getReference(), null);
-            }
-        }.visit(docTree, null);
-	
+			@Override
+			public Element visitValue(ValueTree node, Void p) {
+				return visit(node.getReference(), null);
+			}
+		}.visit(docTree, null);
+
 	}
 
 	public Reporter getReporter() {
@@ -167,7 +276,7 @@ public class DocManager {
 	public Set<? extends Element> getSpecifiedElements() {
 		return env.getSpecifiedElements();
 	}
-	
+
 	public Set<TypeElement> getTypeElements() {
 		TypeScanner scanner = new TypeScanner(getDocletEnvironment().getIncludedElements());
 		return scanner.getTypeElements();
@@ -190,12 +299,40 @@ public class DocManager {
 		return elem.getKind() == ElementKind.ANNOTATION_TYPE;
 	}
 
+	public boolean isClass(Element elem) {
+		return elem.getKind() == ElementKind.CLASS;
+	}
+
 	public boolean isClassOrInterface(Element elem) {
 		return elem.getKind() == ElementKind.CLASS || elem.getKind() == ElementKind.INTERFACE;
 	}
 
 	public boolean isConstructor(ExecutableElement elem) {
-		return elem.getKind() == ElementKind.CONSTRUCTOR|| elem.getKind() == ElementKind.INTERFACE;
+		return elem.getKind() == ElementKind.CONSTRUCTOR || elem.getKind() == ElementKind.INTERFACE;
+	}
+
+	public boolean isEnum(Element elem) {
+		return elem.getKind() == ElementKind.ENUM;
+	}
+
+	public boolean isException(Element elem) {
+		if (isClass(elem)) {
+			Elements elements = getElementUtils();
+			TypeElement exceptionElem = elements.getTypeElement("java.lang.Exception");
+			Types types = getTypeUtils();
+			return types.isSubtype(elem.asType(), exceptionElem.asType());
+		}
+		return false;
+	}
+
+	public boolean isError(Element elem) {
+		if (isClass(elem)) {
+			Elements elements = getElementUtils();
+			TypeElement errorElem = elements.getTypeElement("java.lang.Error");
+			Types types = getTypeUtils();
+			return types.isSubtype(elem.asType(), errorElem.asType());
+		}
+		return false;
 	}
 
 	public boolean isFinal(Element typeElem) {
@@ -216,7 +353,8 @@ public class DocManager {
 
 	public boolean isPackagePrivate(Element typeElem) {
 		Set<Modifier> modifiers = typeElem.getModifiers();
-		return !modifiers.contains(Modifier.PRIVATE) && !modifiers.contains(Modifier.PROTECTED) && !modifiers.contains(Modifier.PUBLIC);
+		return !modifiers.contains(Modifier.PRIVATE) && !modifiers.contains(Modifier.PROTECTED)
+				&& !modifiers.contains(Modifier.PUBLIC);
 	}
 
 	public boolean isPrimitiveType(TypeMirror type) {
@@ -232,7 +370,7 @@ public class DocManager {
 			return true;
 		default:
 			return false;
-			
+
 		}
 	}
 
@@ -255,7 +393,7 @@ public class DocManager {
 	public boolean isSynchronized(Element elem) {
 		return elem.getModifiers().contains(Modifier.SYNCHRONIZED);
 	}
-	
+
 	public boolean isTransient(Element elem) {
 		return elem.getModifiers().contains(Modifier.TRANSIENT);
 	}
@@ -265,7 +403,7 @@ public class DocManager {
 	}
 
 	public void setDocletEnvironment(DocletEnvironment environment) {
-		this.env = environment;		
+		this.env = environment;
 	}
 
 	public void setReporter(Reporter reporter) {
@@ -288,5 +426,133 @@ public class DocManager {
 		} else {
 			return type.toString();
 		}
+	}
+
+	public void setOverviewFile(String overviewFile) {
+		this.overviewFile = overviewFile;
+	}
+
+	public List<ParamTree> getParamTags(ExecutableElement elem) {
+
+		var paramList = new ArrayList<ParamTree>();
+		DocCommentTree tree = getDocCommentTree(elem);
+		if (nonNull(tree)) {
+			for (var docTree : tree.getBlockTags()) {
+				if (docTree.getKind() == DocTree.Kind.PARAM) {
+					paramList.add((ParamTree) docTree);
+				}
+			}
+		}
+
+		return paramList;
+	}
+
+	public String getQualifiedName(TypeElement typeElement) {
+		if (isNull(typeElement)) {
+			return "";
+		}
+		return typeElement.getQualifiedName().toString();
+	}
+	
+	public String getQualifiedName(VariableElement variableElement) {
+		if (isNull(variableElement)) {
+			return "";
+		}
+		
+		StringBuilder qname = new StringBuilder();
+		Element parent = variableElement.getEnclosingElement();
+		if (nonNull(parent) && ElementKind.CLASS.equals(parent.getKind())) {
+			qname.append(((TypeElement) parent).getQualifiedName().toString());
+			qname.append('.');
+		}
+		qname.append(variableElement.getSimpleName().toString());
+		return qname.toString();
+	}
+
+	public String getQualifiedName(TypeMirror type) {
+		return getQualifiedName(getTypeUtils().asElement(type));
+	}
+	
+	public String getQualifiedName(Element element) {
+
+		switch (element.getKind()) {
+		case MODULE:
+		case PACKAGE:
+		case CLASS:
+		case INTERFACE:
+		case CONSTRUCTOR:
+		case METHOD:
+			return getQualifiedName((TypeElement) element);
+		case FIELD:
+		case LOCAL_VARIABLE:
+		case PARAMETER:
+			return getQualifiedName((VariableElement) element);
+		case OTHER:
+		case INSTANCE_INIT:
+		case EXCEPTION_PARAMETER:
+		case ENUM_CONSTANT:
+		case ENUM:
+		case ANNOTATION_TYPE:
+		case TYPE_PARAMETER:
+		case STATIC_INIT:
+		case RESOURCE_VARIABLE:
+		default:
+			return element.getSimpleName().toString();
+		}
+	}
+	
+	public ExecutableElement implementedMethod(TypeElement classElem, ExecutableElement methodElem) {
+
+		if (methodElem == null) {
+			throw new IllegalArgumentException("The argument methodElem must not be null!");
+		}
+		
+		if (classElem != null) {
+
+			List<? extends TypeMirror> interfaces = classElem.getInterfaces();
+			for (TypeMirror mirror : interfaces) {
+
+				TypeElement mirrorElem = (TypeElement) getTypeUtils().asElement(mirror);
+				Set<ExecutableElement> methodElements = getMethodElements(mirrorElem);
+				for (ExecutableElement interfaceMethodElem : methodElements) {				  
+					if (getElementUtils().overrides(methodElem, interfaceMethodElem, classElem)) {
+						return interfaceMethodElem;						
+					}
+				} 
+			}
+		}
+
+		return null;
+	}
+
+	public ExecutableElement overriddenMethod(ExecutableElement methodElem) {
+
+		if (isStatic(methodElem)) {
+            return null;
+        }
+        
+		TypeElement classElem = (TypeElement) methodElem.getEnclosingElement();
+		TypeMirror superType = classElem.getSuperclass();
+		TypeElement superElem = (TypeElement) getTypeUtils().asElement(superType);
+		
+		while (superElem != null) {
+			for (ExecutableElement m : getMethodElements(superElem)) {
+				if (getElementUtils().overrides(methodElem, m, superElem)) {
+						return m;						
+				}
+			}
+			superType = superElem.getSuperclass();
+			superElem = (TypeElement) getTypeUtils().asElement(superType);
+		}
+		
+		return null;
+    }
+
+	public TypeElement getSuperclass(TypeElement typeElem) {
+		TypeMirror superType = typeElem.getSuperclass();
+		if (isNull(superType)) {
+			return null;
+		}
+		return (TypeElement) getTypeUtils().asElement(superType);
 	}
 }

@@ -1,82 +1,61 @@
 package org.dbdoclet.doclet;
 
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.MethodDoc;
+import static java.util.Objects.requireNonNull;
+
+import javax.lang.model.element.ExecutableElement;
+
+import org.dbdoclet.doclet.doc.DocManager;
 
 
 public class ExecutableMemberInfo {
 
-    private ExecutableMemberDoc method;
-    private MethodDoc implemented;
-    private MethodDoc overridden;
+    private ExecutableElement method;
+    private ExecutableElement implemented;
+    private ExecutableElement overridden;
 
-    public ExecutableMemberInfo(ExecutableMemberDoc method) {
-
-        if (method == null) {
-
-            throw new IllegalArgumentException(
-                "The argument method must not be null!");
-        }
-
+    public ExecutableMemberInfo(ExecutableElement method) {
+    	requireNonNull(method, "The argument method must not be null!");
         this.method = method;
     }
 
-    public void setExecutableMember(ExecutableMemberDoc method) {
-
-        if (method == null) {
-
-            throw new IllegalArgumentException(
-                "The argument method must not be null!");
-        }
-
+    public void setExecutableMember(ExecutableElement method) {
+    	requireNonNull(method, "The argument method must not be null!");
         this.method = method;
     }
 
-    public ExecutableMemberDoc getExecutableMember() {
-
+    public ExecutableElement getExecutableMember() {
         return method;
     }
 
-    public void setImplemented(MethodDoc implemented) {
-
+    public void setImplemented(ExecutableElement implemented) {
         this.implemented = implemented;
     }
 
-    public MethodDoc getImplemented() {
-
+    public ExecutableElement getImplemented() {
         return implemented;
     }
 
-    public void setOverridden(MethodDoc overridden) {
-
+    public void setOverridden(ExecutableElement overridden) {
         this.overridden = overridden;
     }
 
-    public MethodDoc getOverridden() {
-
+    public ExecutableElement getOverridden() {
         return overridden;
     }
 
-    public ExecutableMemberDoc getCommentDoc() {
+    public ExecutableElement getCommentDoc() {
 
-        if (method == null) {
+    	requireNonNull(method, "The field method must not be null!");
 
-            throw new IllegalStateException("The field method must not be null!");
-        }
-
-        String comment = method.commentText();
+    	DocManager docManager = CDI.getInstance(DocManager.class);
+        String comment = docManager.getCommentText(method);
 
         if ((comment != null) && (comment.trim().length() > 0)) {
-
             return method;
         } else {
-
             if (implemented != null) {
-
-                comment = implemented.commentText();
-
+                comment = docManager.getCommentText(implemented);
                 if ((comment != null) && (comment.trim().length() > 0)) {
-
                     return implemented;
                 }
             }

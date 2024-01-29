@@ -6,6 +6,9 @@
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
+		<accessrules>
+			<accessrule kind="accessible" pattern="com/sun/tools/javac/code/Symbol/*"/>
+		</accessrules>
 	</classpathentry>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=org.dbdoclet.doclet.common&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="output" path="bin"/>

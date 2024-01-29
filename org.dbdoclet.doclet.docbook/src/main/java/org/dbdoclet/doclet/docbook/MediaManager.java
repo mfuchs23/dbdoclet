@@ -10,6 +10,8 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.nonNull;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,12 +27,14 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.inject.Inject;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +59,6 @@ import org.dbdoclet.tag.docbook.Address;
 import org.dbdoclet.tag.docbook.Affiliation;
 import org.dbdoclet.tag.docbook.Article;
 import org.dbdoclet.tag.docbook.Author;
-import org.dbdoclet.tag.docbook.Book;
 import org.dbdoclet.tag.docbook.Chapter;
 import org.dbdoclet.tag.docbook.Copyright;
 import org.dbdoclet.tag.docbook.Date;
@@ -98,14 +101,9 @@ import org.dbdoclet.xiphias.dom.ProcessingInstructionImpl;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ProgramElementDoc;
-import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
-import com.sun.javadoc.Type;
+import com.sun.source.doctree.DocTree;
 
 public abstract class MediaManager {
 
@@ -119,6 +117,7 @@ public abstract class MediaManager {
 	protected ResourceBundle res;
 	protected StatisticData statisticData;
 	protected Style style;
+	protected ClassDiagramManager classDiagramManager;
 	protected TagManager tagManager;
 	protected DocManager docManager;
 
@@ -130,7 +129,8 @@ public abstract class MediaManager {
 		}
 
 		if (script.isCreateDeprecatedListEnabled()) {
-			writeDeprecatedList(docManager.getSpecifiedElements(), parent);
+			// TODO Migration
+			// writeDeprecatedList(docManager.getSpecifiedElements(), parent);
 		}
 
 		if (script.isCreateStatisticsEnabled()) {
@@ -382,9 +382,6 @@ public abstract class MediaManager {
 
 		DocBookElement media;
 
-		ClassDiagramManager classDiagramManager = CDI
-				.getInstance(ClassDiagramManager.class);
-
 		String filebase = classDiagramManager.createClassDiagram(classDoc,
 				script.getDestinationDirectory());
 
@@ -467,7 +464,7 @@ public abstract class MediaManager {
 		*/
 	}
 
-	protected String getClassTypeAsText(ClassDoc doc) {
+	protected String getClassTypeAsText(TypeElement doc) {
 
 		if (doc == null) {
 			throw new IllegalArgumentException(
@@ -476,19 +473,19 @@ public abstract class MediaManager {
 
 		String typeName = ResourceServices.getString(res, "C_CLASS");
 
-		if (doc.isAnnotationType()) {
+		if (docManager.isAnnotationType(doc)) {
 
 			typeName = ResourceServices.getString(res, "C_ANNOTATION_TYPE");
 
-		} else if (doc.isInterface()) {
+		} else if (docManager.isInterface(doc)) {
 
 			typeName = ResourceServices.getString(res, "C_INTERFACE");
 
-		} else if (doc.isException()) {
+		} else if (docManager.isException(doc)) {
 
 			typeName = ResourceServices.getString(res, "C_EXCEPTION");
 
-		} else if (doc.isError()) {
+		} else if (docManager.isError(doc)) {
 
 			typeName = ResourceServices.getString(res, "C_ERROR");
 		}
@@ -513,31 +510,25 @@ public abstract class MediaManager {
 		return indexCategory;
 	}
 
-	protected String getReference(Doc doc) {
-
-		PackageDoc pdoc;
-		ClassDoc cdoc;
-		ExecutableMemberDoc mdoc;
-		FieldDoc fdoc;
+	protected String getReference(Element elem) {
 
 		String key;
 
-		if (doc instanceof PackageDoc) {
+		if (elem.getKind() == ElementKind.PACKAGE ) {
 
-			pdoc = (PackageDoc) doc;
-			key = pdoc.name();
-
+			key = elem.getSimpleName().toString();
 			return referenceManager.getId(key);
 		}
 
-		if (doc instanceof ClassDoc) {
+		if (elem.getKind() == ElementKind.CLASS) {
 
-			cdoc = (ClassDoc) doc;
-			key = cdoc.qualifiedName();
-
+			TypeElement typeElem = (TypeElement) elem;
+			key = typeElem.getQualifiedName().toString();
 			return referenceManager.getId(key);
 		}
 
+		// TODO
+		/*
 		if (doc instanceof ExecutableMemberDoc) {
 
 			mdoc = (ExecutableMemberDoc) doc;
@@ -553,7 +544,8 @@ public abstract class MediaManager {
 
 			return referenceManager.getId(key);
 		}
-
+		*/
+		
 		return null;
 	}
 
@@ -682,7 +674,7 @@ public abstract class MediaManager {
 			Set<? extends Element> specifiedElements,
 			DocBookElement parent) throws IOException {
 
-		TreeMap<String, TreeMap<String, TreeMap<String, FieldDoc>>> pkgFieldMap = tagManager
+		TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> pkgFieldMap = tagManager
 				.getConstantFieldMap();
 
 		if (pkgFieldMap != null && pkgFieldMap.size() > 0) {
@@ -707,24 +699,22 @@ public abstract class MediaManager {
 
 			boolean hasChild = false;
 
-			FieldDoc fieldDoc;
+			VariableElement fieldDoc;
 			Object value;
 			Section section;
-			String className;
-			String fieldName;
 			String fieldValue;
 			String pkgName;
 			String qualifiedTypeName;
-			TreeMap<String, FieldDoc> fieldMap;
-			TreeMap<String, TreeMap<String, FieldDoc>> classMap;
-			Type type;
+			TreeMap<String, VariableElement> fieldMap;
+			TreeMap<String, TreeMap<String, VariableElement>> classMap;
+			TypeMirror type;
 
 			for (Iterator<String> pkgIterator = pkgFieldMap.keySet().iterator(); pkgIterator
 					.hasNext();) {
 
 				pkgName = pkgIterator.next();
 				section = tagFactory.createSection(
-				// ResourceServices.getString(res, "C_PACKAGE") + " " +
+						ResourceServices.getString(res, "C_PACKAGE") + " " +
 						pkgName + ".*");
 
 				classMap = pkgFieldMap.get(pkgName);
@@ -734,10 +724,7 @@ public abstract class MediaManager {
 					hasChild = true;
 				}
 
-				for (Iterator<String> classIterator = classMap.keySet()
-						.iterator(); classIterator.hasNext();) {
-
-					className = classIterator.next();
+				for (var className : classMap.keySet()) {
 
 					Table table = tagFactory.createTable();
 					table.setFrame("all");
@@ -752,16 +739,14 @@ public abstract class MediaManager {
 
 					fieldMap = classMap.get(className);
 
-					for (Iterator<String> fieldIterator = fieldMap.keySet()
-							.iterator(); fieldIterator.hasNext();) {
+					for (var fieldName : fieldMap.keySet()) {
 
-						fieldName = fieldIterator.next();
 						fieldDoc = fieldMap.get(fieldName);
 
-						value = fieldDoc.constantValue();
-						type = fieldDoc.type();
-						qualifiedTypeName = type.qualifiedTypeName();
-
+						value = fieldDoc.getConstantValue();
+						type = fieldDoc.asType();
+						qualifiedTypeName = docManager.getQualifiedName(type);
+						
 						if (value != null) {
 
 							fieldValue = value.toString();
@@ -771,10 +756,10 @@ public abstract class MediaManager {
 								fieldValue = "\"" + fieldValue + "\"";
 							}
 
-							tbody.addRow(fieldDoc.name(), fieldValue);
+							tbody.addRow(docManager.getName(fieldDoc), fieldValue);
 
 						} else {
-							tbody.addRow(fieldDoc.name(), "null");
+							tbody.addRow(docManager.getName(fieldDoc), "null");
 						}
 					}
 				}
@@ -817,6 +802,7 @@ public abstract class MediaManager {
 		}
 	}
 
+	/* @formatter:off
 	protected void writeDeprecatedList(
 			Set<? extends Element> set,
 			DocBookElement parent) throws IOException, DocletException {
@@ -824,9 +810,7 @@ public abstract class MediaManager {
 		boolean hasChild = true;
 
 		DocBookElement component;
-		ArrayList<Doc> docList = new ArrayList<>();
-		// TODO Migration		
-		// .createDocList(pkgMap);
+		ArrayList<DocTree> docList = docManager.createDeprecatedList();
 
 		DeprecatedManager deprecatedManager = new DeprecatedManager();
 
@@ -884,11 +868,11 @@ public abstract class MediaManager {
 				Para para = tagFactory.createPara();
 				listItem.appendChild(para);
 
-				if (doc instanceof ProgramElementDoc) {
+				if (doc instanceof ExecutableElement) {
 
 					Link link = tagFactory.createLink(doc.toString(),
 							referenceManager
-									.findReference((ProgramElementDoc) doc));
+									.findReference(doc));
 					term.appendChild(link);
 
 				} else {
@@ -910,7 +894,9 @@ public abstract class MediaManager {
 			parent.appendChild(component);
 		}
 	}
-
+	@formatter:on
+	*/
+	
 	protected void writeFile(DocBookDocument doc, File fileName)
 			throws IOException {
 
@@ -928,10 +914,11 @@ public abstract class MediaManager {
 		writer.close();
 	}
 
-	protected void writeOverview(RootDoc doc, DocBookElement parent)
+	protected void writeOverview(DocBookElement parent)
 			throws DocletException {
 
-		if (doc.getRawCommentText() != null) {
+		List<? extends DocTree> overviewDocTrees = docManager.getOverviewComment();
+		if (nonNull(overviewDocTrees) && !overviewDocTrees.isEmpty()) {
 
 			String overviewTitle = script.getOverviewTitle();
 			logger.debug("Overview title='" + overviewTitle + "'.");
@@ -944,12 +931,14 @@ public abstract class MediaManager {
 				section = tagFactory.createBook();
 			}
 
-			htmlDocBookTrafo.transform(doc, section);
+			htmlDocBookTrafo.transform(overviewDocTrees, section);
 
 			for (org.w3c.dom.Element element : section.getChildElementList()) {
 
 				DocBookElement dbElement = (DocBookElement) element;
 
+				// TODO
+				/*
 				if (parent instanceof Book
 						&& dbElement.isValidParent(new TransformPosition(doc), parent) == false) {
 
@@ -960,6 +949,7 @@ public abstract class MediaManager {
 				} else {
 					parent.appendChild(element);
 				}
+				*/
 			}
 
 			Chapter lastChapter = (Chapter) parent.getLastChild(Chapter.class);
@@ -971,7 +961,8 @@ public abstract class MediaManager {
 
 				if (lastSect1 == null) {
 
-					style.addMetaInfo(doc, lastChapter);
+					// TODO
+					// style.addMetaInfo(doc, lastChapter);
 
 				} else {
 
@@ -979,7 +970,8 @@ public abstract class MediaManager {
 							.getString(res, "C_ADDITIONAL_INFORMATION"));
 					lastChapter.appendChild(sect1);
 
-					style.addMetaInfo(doc, sect1);
+					// TODO
+					// style.addMetaInfo(doc, sect1);
 				}
 
 			}
@@ -1087,30 +1079,34 @@ public abstract class MediaManager {
 
 	protected boolean hasVisibleContent(ExecutableMemberInfo memberInfo) {
 
-		ExecutableMemberDoc memberDoc = memberInfo.getExecutableMember();
-		MethodDoc implementedDoc = memberInfo.getImplemented();
+		ExecutableElement memberDoc = memberInfo.getExecutableMember();
+		ExecutableElement implementedDoc = memberInfo.getImplemented();
 
 		if (memberDoc != null) {
 
-			if (memberDoc.commentText() != null
-					&& memberDoc.commentText().trim().length() > 0) {
+			String memberComment = docManager.getCommentText(memberDoc);
+			String implementedComment = docManager.getCommentText(memberDoc);
+			if (memberComment != null
+					&& memberComment.trim().length() > 0) {
 				return true;
 			} else if (implementedDoc != null
-					&& implementedDoc.commentText() != null
-					&& implementedDoc.commentText().trim().length() > 0) {
+					&& implementedComment != null
+					&& implementedComment.trim().length() > 0) {
 				return true;
 			}
 
 			if (script.isCreateParameterInfoEnabled()
-					&& memberDoc.paramTags().length > 0) {
+					&& docManager.getParamTags(memberDoc).size() > 0) {
 				return true;
 			}
 
 			if (script.isCreateDeprecatedInfoEnabled()
-					&& DbdServices.findComment(memberDoc.tags(), "@deprecated") != null) {
+					&& tagManager.findDeprecatedTag(memberDoc) != null) {
 				return true;
 			}
 
+			// TODO
+			/*
 			if (script.isCreateMetaInfoEnabled()
 					&& script.isCreateAuthorInfoEnabled()
 					&& DbdServices.findComment(memberDoc.tags(), "@author") != null) {
@@ -1145,6 +1141,7 @@ public abstract class MediaManager {
 					&& DbdServices.findComment(memberDoc.tags(), "@version") != null) {
 				return true;
 			}
+			*/
 		}
 
 		return false;
@@ -1158,4 +1155,7 @@ public abstract class MediaManager {
 		this.docManager = docManager;
 	}
 
+	public void setClassDiagramManager(ClassDiagramManager classDiagramManager) {
+		this.classDiagramManager = classDiagramManager;
+	}
 }

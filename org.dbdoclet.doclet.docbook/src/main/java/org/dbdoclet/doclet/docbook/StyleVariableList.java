@@ -174,9 +174,11 @@ public class StyleVariableList extends StyleCoded implements Style {
 								dbfactory.createListitem().appendChild(
 										commentPara)));
 
+				// TODO
+				/*
 				dbdTrafo.transform(tags[i].holder(), tags[i].exceptionName(),
 						exceptionName);
-
+				*/
 				Tag[] inlineTags = tags[i].inlineTags();
 
 				if (inlineTags.length > 0) {
@@ -229,11 +231,14 @@ public class StyleVariableList extends StyleCoded implements Style {
 								dbfactory.createListitem().appendChild(
 										description)));
 
+				// TODO
+				/*
 				dbdTrafo.transform(tags[i].holder(), tags[i].fieldName(),
 						varName);
 				dbdTrafo.transform(tags[i].holder(), tags[i].fieldType(), type);
 				dbdTrafo.transform(tags[i].holder(), tags[i].description(),
 						description);
+			    */
 			}
 		}
 
@@ -398,7 +403,8 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 				Member member = dbfactory.createMember();
 				list.appendChild(member);
-				dbdTrafo.transform(tags[i].holder(), label, member);
+				// TODO
+				// dbdTrafo.transform(tags[i].holder(), label, member);
 
 				logger.debug("label = " + label);
 				logger.debug("member = " + member);

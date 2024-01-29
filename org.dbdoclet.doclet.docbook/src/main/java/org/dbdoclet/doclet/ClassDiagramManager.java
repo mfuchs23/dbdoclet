@@ -12,12 +12,18 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
+import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.docbook.DbdScript;
 import org.dbdoclet.doclet.docbook.StrictSynopsis;
 import org.dbdoclet.service.FileServices;
@@ -28,7 +34,7 @@ import org.dbdoclet.svg.shape.Shape;
 import org.dbdoclet.xiphias.ImageServices;
 
 import com.sun.javadoc.AnnotationTypeDoc;
-import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.TypeElement;
 import com.sun.javadoc.ConstructorDoc;
 import com.sun.javadoc.ExecutableMemberDoc;
 import com.sun.javadoc.FieldDoc;
@@ -40,7 +46,7 @@ import com.sun.javadoc.TypeVariable;
 
 /**
  * Die Klasse ClassDiagramManager erstellt ein UML Klassendiagramm aus einem
- * {@linkplain ClassDoc} Objekt.
+ * {@linkplain TypeElement} Objekt.
  * 
  * @author michael
  * 
@@ -58,41 +64,37 @@ public class ClassDiagramManager {
 	private int imageWidth;
 	private final boolean showFullQualifiedName = false;
 
-	public ArrayList<Type> getInheritancePath(ClassDoc doc) {
+	private DocManager docManager;
+
+	public ArrayList<TypeElement> getInheritancePath(TypeElement doc) {
 
 		if (doc == null) {
 			throw new IllegalArgumentException("Parameter doc is null!");
 		}
 
-		ArrayList<Type> list = new ArrayList<Type>();
+		ArrayList<TypeElement> list = new ArrayList<>();
 		list.add(doc);
 
 		int index = 0;
 
-		if (doc.isInterface() == true) {
-
-			Type[] types;
+		if (docManager.isInterface(doc)) {
 
 			while (doc != null) {
 
 				logger.debug(String.valueOf(index++) + " doc=" + doc);
 
-				types = doc.interfaceTypes();
-
-				if (types != null && types.length > 0) {
-					doc = types[0].asClassDoc();
+				List<? extends TypeMirror> types = doc.getInterfaces();
+				if (types.size()> 0) {
+					doc = (TypeElement) docManager.getTypeUtils().asElement(types.get(0));
+					list.add(doc);
 				} else {
 					doc = null;
-				}
-
-				if (doc != null) {
-					list.add(doc);
 				}
 			}
 
 		} else {
 
-			Type superType = doc.superclassType();
+			TypeElement superType = docManager.getSuperclass(doc);
 
 			while (superType != null) {
 
@@ -100,22 +102,20 @@ public class ClassDiagramManager {
 						+ superType);
 
 				if (script.isClassDiagramIncludesObject() == false
-						&& superType.qualifiedTypeName().equals(
+						&& docManager.getQualifiedName(superType).equals(
 								"java.lang.Object")) {
 					break;
 				}
 
 				list.add(superType);
-
-				superType = superType.asClassDoc().superclassType();
-
+				superType = docManager.getSuperclass(superType);
 			}
 		}
 
 		return list;
 	}
 
-	public String createClassDiagram(ClassDoc cdoc, File outdir)
+	public String createClassDiagram(TypeElement cdoc, File outdir)
 			throws DocletException {
 
 		if (cdoc == null) {
@@ -137,7 +137,7 @@ public class ClassDiagramManager {
 					.appendPath(outdir, script.getImagePath());
 			path = FileServices
 					.appendPath(path, StringServices.replace(
-							cdoc.qualifiedName(), ".", Sfv.FSEP));
+							docManager.getQualifiedName(cdoc), ".", Sfv.FSEP));
 
 			FileServices.createPath(path);
 
@@ -190,23 +190,24 @@ public class ClassDiagramManager {
 	 * @param ucdc
 	 * @param doc
 	 */
-	private void buildDiagram(UmlClassDiagramCreator ucdc, ClassDoc doc) {
+	private void buildDiagram(UmlClassDiagramCreator ucdc, TypeElement doc) {
 
-		if (doc.isInterface()) {
+		if (docManager.isInterface(doc)) {
 			defineInterface(ucdc, doc);
 		} else {
 			defineClass(ucdc, doc);
 		}
 	}
 
-	private void defineAttributes(UmlClassDiagramCreator ucdc, ClassDoc doc,
+	private void defineAttributes(UmlClassDiagramCreator ucdc, TypeElement doc,
 			ClassBox classBox) {
-		FieldDoc[] fields = doc.fields();
+		
+		Set<VariableElement> fields = docManager.getFieldElements(doc);
 
 		if (script.isClassDiagramContainsAttributes() && fields.length > 0) {
 
 			ucdc.addLine(classBox);
-			for (FieldDoc field : fields) {
+			for (var field : fields) {
 				ucdc.addAttribute(classBox, String.format("%s %s: %s",
 						createVisibilityIndicator(field), field.name(),
 						synopsis.typeToString(field.type(), false)));
@@ -214,7 +215,7 @@ public class ClassDiagramManager {
 		}
 	}
 
-	private void defineOperations(UmlClassDiagramCreator ucdc, ClassDoc doc,
+	private void defineOperations(UmlClassDiagramCreator ucdc, TypeElement doc,
 			ClassBox classBox) {
 
 		MethodDoc[] methods = doc.methods();
@@ -286,7 +287,7 @@ public class ClassDiagramManager {
 		return parametersAsText.trim();
 	}
 
-	private ClassBox defineClass(UmlClassDiagramCreator ucdc, ClassDoc doc) {
+	private ClassBox defineClass(UmlClassDiagramCreator ucdc, TypeElement doc) {
 
 		int row = 0;
 
@@ -298,7 +299,7 @@ public class ClassDiagramManager {
 
 		for (Type type : inheritanceList) {
 
-			Type[] interfaceTypes = type.asClassDoc().interfaceTypes();
+			Type[] interfaceTypes = type.asTypeElement().interfaceTypes();
 
 			if (interfaceTypes.length + 1 > numCol) {
 				numCol = interfaceTypes.length + 1;
@@ -325,7 +326,7 @@ public class ClassDiagramManager {
 			String className = synopsis.typeToString(type,
 					showFullQualifiedName);
 
-			ClassDoc cdoc = type.asClassDoc();
+			TypeElement cdoc = type.asTypeElement();
 
 			if (cdoc.isAnnotationType()) {
 
@@ -383,7 +384,7 @@ public class ClassDiagramManager {
 				String interfaceName = synopsis.typeToString(interfaceType,
 						showFullQualifiedName);
 
-				ClassDoc tcdoc = type.asClassDoc();
+				TypeElement tcdoc = type.asTypeElement();
 				AnnotationTypeDoc tadoc = type.asAnnotationTypeDoc();
 
 				if (tadoc != null) {
@@ -427,7 +428,7 @@ public class ClassDiagramManager {
 		return classBox;
 	}
 
-	private ClassBox defineInterface(UmlClassDiagramCreator ucdc, ClassDoc doc) {
+	private ClassBox defineInterface(UmlClassDiagramCreator ucdc, TypeElement doc) {
 
 		int row = 0;
 
@@ -438,7 +439,7 @@ public class ClassDiagramManager {
 
 		for (Type type : inheritanceList) {
 
-			Type[] interfaceTypes = type.asClassDoc().interfaceTypes();
+			Type[] interfaceTypes = type.asTypeElement().interfaceTypes();
 
 			if (interfaceTypes.length + 1 > numCol) {
 				numCol = interfaceTypes.length + 1;
@@ -470,7 +471,7 @@ public class ClassDiagramManager {
 
 		for (Type type : inheritanceList) {
 
-			ClassDoc cdoc = type.asClassDoc();
+			TypeElement cdoc = type.asTypeElement();
 			Type[] interfaceTypes = cdoc.interfaceTypes();
 
 			int typeIndex = 1;
@@ -537,5 +538,9 @@ public class ClassDiagramManager {
 	 */
 	public int getImageWidth() {
 		return imageWidth;
+	}
+
+	public void setDocManager(DocManager docManager) {
+		this.docManager = docManager;
 	}
 }

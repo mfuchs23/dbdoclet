@@ -203,6 +203,8 @@ public class StyleTable extends StyleCoded implements Style {
 								dbfactory.createListitem().appendChild(
 										commentPara)));
 
+				// TODO
+				/*
 				dbdTrafo.transform(tags[i].holder(), tags[i].exceptionName(),
 						exceptionName);
 
@@ -211,7 +213,8 @@ public class StyleTable extends StyleCoded implements Style {
 					dbdTrafo.transform(tags[i].inlineTags(),
 							commentPara);
 				}
-
+				*/
+				
 				if (commentPara.hasChildNodes() == false) {
 
 					ClassDoc doc = tags[i].exception();
@@ -258,10 +261,12 @@ public class StyleTable extends StyleCoded implements Style {
 						.appendChild(
 								dbfactory.createListitem().appendChild(
 										description)));
-
+				// TODO
+				/*
 				dbdTrafo.transform(tags[i].holder(), tags[i].fieldName(), varName);
 				dbdTrafo.transform(tags[i].holder(), tags[i].fieldType(), type);
 				dbdTrafo.transform(tags[i].holder(), tags[i].description(), description);
+				*/
 			}
 		}
 
@@ -428,7 +433,8 @@ public class StyleTable extends StyleCoded implements Style {
 
 				Member member = dbfactory.createMember();
 				list.appendChild(member);
-				dbdTrafo.transform(tags[i].holder(), label, member);
+				// TODO
+				// dbdTrafo.transform(tags[i].holder(), label, member);
 
 				logger.debug("label = " + label);
 				logger.debug("member = " + member);

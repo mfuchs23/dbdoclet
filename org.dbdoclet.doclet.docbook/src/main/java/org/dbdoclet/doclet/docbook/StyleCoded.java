@@ -17,14 +17,17 @@
 package org.dbdoclet.doclet.docbook;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Set;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
@@ -35,14 +38,8 @@ import org.dbdoclet.tag.docbook.Simplelist;
 import org.dbdoclet.tag.docbook.Warning;
 import org.dbdoclet.xiphias.XmlServices;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.ConstructorDoc;
-import com.sun.javadoc.Doc;
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.Tag;
-import com.sun.javadoc.Type;
+import com.sun.source.doctree.DocTree;
+import com.sun.source.doctree.DocCommentTree;
 
 /**
  * The class <code>StyleCoded</code> is the super class for the coded styles.
@@ -74,7 +71,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 		if (script.isCreateInheritedFromInfoEnabled()) {
 
-			ArrayList<Type> subclasses = statisticData.getSubclasses(typeElem.getQualifiedName().toString());
+			ArrayList<TypeElement> subclasses = statisticData.getSubclasses(typeElem.getQualifiedName().toString());
 
 			if (subclasses.size() > 0) {
 
@@ -91,11 +88,11 @@ public abstract class StyleCoded extends StyleBase implements Style {
 						.createSimplelist(Simplelist.FORMAT_INLINE);
 				para.appendChild(list);
 
-				for (Type cdoc : subclasses) {
+				for (TypeElement cdoc : subclasses) {
 
-					ref = referenceManager.findReference(cdoc.asClassDoc());
+					ref = referenceManager.findReference(cdoc);
 
-					name = XmlServices.textToXml(cdoc.qualifiedTypeName());
+					name = XmlServices.textToXml(docManager.getQualifiedName(cdoc));
 					name = hyphenation.hyphenateAfter(name, "\\.");
 
 					if ((ref != null) && (ref.length() > 0)) {
@@ -109,25 +106,26 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				}
 			}
 
-			// TODO Migration
-			// addMethodsInheritedFrom(parent, doc.superclassType());
-			// addFieldsInheritedFrom(parent, doc.superclassType());
+			addMethodsInheritedFrom(parent, docManager.getSuperclass(typeElem));
+			addFieldsInheritedFrom(parent, docManager.getSuperclass(typeElem));
 		}
 
 		return rc;
 	}
 
-	protected boolean addDeprecatedInfo(Doc doc, DocBookElement parent)
+	protected boolean addDeprecatedInfo(Element modelElem, DocBookElement parent)
 			throws DocletException {
 
 		if (script.isCreateDeprecatedInfoEnabled() == false) {
 			return false;
 		}
 
-		Tag tag;
-		String text;
-
-		tag = DbdServices.findComment(doc.tags(), "@deprecated");
+		DocCommentTree docCommentTree = docManager.getDocCommentTree(modelElem);
+		if (isNull(docCommentTree)) {
+			return false;
+		}
+		
+		DocTree tag = tagManager.findDeprecatedTag(modelElem);
 
 		if (tag != null) {
 
@@ -135,11 +133,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 					.getString(res, "C_DEPRECATED"));
 			parent.appendChild(warning);
 
-			text = tag.text();
-
-			if (text != null && text.trim().length() > 0) {
-				// TODO Migration
-				// dbdTrafo.transform(tag, warning);
+			if (nonNull(tag)) {
+				dbdTrafo.transform(tag, warning);
 			} else {
 				warning.appendChild(dbfactory.createPara(ResourceServices
 						.getString(res, "C_DEPRECATED")));
@@ -151,7 +146,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		return false;
 	}
 
-	protected void addFieldsInheritedFrom(DocBookElement parent, Type superDoc) {
+	protected void addFieldsInheritedFrom(DocBookElement parent, TypeElement superDoc) {
 
 		if (parent == null) {
 			throw new IllegalArgumentException(
@@ -166,29 +161,27 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		String name;
 		Para para;
 
-		HashMap<String, FieldDoc> fieldMap = new HashMap<String, FieldDoc>();
+		HashMap<String, VariableElement> fieldMap = new HashMap<>();
 
 		while (superDoc != null) {
 
-			FieldDoc[] fields = superDoc.asClassDoc().fields();
-			Arrays.sort(fields);
-
+			Set<VariableElement> fields = docManager.getFieldElements(superDoc);
 			int fieldCount = 0;
 
 			Simplelist fieldList = dbfactory
 					.createSimplelist(Simplelist.FORMAT_INLINE);
 
-			for (int i = 0; i < fields.length; i++) {
+			for (var field : fields) {
 
-				name = fields[i].name();
+				name = docManager.getName(field);
 
 				if (fieldMap.get(name) != null) {
 					continue;
 				} else {
-					fieldMap.put(name, fields[i]);
+					fieldMap.put(name, field);
 				}
 
-				ref = referenceManager.findReference(fields[i]);
+				ref = referenceManager.findReference(field);
 				name = XmlServices.textToXml(name);
 
 				if ((ref != null) && (ref.length() > 0)
@@ -215,27 +208,27 @@ public abstract class StyleCoded extends StyleBase implements Style {
 						ResourceServices.getString(res,
 								"C_FIELDS_INHERITED_FROM")
 								+ " "
-								+ superDoc.qualifiedTypeName(),
+								+ docManager.getQualifiedName(superDoc),
 						getEmphasisBoldRole()));
 
 				para.appendChild(": ");
 				para.appendChild(fieldList);
 			}
 
-			superDoc = superDoc.asClassDoc().superclassType();
+			superDoc = (TypeElement) docManager.getTypeUtils().asElement(superDoc.getSuperclass());
 		}
 	}
 
 	@Override
-	public boolean addFieldSynopsis(FieldDoc doc, DocBookElement parent)
+	public boolean addFieldSynopsis(VariableElement doc, DocBookElement parent)
 			throws DocletException {
 
-		// TODO synopsis.addFieldSynopsis(doc, parent);
+		synopsis.addFieldSynopsis(doc, parent);
 		return true;
 	}
 
 	@Override
-	public boolean addInheritancePath(ClassDoc classDoc, DocBookElement parent)
+	public boolean addInheritancePath(TypeElement classDoc, DocBookElement parent)
 			throws DocletException {
 
 		if (classDoc == null) {
@@ -256,17 +249,15 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		fpara.appendChild(dbfactory.createTitle(ResourceServices.getString(res,
 				"C_INHERITANCE_PATH")));
 
-		ArrayList<Type> list = classDiagramManager.getInheritancePath(classDoc);
+		ArrayList<TypeElement> list = classDiagramManager.getInheritancePath(classDoc);
 
 		String name;
 		String id;
 		Para para = dbfactory.createPara();
 
-		Iterator<Type> iterator = list.iterator();
+		for (TypeElement doc : list) {
 
-		for (Type doc : list) {
-
-			name = doc.qualifiedTypeName();
+			name = docManager.getQualifiedName(doc);
 			id = referenceManager.getId(name);
 
 			if (id != null) {
@@ -301,7 +292,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		return true;
 	}
 
-	protected void addMethodsInheritedFrom(DocBookElement parent, Type superDoc) {
+	protected void addMethodsInheritedFrom(DocBookElement parent, TypeElement superDoc) {
 
 		if (parent == null) {
 			throw new IllegalArgumentException(
@@ -316,29 +307,28 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		String name;
 		Para para;
 
-		HashMap<String, MethodDoc> methodMap = new HashMap<String, MethodDoc>();
+		HashMap<String, ExecutableElement> methodMap = new HashMap<String, ExecutableElement>();
 
 		while (superDoc != null) {
 
-			MethodDoc[] methods = superDoc.asClassDoc().methods();
-			Arrays.sort(methods);
+			Set<ExecutableElement> methods = docManager.getMethodElements(superDoc);
 
 			int methodCount = 0;
 
 			Simplelist methodList = dbfactory
 					.createSimplelist(Simplelist.FORMAT_INLINE);
 
-			for (int i = 0; i < methods.length; i++) {
+			for (var method : methods) {
 
-				name = methods[i].name();
+				name = docManager.getName(method);
 
 				if (methodMap.get(name) != null) {
 					continue;
 				} else {
-					methodMap.put(name, methods[i]);
+					methodMap.put(name, method);
 				}
 
-				if (methods[i].isConstructor()) {
+				if (docManager.isConstructor(method)) {
 					continue;
 				}
 
@@ -346,7 +336,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 					continue;
 				}
 
-				ref = referenceManager.findReference(methods[i]);
+				ref = referenceManager.findReference(method);
 				name = XmlServices.textToXml(name);
 
 				if ((ref != null) && (ref.length() > 0)
@@ -375,19 +365,19 @@ public abstract class StyleCoded extends StyleBase implements Style {
 						ResourceServices.getString(res,
 								"C_METHODS_INHERITED_FROM")
 								+ " "
-								+ superDoc.qualifiedTypeName(),
+								+ docManager.getQualifiedName(superDoc),
 						getEmphasisBoldRole()));
 
 				para.appendChild(": ");
 				para.appendChild(methodList);
 			}
 
-			superDoc = superDoc.asClassDoc().superclassType();
+			superDoc = docManager.getSuperclass(superDoc);
 		}
 	}
 
 	@Override
-	public boolean addMethodSpecifiedBy(MethodDoc doc, DocBookElement parent)
+	public boolean addMethodSpecifiedBy(ExecutableElement doc, DocBookElement parent)
 			throws DocletException {
 
 		Para para = dbfactory.createPara();
@@ -400,7 +390,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 		String methodRef = referenceManager.findReference(doc);
 
-		ClassDoc classDoc = doc.containingClass();
+		TypeElement classDoc = docManager.getContainingClass(doc);
 		String classRef = referenceManager.findReference(classDoc);
 
 		para.appendChild(ResourceServices.getString(res, "C_METHOD") + " ");
@@ -408,10 +398,10 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		if ((methodRef != null) && (methodRef.length() > 0)
 				&& (script.isCreateMethodInfoEnabled() == true)) {
 
-			para.appendChild(dbfactory.createLink(doc.name(), methodRef));
+			para.appendChild(dbfactory.createLink(docManager.getName(doc), methodRef));
 		} else {
 
-			para.appendChild(dbfactory.createLiteral(doc.name()));
+			para.appendChild(dbfactory.createLiteral(docManager.getName(doc)));
 		}
 
 		para.appendChild(" "
@@ -419,22 +409,22 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 		if ((classRef != null) && (classRef.length() > 0)) {
 
-			para.appendChild(dbfactory.createLink(classDoc.name(), classRef));
+			para.appendChild(dbfactory.createLink(docManager.getName(classDoc), classRef));
 		} else {
 
-			para.appendChild(dbfactory.createLiteral(classDoc.name()));
+			para.appendChild(dbfactory.createLiteral(docManager.getName(classDoc)));
 		}
 
 		return true;
 	}
 
-	public abstract boolean addParamInfo(ExecutableMemberDoc memberDoc,
+	public abstract boolean addParamInfo(ExecutableElement memberDoc,
 			DocBookElement parent) throws DocletException;
 
-	public abstract boolean addSerialFieldsInfo(FieldDoc fieldDoc,
+	public abstract boolean addSerialFieldsInfo(VariableElement fieldDoc,
 			DocBookElement parent) throws DocletException;
 
-	public abstract boolean addThrowsInfo(ExecutableMemberDoc memberDoc,
+	public abstract boolean addThrowsInfo(ExecutableElement memberDoc,
 			DocBookElement parent) throws DocletException;
 
 	private String getEmphasisBoldRole() {
