@@ -15,7 +15,7 @@ import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

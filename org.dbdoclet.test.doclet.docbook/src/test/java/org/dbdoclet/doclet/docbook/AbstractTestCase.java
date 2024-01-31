@@ -32,7 +32,7 @@ import com.sun.tools.javadoc.Main;
 public class AbstractTestCase implements InfoListener {
 
 	private static final String DEFAULT_DOCBOOK_SCHEMA_PATH = "src/main/resources/xsd/docbook.xsd";
-	private static final String DEFAULT_PROFILE_PATH = "src/main/resources/profile/";
+	private static final String DEFAULT_PROFILE_PATH = "src/test/resources/profile/";
 	private static final String DEFAULT_DBDOCLET_DEST_PATH = "build/test/docbook/dbdoclet/";
 	private static final String DEFAULT_STANDARD_DEST_PATH = "build/test/docbook/standard/";
 	
@@ -79,8 +79,7 @@ public class AbstractTestCase implements InfoListener {
 			FileServices.delete(destDir);
 		}
 
-		System.out.println("Arbeitsverzeichnis: "
-				+ new File(".").getAbsolutePath());
+		System.out.println("Arbeitsverzeichnis: "+ new File(".").getAbsolutePath());
 		System.out.println("sourcePath: " + sourcePath);
 		System.out.println("destPath: " + destPath);
 		System.out.println("profilePath: " + profilePath);
@@ -146,9 +145,15 @@ public class AbstractTestCase implements InfoListener {
 	protected void viewPdf() throws IOException {
 		
 		ProcessBuilder builder = new ProcessBuilder("/home/michael/bin/test.py");
-		Process process = builder.start();
+		builder.start();
 	}
 	
+	protected void viewHtml() throws IOException {
+		
+		ProcessBuilder builder = new ProcessBuilder("firefox", "/home/michael/Java/workspaces/dbdoclet/org.dbdoclet.test.doclet.docbook/build/test/docbook/standard/index.html");
+		builder.start();
+	}
+
 	protected String docComment(String comment) throws IOException, SAXException, ParserConfigurationException {
 		
 		StringBuilder buffer = new StringBuilder();
@@ -168,6 +173,45 @@ public class AbstractTestCase implements InfoListener {
 		return FileServices.readToString(docBookFile);
 	}
 	
+	protected void javadocTestClass(String... options) {
+
+		// String[] mandatoryOptions = { "-d", destPath, "-sourcepath", sourcePath, "--profile", "list.her" };
+		String[] mandatoryOptions = { "-d", destPath, "-sourcepath", sourcePath };
+		ArrayList<String> optionList = new ArrayList<String>();
+		for (String option : options) {
+			optionList.add(option);
+		}
+
+		for (String option : mandatoryOptions) {
+			if (option.endsWith(".her")) {
+				option = FileServices.appendPath(profilePath, option);
+			}
+			optionList.add(option);
+		}
+
+		String[] cmd = optionList.toArray(new String[optionList.size()]);
+		javadoc(cmd);
+	}
+
+	protected void javadocStandardTestClass(String... options) {
+
+		String[] mandatoryOptions = { "--frames", "-d", DEFAULT_STANDARD_DEST_PATH, "-sourcepath",
+				sourcePath };
+
+		ArrayList<String> optionList = new ArrayList<String>();
+
+		for (String option : options) {
+			optionList.add(option);
+		}
+
+		for (String option : mandatoryOptions) {
+			optionList.add(option);
+		}
+
+		String[] cmd = optionList.toArray(new String[optionList.size()]);
+		javadocStandard(cmd);
+	}
+
 	protected void javadocTestPackage(String... options) {
 
 		String[] mandatoryOptions = { "-d", destPath, "-sourcepath",

@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic.Kind;
 

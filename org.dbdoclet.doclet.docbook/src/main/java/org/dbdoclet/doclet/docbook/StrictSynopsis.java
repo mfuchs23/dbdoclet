@@ -439,8 +439,11 @@ public class StrictSynopsis extends Synopsis {
 		}
 	}
 
-	public String typeToString(com.sun.javadoc.Type type, boolean b) {
-		// TODO Auto-generated method stub
-		return "// TODO";
+	public String typeToString(TypeMirror type, boolean qualified) {
+		if (qualified) {
+			return type.toString();
+		} else {
+			return docManager.getName(type);
+		}
 	}
 }

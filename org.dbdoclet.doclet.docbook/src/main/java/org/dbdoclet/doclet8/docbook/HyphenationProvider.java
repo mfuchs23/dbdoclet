@@ -1,10 +1,9 @@
 package org.dbdoclet.doclet8.docbook;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import org.dbdoclet.xiphias.Hyphenation;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class HyphenationProvider implements Provider<Hyphenation> {
 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.dbdoclet.option.Option;
 import org.dbdoclet.option.OptionException;

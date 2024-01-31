@@ -35,7 +35,8 @@ public class ReferenceManager {
 	private DocManager docManager;
 
 	public void init(String documentationId,
-			TreeMap<String, TreeMap<String, TypeElement>> pkgMap, XmlIdType type) {
+			TreeMap<String, TreeMap<String, TypeElement>> pkgMap, 
+			XmlIdType type) {
 
 		if (pkgMap == null) {
 			throw new IllegalArgumentException("Parameter pkgMap is null");
@@ -198,7 +199,6 @@ public class ReferenceManager {
 			TypeMirror type = param.asType();
 
 			if (type != null) {
-
 				id.append(docManager.getQualifiedName(type));
 				id.append(",");
 			}
@@ -249,7 +249,6 @@ public class ReferenceManager {
 	public String getId(String key) {
 
 		if (key == null) {
-
 			throw new IllegalArgumentException("Parameter key is null!");
 		}
 

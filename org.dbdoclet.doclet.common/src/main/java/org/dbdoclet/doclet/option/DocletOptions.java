@@ -97,7 +97,7 @@ public class DocletOptions {
 		options.add(new Option("-sourcepath", 1, Kind.OTHER, args -> sourcepath = args.get(0)));
 		options.add(new Option("-e", 1, Kind.OTHER, args -> encoding = args.get(0)));
 		options.add(new Option("-f", 1, Kind.OTHER, args -> destinationFile = args.get(0)));
-		options.add(new Option("-p", 1, Kind.OTHER, args -> profile = args.get(0)));
+		options.add(new Option("--profile", 1, Kind.OTHER, args -> profile = args.get(0)));
 		options.add(new Option("-t", 1, Kind.OTHER, args -> title = args.get(0)));
     }
 

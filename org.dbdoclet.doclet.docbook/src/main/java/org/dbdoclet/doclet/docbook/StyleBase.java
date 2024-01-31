@@ -16,11 +16,14 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.isNull;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
+import javax.lang.model.element.Element;
 
 import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.ReferenceManager;
@@ -30,8 +33,10 @@ import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.Hyphenation;
 
-import com.sun.javadoc.Doc;
-import com.sun.javadoc.Tag;
+import com.sun.source.doctree.BlockTagTree;
+import com.sun.source.doctree.DocCommentTree;
+import com.sun.source.doctree.DocTree;
+import com.sun.source.doctree.DocTree.Kind;
 
 public class StyleBase {
 
@@ -63,31 +68,32 @@ public class StyleBase {
 	@Inject
 	protected TagManager tagManager;
 
-	protected final LinkedHashMap<String, ArrayList<Tag>> createTagMap(
-			Doc doc) {
+	protected final LinkedHashMap<DocTree.Kind, ArrayList<BlockTagTree>> createTagMap(Element doc) {
 
-		ArrayList<Tag> list;
-		String kind;
+		LinkedHashMap<DocTree.Kind, ArrayList<BlockTagTree>> tagMap = new LinkedHashMap<>();
+		DocCommentTree docCommentTree = docManager.getDocCommentTree(doc);
+		
+		if (isNull(docCommentTree)) {
+			return tagMap;
+		}
+		
+		for (DocTree bt : docCommentTree.getBlockTags()) {
 
-		LinkedHashMap<String, ArrayList<Tag>> tagMap = new LinkedHashMap<String, ArrayList<Tag>>();
+			if (bt instanceof BlockTagTree == false) {
+				continue;
+			}
+			
+			Kind kind = bt.getKind();
+			ArrayList<BlockTagTree> list = tagMap.get(kind);
 
-		Tag[] tags = doc.tags();
-
-		for (int i = 0; i < tags.length; i++) {
-
-			kind = tags[i].kind();
-
-			list = tagMap.get(kind);
-
-			if (list == null) {
-
-				list = new ArrayList<Tag>();
+			if (isNull(list)) {
+				list = new ArrayList<BlockTagTree>();
 				tagMap.put(kind, list);
 			}
 
-			list.add(tags[i]);
+			list.add((BlockTagTree) bt);
 		}
-
+		
 		return tagMap;
 	}
 }

@@ -1,0 +1,5 @@
+transformation test-variable-list;
+
+section dbdoclet {
+  document-style = "variablelist";
+}

@@ -15,8 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -32,17 +35,6 @@ import org.dbdoclet.svg.UmlClassDiagramCreator;
 import org.dbdoclet.svg.shape.ClassBox;
 import org.dbdoclet.svg.shape.Shape;
 import org.dbdoclet.xiphias.ImageServices;
-
-import com.sun.javadoc.AnnotationTypeDoc;
-import com.sun.javadoc.TypeElement;
-import com.sun.javadoc.ConstructorDoc;
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MemberDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.Parameter;
-import com.sun.javadoc.Type;
-import com.sun.javadoc.TypeVariable;
 
 /**
  * Die Klasse ClassDiagramManager erstellt ein UML Klassendiagramm aus einem
@@ -163,7 +155,7 @@ public class ClassDiagramManager {
 
 			String imagePath = script.getImagePath()
 					+ Sfv.FSEP
-					+ StringServices.replace(cdoc.qualifiedName(), ".",
+					+ StringServices.replace(docManager.getQualifiedName(cdoc), ".",
 							Sfv.FSEP) + Sfv.FSEP + "ClassDiagram";
 
 			if (script.isAbsoluteImagePathEnabled() == true) {
@@ -204,13 +196,13 @@ public class ClassDiagramManager {
 		
 		Set<VariableElement> fields = docManager.getFieldElements(doc);
 
-		if (script.isClassDiagramContainsAttributes() && fields.length > 0) {
+		if (script.isClassDiagramContainsAttributes() && fields.size() > 0) {
 
 			ucdc.addLine(classBox);
 			for (var field : fields) {
 				ucdc.addAttribute(classBox, String.format("%s %s: %s",
-						createVisibilityIndicator(field), field.name(),
-						synopsis.typeToString(field.type(), false)));
+						createVisibilityIndicator(field), docManager.getName(field),
+						synopsis.typeToString(field.asType(), false)));
 			}
 		}
 	}
@@ -218,31 +210,31 @@ public class ClassDiagramManager {
 	private void defineOperations(UmlClassDiagramCreator ucdc, TypeElement doc,
 			ClassBox classBox) {
 
-		MethodDoc[] methods = doc.methods();
-		ConstructorDoc[] constructors = doc.constructors();
+		Set<ExecutableElement> methods = docManager.getMethodElements(doc);
+		Set<ExecutableElement> constructors = docManager.getConstructorElements(doc);
 
 		if (script.isClassDiagramContainsOperations()
-				&& (methods.length > 0 || constructors.length > 0)) {
+				&& (methods.size() > 0 || constructors.size() > 0)) {
 
 			ucdc.addLine(classBox);
 
-			for (ConstructorDoc constructor : constructors) {
+			for (var constructor : constructors) {
 				ucdc.addMethod(classBox, String.format("%s %s(%s)",
 						createVisibilityIndicator(constructor),
-						constructor.name(),
+						docManager.getName(constructor),
 						createOperationParameterList(constructor)));
 			}
 
-			for (MethodDoc method : methods) {
+			for (var method : methods) {
 				ucdc.addMethod(classBox, String.format("%s %s(%s): %s",
-						createVisibilityIndicator(method), method.name(),
+						createVisibilityIndicator(method), docManager.getName(method),
 						createOperationParameterList(method),
-						synopsis.typeToString(method.returnType(), false)));
+						synopsis.typeToString(method.getReturnType(), false)));
 			}
 		}
 	}
 
-	private String createVisibilityIndicator(MemberDoc field) {
+	private String createVisibilityIndicator(Element field) {
 
 		String indicator = "";
 
@@ -250,32 +242,32 @@ public class ClassDiagramManager {
 			return indicator;
 		}
 
-		if (field.isPublic()) {
+		if (docManager.isPublic(field)) {
 			return "+";
 		}
 
-		if (field.isProtected()) {
+		if (docManager.isProtected(field)) {
 			return "#";
 		}
 
-		if (field.isPrivate()) {
+		if (docManager.isPrivate(field)) {
 			return "-";
 		}
 
-		if (field.isPackagePrivate()) {
+		if (docManager.isPackagePrivate(field)) {
 			return "~";
 		}
 
 		return indicator;
 	}
 
-	private String createOperationParameterList(ExecutableMemberDoc method) {
+	private String createOperationParameterList(ExecutableElement method) {
 
 		StringBuilder buffer = new StringBuilder();
 
-		for (Parameter paramDoc : method.parameters()) {
-			buffer.append(String.format("%s: %s,\n", paramDoc.name(),
-					synopsis.typeToString(paramDoc.type(), false)));
+		for (var paramDoc : method.getParameters()) {
+			buffer.append(String.format("%s: %s,\n", docManager.getName(paramDoc),
+					synopsis.typeToString(paramDoc.asType(), false)));
 		}
 
 		String parametersAsText = buffer.toString();
@@ -291,21 +283,21 @@ public class ClassDiagramManager {
 
 		int row = 0;
 
-		ArrayList<Type> inheritanceList = getInheritancePath(doc);
+		ArrayList<TypeElement> inheritanceList = getInheritancePath(doc);
 		Collections.reverse(inheritanceList);
 
 		int numCol = 0;
 		int index = 0;
 
-		for (Type type : inheritanceList) {
+		for (var type : inheritanceList) {
 
-			Type[] interfaceTypes = type.asTypeElement().interfaceTypes();
+			List<? extends TypeMirror> interfaceTypes = type.getInterfaces();
 
-			if (interfaceTypes.length + 1 > numCol) {
-				numCol = interfaceTypes.length + 1;
+			if (interfaceTypes.size() + 1 > numCol) {
+				numCol = interfaceTypes.size() + 1;
 			}
 
-			if (index == 0 && interfaceTypes.length > 0) {
+			if (index == 0 && interfaceTypes.size() > 0) {
 				row = 1;
 			}
 
@@ -321,32 +313,29 @@ public class ClassDiagramManager {
 		ClassBox toShape = null;
 		Shape shape = null;
 
-		for (Type type : inheritanceList) {
+		for (TypeElement type : inheritanceList) {
 
-			String className = synopsis.typeToString(type,
+			String className = synopsis.typeToString(type.asType(),
 					showFullQualifiedName);
 
-			TypeElement cdoc = type.asTypeElement();
-
-			if (cdoc.isAnnotationType()) {
+			if (docManager.isAnnotationType(type)) {
 
 				toShape = ucdc.addClassBox(row, middleCol, className,
 						"annotation");
 
-			} else if (cdoc.isInterface()) {
+			} else if (docManager.isInterface(type)) {
 
 				toShape = ucdc.addClassBox(row, middleCol, className,
 						"interface");
 
-			} else if (cdoc.typeParameters() != null
-					&& cdoc.typeParameters().length > 0) {
+			} else if (type.getTypeParameters().size() > 0) {
 
 				ArrayList<String> templateParameters = new ArrayList<String>();
 
-				for (TypeVariable typeParameter : cdoc.typeParameters()) {
+				for (TypeParameterElement typeParameter : type.getTypeParameters()) {
 					templateParameters.add(String.format("%s: %s",
-							typeParameter.typeName(),
-							synopsis.typeToString(typeParameter, false)));
+							typeParameter.getSimpleName(),
+							synopsis.typeToString(typeParameter.asType(), false)));
 				}
 
 				logger.debug("className: " + className);
@@ -361,18 +350,18 @@ public class ClassDiagramManager {
 
 			if (fromShape != null && toShape != null) {
 
-				if (cdoc.isInterface()) {
+				if (docManager.isInterface(type)) {
 					ucdc.addRealization(toShape, fromShape);
 				} else {
 					ucdc.addInheritance(toShape, fromShape);
 				}
 			}
 
-			Type[] interfaceTypes = cdoc.interfaceTypes();
+			List<? extends TypeMirror> interfaceTypes = type.getInterfaces();
 
 			int typeIndex = 1;
 
-			for (Type interfaceType : interfaceTypes) {
+			for (TypeMirror interfaceType : interfaceTypes) {
 
 				int remainder = typeIndex % 2;
 				int offset = (typeIndex / 2) + remainder;
@@ -384,16 +373,13 @@ public class ClassDiagramManager {
 				String interfaceName = synopsis.typeToString(interfaceType,
 						showFullQualifiedName);
 
-				TypeElement tcdoc = type.asTypeElement();
-				AnnotationTypeDoc tadoc = type.asAnnotationTypeDoc();
-
-				if (tadoc != null) {
+				if (docManager.isAnnotationType(type)) {
 
 					shape = ucdc.addClassBox(row - 1, middleCol + offset,
 							interfaceName, "annotation");
 					ucdc.addInheritance(toShape, shape);
 
-				} else if (tcdoc != null && cdoc.isInterface() == false) {
+				} else if (docManager.isInterface(type) && docManager.isInterface(doc) == false) {
 
 					shape = ucdc.addClassBox(row - 1, middleCol + offset,
 							interfaceName, "interface");
@@ -413,8 +399,8 @@ public class ClassDiagramManager {
 
 			if (index == inheritanceList.size() - 1) {
 
-				defineAttributes(ucdc, cdoc, fromShape);
-				defineOperations(ucdc, cdoc, fromShape);
+				defineAttributes(ucdc, doc, fromShape);
+				defineOperations(ucdc, doc, fromShape);
 			}
 
 			if (classBox == null) {
@@ -432,20 +418,21 @@ public class ClassDiagramManager {
 
 		int row = 0;
 
-		ArrayList<Type> inheritanceList = getInheritancePath(doc);
+		ArrayList<TypeElement> inheritanceList = getInheritancePath(doc);
 
 		int numCol = 0;
 		int index = 0;
 
-		for (Type type : inheritanceList) {
+		List<? extends TypeMirror> interfaceTypes;
+		for (TypeElement type : inheritanceList) {
 
-			Type[] interfaceTypes = type.asTypeElement().interfaceTypes();
+			interfaceTypes = type.getInterfaces();
 
-			if (interfaceTypes.length + 1 > numCol) {
-				numCol = interfaceTypes.length + 1;
+			if (interfaceTypes.size() + 1 > numCol) {
+				numCol = interfaceTypes.size() + 1;
 			}
 
-			if (index == 0 && interfaceTypes.length > 0) {
+			if (index == 0 && interfaceTypes.size() > 0) {
 				row = 1;
 			}
 
@@ -462,21 +449,20 @@ public class ClassDiagramManager {
 		ClassBox toShape = null;
 
 		String interfaceName = synopsis
-				.typeToString(doc, showFullQualifiedName);
+				.typeToString(doc.asType(), showFullQualifiedName);
 
 		fromShape = ucdc
 				.addClassBox(row, middleCol, interfaceName, "interface");
 
 		row--;
 
-		for (Type type : inheritanceList) {
+		for (TypeElement type : inheritanceList) {
 
-			TypeElement cdoc = type.asTypeElement();
-			Type[] interfaceTypes = cdoc.interfaceTypes();
+			interfaceTypes = type.getInterfaces();
 
 			int typeIndex = 1;
 
-			for (Type interfaceType : interfaceTypes) {
+			for (TypeMirror interfaceType : interfaceTypes) {
 
 				interfaceName = synopsis.typeToString(interfaceType,
 						showFullQualifiedName);
@@ -510,8 +496,8 @@ public class ClassDiagramManager {
 
 			if (index == 0) {
 				
-				defineAttributes(ucdc, cdoc, fromShape);
-				defineOperations(ucdc, cdoc, fromShape);
+				defineAttributes(ucdc, doc, fromShape);
+				defineOperations(ucdc, doc, fromShape);
 			}
 
 			fromShape = toShape;

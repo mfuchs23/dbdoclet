@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.dbdoclet.doclet8.docbook.DbdScript;
 import org.dbdoclet.service.FileServices;

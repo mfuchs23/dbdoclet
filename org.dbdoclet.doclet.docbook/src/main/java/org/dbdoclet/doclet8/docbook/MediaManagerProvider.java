@@ -2,14 +2,14 @@ package org.dbdoclet.doclet8.docbook;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import org.dbdoclet.doclet8.ReferenceManager;
 import org.dbdoclet.doclet8.StatisticData;
 import org.dbdoclet.doclet8.TagManager;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.Hyphenation;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class MediaManagerProvider implements Provider<MediaManager> {
 

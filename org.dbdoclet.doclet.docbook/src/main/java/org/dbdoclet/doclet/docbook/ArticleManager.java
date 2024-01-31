@@ -114,21 +114,21 @@ public class ArticleManager extends MediaManager {
 					String pkgName = pkgElem.getQualifiedName().toString();
 
 					Section sect1 = tagFactory.createSection();
-					// sect1.setId(getReference(pkgDoc));
+					sect1.setId(getReference(pkgElem));
 
 					if (script.setCreateXrefLabelEnabled()) {
 						sect1.setXrefLabel(XmlServices.textToXml(pkgName));
 					}
 
-					sect1.appendChild(tagFactory.createTitle(
-							// ResourceServices.getString(res, "C_PACKAGE") + " " +
-							hyphenation.hyphenateAfter(pkgName, "\\.")));
+					sect1.appendChild(tagFactory.createTitle(ResourceServices.getString(res, "C_PACKAGE") + " "
+							+ hyphenation.hyphenateAfter(pkgName, "\\.")));
 
 					writeClass(sect1, pkgElem, (TypeElement) specified);
+					article.appendChild(sect1);
 				}
 			}
 
-			// createAdditionalSections(parent);
+			createAdditionalSections(article);
 			writeFile(doc, script.getDestinationFile());
 
 		} catch (DocletException oops) {
@@ -152,8 +152,7 @@ public class ArticleManager extends MediaManager {
 		}
 
 		sect1.appendChild(tagFactory.createTitle(
-				ResourceServices.getString(res, "C_PACKAGE") + " " +
-				hyphenation.hyphenateAfter(pkgName, "\\.")));
+				ResourceServices.getString(res, "C_PACKAGE") + " " + hyphenation.hyphenateAfter(pkgName, "\\.")));
 
 		htmlDocBookTrafo.transform(pkgElem, sect1);
 
@@ -228,43 +227,42 @@ public class ArticleManager extends MediaManager {
 						ResourceServices.getString(res, "C_CONSTRUCTOR") + " ");
 			}
 
-			
 			if (script.isCreateFieldInfoEnabled()) {
-			  
+
 				Set<VariableElement> fields;
-			  
-				if (docManager.isEnum(classElem)) { 
+
+				if (docManager.isEnum(classElem)) {
 					fields = docManager.getFieldElements(classElem);
-				} else { 
+				} else {
 					fields = docManager.getFieldElements(classElem);
 				}
-			  
-				writeFields(classElem, fields, parent, ResourceServices.getString(res, "C_FIELD") + " "); }
-			 
 
-				if (script.isCreateMethodInfoEnabled()) {
-					writeExecutableMembers(classElem, docManager.getMethodElements(classElem), parent,
-							ResourceServices.getString(res, "C_METHOD") + " ");
-				}
+				writeFields(classElem, fields, parent, ResourceServices.getString(res, "C_FIELD") + " ");
+			}
 
-			
-				if (script.isCreateMethodInfoEnabled() && docManager.isAnnotationType(classElem)) {
-			  
-					Set<ExecutableElement> annotationElements = docManager.getAnnotationElements((TypeElement) classElem);
-					writeExecutableMembers(classElem, annotationElements, parent,
-							ResourceServices.getString(res, "C_ELEMENT") + " "); }
-			 
+			if (script.isCreateMethodInfoEnabled()) {
+				writeExecutableMembers(classElem, docManager.getMethodElements(classElem), parent,
+						ResourceServices.getString(res, "C_METHOD") + " ");
+			}
+
+			if (script.isCreateMethodInfoEnabled() && docManager.isAnnotationType(classElem)) {
+
+				Set<ExecutableElement> annotationElements = docManager.getAnnotationElements((TypeElement) classElem);
+				writeExecutableMembers(classElem, annotationElements, parent,
+						ResourceServices.getString(res, "C_ELEMENT") + " ");
+			}
 
 			if (script.isChunkDocBookEnabled() == false) {
 				sect1.appendChild(sect2);
 			} else {
 				createModuleFile(classElem, sect1, sect2);
 			}
-			
-			  } catch (DocletException oops) {
-			  
-			  oops.printStackTrace(); throw oops;
-			 
+
+		} catch (DocletException oops) {
+
+			oops.printStackTrace();
+			throw oops;
+
 		} catch (Exception oops) {
 
 			throw new DocletException(oops);
@@ -295,7 +293,7 @@ public class ArticleManager extends MediaManager {
 			ExecutableElement overriddenElem = docManager.overriddenMethod(member);
 			memberInfo.setImplemented(overriddenElem);
 
-			if (hasVisibleContent(memberInfo)) {
+			if (hasJavadocContent(memberInfo)) {
 				commentedMembers.add(memberInfo);
 			}
 		}
@@ -314,7 +312,6 @@ public class ArticleManager extends MediaManager {
 			section.appendChild(title);
 
 			String memberName = memberElem.getSimpleName().toString();
-			Elements elementUtils = docManager.getElementUtils();
 			if (docManager.isAnnotationType(memberElem)) {
 
 				indexCategory = "Elements";
@@ -330,7 +327,8 @@ public class ArticleManager extends MediaManager {
 				indexCategory = "Methods";
 
 				if (script.setCreateXrefLabelEnabled()) {
-					section.setXrefLabel(XmlServices.textToXml(memberName + docManager.createMethodSignature(memberElem)));
+					section.setXrefLabel(
+							XmlServices.textToXml(memberName + docManager.createMethodSignature(memberElem)));
 				}
 
 				title.appendChild(memberName + docManager.createMethodFlatSignature(memberElem));
@@ -403,7 +401,7 @@ public class ArticleManager extends MediaManager {
 		if (isNull(fields)) {
 			return true;
 		}
-		
+
 		boolean hasCommentedFields = false;
 
 		ArrayList<VariableElement> commentedFields = new ArrayList<VariableElement>();
@@ -428,8 +426,8 @@ public class ArticleManager extends MediaManager {
 
 			String name = docManager.getName(field);
 			section.appendChild(tagFactory.createTitle(name));
-			section.appendChild(tagFactory.createIndexterm()
-					.appendChild(tagFactory.createPrimary(XmlServices.textToXml(name))));
+			section.appendChild(
+					tagFactory.createIndexterm().appendChild(tagFactory.createPrimary(XmlServices.textToXml(name))));
 
 			section.appendChild(tagFactory.createIndexterm().appendChild(tagFactory.createPrimary("Fields"))
 					.appendChild(tagFactory.createSecondary(XmlServices.textToXml(name))));

@@ -2,7 +2,7 @@ package org.dbdoclet.doclet8.docbook;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Provider;
+import com.google.inject.Provider;
 
 public class ResourceBundleProvider implements Provider<ResourceBundle> {
 

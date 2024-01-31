@@ -13,7 +13,7 @@ import static java.util.Objects.isNull;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;

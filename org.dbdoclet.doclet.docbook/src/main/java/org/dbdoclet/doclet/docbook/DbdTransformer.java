@@ -1,5 +1,5 @@
 /*
- * ### Copyright (C) 2005-2009 Michael Fuchs ###
+ * ### Copyright (C) 2005-2024 Michael Fuchs ###
  * ### All Rights Reserved.             ###
  *
  * Author: Michael Fuchs
@@ -9,13 +9,14 @@
 package org.dbdoclet.doclet.docbook;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -45,6 +46,7 @@ import org.w3c.dom.Text;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.LinkTree;
+import com.sun.source.doctree.InlineTagTree;
 
 /**
  * The class <code>DbdTransformer</code> transforms the information created by
@@ -58,13 +60,13 @@ public class DbdTransformer {
 	private static Log logger = LogFactory.getLog(DbdTransformer.class);
 
 	@Inject
-	TagManager tagManager;
+	private TagManager tagManager;
 	@Inject
-	DocBookTagFactory tagFactory;
+	private DocBookTagFactory tagFactory;
 	@Inject
-	Script script;
+	private Script script;
 	@Inject
-	DocManager docManager;
+	private DocManager docManager;
 	
 	public NodeImpl transform(Element pkgElem, Element classElem, DocBookElement parent)
 			throws DocletException {
@@ -78,8 +80,12 @@ public class DbdTransformer {
 		}
 
 		DocCommentTree commentTree = docManager.getDocCommentTree(classElem);
-		String buffer = docTreeToString(commentTree.getFullBody());
-		return transform(pkgElem, buffer, parent);
+		if (nonNull(commentTree)) {
+			String buffer = docTreeToString(commentTree.getFullBody());
+			return transform(pkgElem, buffer, parent);
+		}
+		
+		return null;
 	}
 
 	public NodeImpl transform(DocTree docTree, DocBookElement parent) throws DocletException {
@@ -94,13 +100,22 @@ public class DbdTransformer {
 			throw new IllegalArgumentException("Parameter parent is null!");
 		}
 
-		String buffer = docTreeToString(docTreeList);
+		StringBuilder buffer = new StringBuilder();
+		for (var dt : docTreeList) {
+			
+			if (dt instanceof InlineTagTree) {
+				buffer.append(tagManager.processTag((InlineTagTree) dt));
+			} else {
+				buffer.append(dt.toString());
+			}
+		}
 
 		HtmlDocBookTrafo transformer = new HtmlDocBookTrafo();
 		transformer.setTagFactory(tagFactory);
+		
 		try {
 			transformer.setInputStream(new ByteArrayInputStream(
-					buffer.getBytes(script.getTextParameter("javadoc", TrafoConstants.PARAM_ENCODING, "UTF-8"))));
+					buffer.toString().getBytes(script.getTextParameter("javadoc", TrafoConstants.PARAM_ENCODING, "UTF-8"))));
 			TrafoResult result = transformer.transform(script);
 			
 			NodeImpl node = null;
@@ -282,10 +297,17 @@ public class DbdTransformer {
 	}
 
 	public void transform(PackageElement elem, DocBookElement parent) throws DocletException {
-		transform(docManager.getDocCommentTree(elem).getFullBody(), parent);
+		
+		DocCommentTree docCommentTree = docManager.getDocCommentTree(elem);
+		if (nonNull(docCommentTree)) {
+			transform(docCommentTree.getFullBody(), parent);
+		}
 	}
 
 	public void transform(TypeElement elem, DocBookElement parent) throws DocletException {
-		transform(docManager.getDocCommentTree(elem).getFullBody(), parent);
+		DocCommentTree docCommentTree = docManager.getDocCommentTree(elem);
+		if (nonNull(docCommentTree)) {
+			transform(docCommentTree.getFullBody(), parent);
+		}
 	}
 }

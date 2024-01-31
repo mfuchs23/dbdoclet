@@ -2,9 +2,6 @@ package org.dbdoclet.doclet.docbook;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
@@ -12,6 +9,9 @@ import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.Hyphenation;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class MediaManagerProvider implements Provider<MediaManager> {
 
@@ -58,17 +58,19 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 		mediaManager.setDocManager(docManager);
 		mediaManager.setHyphenation(hyphenation);
 		mediaManager.setResourceBundle(res);
-		mediaManager.setReferenceManager(referenceManager);
 		mediaManager.setScript(script);
 		mediaManager.setStatisticData(statisticData);
 		mediaManager.setStyle(style);
 		mediaManager.setTagFactory(tagFactory);
+		mediaManager.setClassDiagramManager(classDiagramManager);
+		mediaManager.setReferenceManager(referenceManager);
 		mediaManager.setTagManager(tagManager);
 		mediaManager.setHtmlDocBookTrafo(transformer);
 		
 		tagManager.setDocManager(docManager);
 		referenceManager.setDocManager(docManager);
 		classDiagramManager.setDocManager(docManager);
+		statisticData.setDocManager(docManager);
 		
 		return mediaManager;
 	}

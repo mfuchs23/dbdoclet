@@ -3,7 +3,7 @@ package org.dbdoclet.doclet8.docbook;
 import java.io.File;
 import java.io.IOException;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;

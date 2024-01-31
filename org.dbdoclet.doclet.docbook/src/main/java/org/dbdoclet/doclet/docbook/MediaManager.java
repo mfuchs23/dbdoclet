@@ -18,14 +18,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -36,11 +35,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dbdoclet.doclet.CDI;
 import org.dbdoclet.doclet.ClassDiagramManager;
-import org.dbdoclet.doclet.DeprecatedManager;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ExecutableMemberInfo;
 import org.dbdoclet.doclet.ReferenceManager;
@@ -59,6 +54,7 @@ import org.dbdoclet.tag.docbook.Address;
 import org.dbdoclet.tag.docbook.Affiliation;
 import org.dbdoclet.tag.docbook.Article;
 import org.dbdoclet.tag.docbook.Author;
+import org.dbdoclet.tag.docbook.Book;
 import org.dbdoclet.tag.docbook.Chapter;
 import org.dbdoclet.tag.docbook.Copyright;
 import org.dbdoclet.tag.docbook.Date;
@@ -74,8 +70,6 @@ import org.dbdoclet.tag.docbook.Imageobject;
 import org.dbdoclet.tag.docbook.Informalfigure;
 import org.dbdoclet.tag.docbook.Informaltable;
 import org.dbdoclet.tag.docbook.Legalnotice;
-import org.dbdoclet.tag.docbook.Link;
-import org.dbdoclet.tag.docbook.Listitem;
 import org.dbdoclet.tag.docbook.Mediaobject;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Personname;
@@ -86,28 +80,20 @@ import org.dbdoclet.tag.docbook.Simpara;
 import org.dbdoclet.tag.docbook.Surname;
 import org.dbdoclet.tag.docbook.Table;
 import org.dbdoclet.tag.docbook.Tbody;
-import org.dbdoclet.tag.docbook.Term;
 import org.dbdoclet.tag.docbook.Tgroup;
 import org.dbdoclet.tag.docbook.Title;
-import org.dbdoclet.tag.docbook.Variablelist;
-import org.dbdoclet.tag.docbook.Varlistentry;
 import org.dbdoclet.tag.docbook.Year;
 import org.dbdoclet.tag.html.Img;
 import org.dbdoclet.xiphias.Hyphenation;
 import org.dbdoclet.xiphias.ImageServices;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
-import org.dbdoclet.xiphias.dom.ProcessingInstructionImpl;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.Doc;
-import com.sun.javadoc.ProgramElementDoc;
-import com.sun.javadoc.Tag;
 import com.sun.source.doctree.DocTree;
 
 public abstract class MediaManager {
 
-	private static Log logger = LogFactory.getLog(MediaManager.class.getName());
+	private static Logger logger = Logger.getLogger(MediaManager.class.getName());
 
 	protected DbdScript script;
 	protected DbdTransformer htmlDocBookTrafo;
@@ -145,7 +131,7 @@ public abstract class MediaManager {
 		}
 	}
 
-	private TreeMap<PackageElement, TreeMap<String, TypeElement>> createClassMap(
+	private TreeMap<String, TreeMap<String, TypeElement>> createClassMap(
 			Set<PackageElement> pkgDocs, Set<TypeElement> classDocs) {
 
 		if (pkgDocs == null) {
@@ -158,24 +144,16 @@ public abstract class MediaManager {
 					"The argument classDocs must not be null!");
 		}
 
-		TreeMap<PackageElement, TreeMap<String, TypeElement>> pkgMap = new TreeMap<PackageElement, TreeMap<String, TypeElement>>(
-				new Comparator<PackageElement>() {
-					@Override
-					public int compare(PackageElement o1, PackageElement o2) {
-						return o1.getQualifiedName().toString().compareTo(o2.getQualifiedName().toString());
-					}
-				});
-
+		TreeMap<String, TreeMap<String, TypeElement>> pkgMap = new TreeMap<String, TreeMap<String, TypeElement>>();
 		TreeMap<String, TypeElement> classMap;
-
 
 		for (PackageElement pkgDoc : pkgDocs) {
 
-			classMap = pkgMap.get(pkgDoc);
+			classMap = pkgMap.get(docManager.getQualifiedName(pkgDoc));
 
 			if (classMap == null) {
 				classMap = new TreeMap<String, TypeElement>();
-				pkgMap.put(pkgDoc, classMap);
+				pkgMap.put(docManager.getQualifiedName(pkgDoc), classMap);
 			}
 
 			Set<TypeElement> docs = docManager.getTypeElements(pkgDoc);
@@ -188,14 +166,14 @@ public abstract class MediaManager {
 		for (TypeElement classDoc : classDocs) {
 
 			PackageElement pkgDoc = docManager.containingPackage(classDoc);
-			classMap = pkgMap.get(pkgDoc);
+			classMap = pkgMap.get(docManager.getQualifiedName(pkgDoc));
 
 			if (classMap == null) {
 				classMap = new TreeMap<String, TypeElement>();
-				pkgMap.put(pkgDoc, classMap);
+				pkgMap.put(docManager.getQualifiedName(pkgDoc), classMap);
 			}
 
-			classMap.put(classDoc.getQualifiedName().toString(), classDoc);
+			classMap.put(docManager.getQualifiedName(classDoc), classDoc);
 		}
 
 		return pkgMap;
@@ -295,7 +273,7 @@ public abstract class MediaManager {
 			parent.appendChild(child);
 		}
 
-		logger.trace(String
+		logger.finest(String
 				.format("(logoPath) script: logoPath = %s", logoPath));
 
 		if (logoPath != null && logoPath.length() > 0) {
@@ -318,21 +296,21 @@ public abstract class MediaManager {
 
 			if (logoFile.exists() == false) {
 
-				logger.warn(String.format(
+				logger.warning(String.format(
 						"(logoPath) Logo file %s doesn't exist.",
 						logoFile.getAbsolutePath()));
 				isValidLogo = false;
 			}
 
 			if (isValidLogo == true && logoFile.isFile() == false) {
-				logger.warn("(logoPath) Logo file "
+				logger.warning("(logoPath) Logo file "
 						+ logoFile.getAbsolutePath() + " is not a normal file.");
 				isValidLogo = false;
 			}
 
 			if (isValidLogo == true) {
 
-				logger.trace(String.format(
+				logger.finest(String.format(
 						"(logoPath) The logo file %s is valid.", logoPath));
 
 				List<String> formatList = script.getImageDataFormats();
@@ -377,7 +355,7 @@ public abstract class MediaManager {
 		}
 	}
 
-	protected void createInheritanceDiagram(ClassDoc classDoc,
+	protected void createInheritanceDiagram(TypeElement classDoc,
 			DocBookElement parent) throws DocletException {
 
 		DocBookElement media;
@@ -385,7 +363,7 @@ public abstract class MediaManager {
 		String filebase = classDiagramManager.createClassDiagram(classDoc,
 				script.getDestinationDirectory());
 
-		logger.debug("filebase ='" + filebase + "'");
+		logger.fine("filebase ='" + filebase + "'");
 
 		Informalfigure figure = tagFactory.createInformalfigure();
 		media = tagFactory.createMediaobject();
@@ -455,13 +433,11 @@ public abstract class MediaManager {
 			style.addClassSynopsis(typeElem, parent);
 		}
 
-		/*
 		style.addMetaInfo(typeElem, parent);
 
 		if (script.isCreateClassDiagramEnabled()) {
 			createInheritanceDiagram(typeElem, parent);
 		}
-		*/
 	}
 
 	protected String getClassTypeAsText(TypeElement doc) {
@@ -514,37 +490,25 @@ public abstract class MediaManager {
 
 		String key;
 
-		if (elem.getKind() == ElementKind.PACKAGE ) {
-
+		switch (elem.getKind()) {
+			case PACKAGE:
 			key = elem.getSimpleName().toString();
 			return referenceManager.getId(key);
-		}
-
-		if (elem.getKind() == ElementKind.CLASS) {
-
+		case CLASS:
 			TypeElement typeElem = (TypeElement) elem;
 			key = typeElem.getQualifiedName().toString();
 			return referenceManager.getId(key);
-		}
-
-		// TODO
-		/*
-		if (doc instanceof ExecutableMemberDoc) {
-
-			mdoc = (ExecutableMemberDoc) doc;
-			key = referenceManager.createMethodKey(mdoc);
-
+		case FIELD:
+			VariableElement varElem = (VariableElement) elem;
+			key = docManager.getQualifiedName(varElem);
 			return referenceManager.getId(key);
-		}
-
-		if (doc instanceof FieldDoc) {
-
-			fdoc = (FieldDoc) doc;
-			key = fdoc.qualifiedName();
-
+		case METHOD:
+			ExecutableElement methodElem = (ExecutableElement) elem;
+			key = referenceManager.createMethodKey(methodElem);
 			return referenceManager.getId(key);
+		default:
+			break;
 		}
-		*/
 		
 		return null;
 	}
@@ -589,22 +553,22 @@ public abstract class MediaManager {
 		return tagFactory.createTitle(title);
 	}
 
-	protected String getVisibilityAsText(ProgramElementDoc doc) {
+	protected String getVisibilityAsText(Element doc) {
 
 		if (doc == null) {
 			throw new IllegalArgumentException(
 					"The argument doc must not be null!");
 		}
 
-		if (doc.isPrivate()) {
+		if (docManager.isPrivate(doc)) {
 			return "private";
 		}
 
-		if (doc.isPackagePrivate() || doc.isProtected()) {
+		if (docManager.isProtected(doc) || docManager.isPackagePrivate(doc)) {
 			return "protected";
 		}
 
-		if (doc.isPublic()) {
+		if (docManager.isPublic(doc)) {
 			return "public";
 		}
 
@@ -623,7 +587,7 @@ public abstract class MediaManager {
 	protected boolean isDocBook5() {
 
 		DocBookVersion version = script.getDocBookVersion();
-		logger.debug("DocBookVersion = " + version);
+		logger.fine("DocBookVersion = " + version);
 
 		if (version != null && version == DocBookVersion.V5_0) {
 			return true;
@@ -775,20 +739,16 @@ public abstract class MediaManager {
 
 		try {
 			
-			logger.info(ResourceServices.getString(res,
-					"C_CONSTRUCTING_REFERENCE_MAP") + "...");
+			logger.info(ResourceServices.getString(res,	"C_CONSTRUCTING_REFERENCE_MAP") + "...");
 
-			/*
-			referenceManager.init(script.getDocumentationId(), pkgMap,
-					script.getIdStyle());
+			TreeMap<String, TreeMap<String, TypeElement>> pkgMap = createClassMap(docManager.getPackageElements(),
+									docManager.getSpecifiedElements());
 
+			referenceManager.init(script.getDocumentationId(), pkgMap, script.getIdStyle());
 			statisticData.init(pkgMap);
 
-			logger.info(ResourceServices.getString(res,
-					"C_CONSTRUCTING_TAG_MAP") + "...");
-
+			logger.info(ResourceServices.getString(res,	"C_CONSTRUCTING_TAG_MAP") + "...");
 			tagManager.createTagMap(pkgMap);
-			*/
 			
 			process();
 
@@ -802,6 +762,7 @@ public abstract class MediaManager {
 		}
 	}
 
+	// TODO
 	/* @formatter:off
 	protected void writeDeprecatedList(
 			Set<? extends Element> set,
@@ -884,8 +845,7 @@ public abstract class MediaManager {
 						.findComment(doc.tags(), "@deprecated");
 
 				if (comment != null) {
-					// TODO Migration
-					// htmlDocBookTrafo.transform(comment, para);
+					htmlDocBookTrafo.transform(comment, para);
 				}
 			}
 		}
@@ -921,7 +881,7 @@ public abstract class MediaManager {
 		if (nonNull(overviewDocTrees) && !overviewDocTrees.isEmpty()) {
 
 			String overviewTitle = script.getOverviewTitle();
-			logger.debug("Overview title='" + overviewTitle + "'.");
+			logger.fine("Overview title='" + overviewTitle + "'.");
 
 			DocBookElement section = null;
 
@@ -936,11 +896,8 @@ public abstract class MediaManager {
 			for (org.w3c.dom.Element element : section.getChildElementList()) {
 
 				DocBookElement dbElement = (DocBookElement) element;
-
-				// TODO
-				/*
 				if (parent instanceof Book
-						&& dbElement.isValidParent(new TransformPosition(doc), parent) == false) {
+						&& dbElement.isValidParent(new TransformPosition(null), parent) == false) {
 
 					Chapter chapter = tagFactory.createChapter("???");
 					parent.appendChild(chapter);
@@ -949,7 +906,6 @@ public abstract class MediaManager {
 				} else {
 					parent.appendChild(element);
 				}
-				*/
 			}
 
 			Chapter lastChapter = (Chapter) parent.getLastChild(Chapter.class);
@@ -957,21 +913,16 @@ public abstract class MediaManager {
 			if (lastChapter != null) {
 
 				Sect1 lastSect1 = (Sect1) lastChapter.getLastChild(Sect1.class);
-				logger.debug("Last sect1: " + lastSect1);
+				logger.fine("Last sect1: " + lastSect1);
 
 				if (lastSect1 == null) {
-
-					// TODO
-					// style.addMetaInfo(doc, lastChapter);
-
+					// TODO style.addMetaInfo(doc, lastChapter);
 				} else {
 
 					Sect1 sect1 = tagFactory.createSect1(ResourceServices
 							.getString(res, "C_ADDITIONAL_INFORMATION"));
 					lastChapter.appendChild(sect1);
-
-					// TODO
-					// style.addMetaInfo(doc, sect1);
+					// TODO style.addMetaInfo(doc, sect1);
 				}
 
 			}
@@ -981,13 +932,10 @@ public abstract class MediaManager {
 				Chapter chapter = (Chapter) section;
 
 				if (chapter.hasContentChildren() == false) {
-
-					logger.debug("Last chapter has children = false.");
+					logger.fine("Last chapter has children = false.");
 					parent.removeChild(chapter);
-
 				} else {
-
-					logger.debug("Last chapter has children = true.");
+					logger.fine("Last chapter has children = true.");
 					chapter.setTitle(overviewTitle);
 				}
 			}
@@ -1077,7 +1025,7 @@ public abstract class MediaManager {
 		}
 	}
 
-	protected boolean hasVisibleContent(ExecutableMemberInfo memberInfo) {
+	protected boolean hasJavadocContent(ExecutableMemberInfo memberInfo) {
 
 		ExecutableElement memberDoc = memberInfo.getExecutableMember();
 		ExecutableElement implementedDoc = memberInfo.getImplemented();
@@ -1102,6 +1050,10 @@ public abstract class MediaManager {
 
 			if (script.isCreateDeprecatedInfoEnabled()
 					&& tagManager.findDeprecatedTag(memberDoc) != null) {
+				return true;
+			}
+
+			if (tagManager.findReturnTag(memberDoc) != null) {
 				return true;
 			}
 

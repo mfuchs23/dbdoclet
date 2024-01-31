@@ -1,9 +1,9 @@
 package org.dbdoclet.doclet.docbook;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import org.dbdoclet.doclet.CDI;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 public class StyleProvider implements Provider<Style> {
 

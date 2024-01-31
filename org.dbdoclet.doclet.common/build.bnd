@@ -1,5 +1,5 @@
 Main-Class: org.dbdoclet.doclet.common
-version=11.0.1-SNAPSHOT
+version=11.0.2-SNAPSHOT
 Bundle-Name=org.dbdoclet.doclet.common
 Bundle-SymbolicName=org.dbdoclet.doclet.common
 Bundle-Version=${version}

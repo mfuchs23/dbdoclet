@@ -1,14 +1,14 @@
 package org.dbdoclet.doclet.docbook;
 
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.option.OptionException;
 
 public class ExceptionHandler {
 
-	private static final Log logger = LogFactory.getLog(ExceptionHandler.class);
+	private static final Logger logger = Logger.getLogger(ExceptionHandler.class.getName());
 
 	public static void handleException(Throwable oops) {
 
@@ -34,7 +34,7 @@ public class ExceptionHandler {
 			msg = "";
 		}
 
-		logger.fatal(msg, oops);
+		logger.log(Level.SEVERE, "Unexpected error!", oops);
 	}
 
 }

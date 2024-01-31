@@ -11,7 +11,7 @@ package org.dbdoclet.doclet8.docbook;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

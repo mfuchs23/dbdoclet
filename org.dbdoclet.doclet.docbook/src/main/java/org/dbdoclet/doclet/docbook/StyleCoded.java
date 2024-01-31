@@ -71,7 +71,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 		if (script.isCreateInheritedFromInfoEnabled()) {
 
-			ArrayList<TypeElement> subclasses = statisticData.getSubclasses(typeElem.getQualifiedName().toString());
+			ArrayList<TypeElement> subclasses = statisticData.getSubclasses(docManager.getQualifiedName(typeElem));
 
 			if (subclasses.size() > 0) {
 
@@ -255,6 +255,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		String id;
 		Para para = dbfactory.createPara();
 
+		int index = 0;
 		for (TypeElement doc : list) {
 
 			name = docManager.getQualifiedName(doc);
@@ -266,7 +267,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				para.appendChild(name);
 			}
 
-			if (iterator.hasNext()) {
+			index++;
+			if (index < list.size()) {
 				para.appendChild("-&gt; ");
 			}
 		}

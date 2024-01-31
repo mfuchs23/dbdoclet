@@ -13,14 +13,16 @@ import static java.util.Objects.isNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
-import javax.inject.Inject;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.print.Doc;
@@ -31,12 +33,21 @@ import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.docbook.DbdScript;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.service.StringServices;
-import org.dbdoclet.tag.docbook.Tag;
 import org.dbdoclet.xiphias.HtmlServices;
 
+import com.google.inject.Inject;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.DocTree.Kind;
+import com.sun.source.doctree.InheritDocTree;
+import com.sun.source.doctree.InlineTagTree;
+import com.sun.source.doctree.LiteralTree;
+import com.sun.source.doctree.ReturnTree;
+import com.sun.source.doctree.SeeTree;
+import com.sun.source.doctree.SerialFieldTree;
+import com.sun.source.doctree.ThrowsTree;
+import com.sun.source.doctree.ValueTree;
+import com.sun.source.util.DocTreeScanner;
 
 class CompiledTag {
 
@@ -45,8 +56,7 @@ class CompiledTag {
 	public CompiledTag(String name, String flags, String label) {
 
 		if (name == null) {
-			throw new IllegalArgumentException(
-					"The argument name must not be null!");
+			throw new IllegalArgumentException("The argument name must not be null!");
 		}
 
 		if (label != null) {
@@ -75,22 +85,21 @@ public class TagManager {
 
 	private static Log logger = LogFactory.getLog(TagManager.class);
 
-	private LinkedHashMap<String, CompiledTag> tagMap = new LinkedHashMap<String, CompiledTag>();
 	private TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> constantFieldMap;
+	private DocManager docManager;
 
 	@Inject
 	private ReferenceManager referenceManager;
 	@Inject
 	private DbdScript script;
 
-	private DocManager docManager;
+	private LinkedHashMap<String, CompiledTag> tagMap = new LinkedHashMap<String, CompiledTag>();
 
 	public TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> createConstantFieldMap(
 			TreeMap<String, TreeMap<String, TypeElement>> pkgMap) {
 
 		if (pkgMap == null) {
-			throw new IllegalArgumentException(
-					"The argument pkgMap must not be null!");
+			throw new IllegalArgumentException("The argument pkgMap must not be null!");
 		}
 
 		TypeElement cdoc;
@@ -101,16 +110,14 @@ public class TagManager {
 		TreeMap<String, TypeElement> classMap;
 		TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> constantMap = new TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>>();
 
-		for (Iterator<String> iterator = pkgMap.keySet().iterator(); iterator
-				.hasNext();) {
+		for (Iterator<String> iterator = pkgMap.keySet().iterator(); iterator.hasNext();) {
 
 			pkgName = iterator.next();
 			classMap = pkgMap.get(pkgName);
 
 			if (classMap != null) {
 
-				for (Iterator<String> classIterator = classMap.keySet()
-						.iterator(); classIterator.hasNext();) {
+				for (Iterator<String> classIterator = classMap.keySet().iterator(); classIterator.hasNext();) {
 
 					className = classIterator.next();
 					cdoc = classMap.get(className);
@@ -127,21 +134,18 @@ public class TagManager {
 
 					for (var field : fields) {
 
-						if (fields.isPublic() && fields.isStatic()
-								&& fields.isFinal()
-								&& fields.constantValue() != null) {
+						if (docManager.isPublic(field) && docManager.isStatic(field) && docManager.isFinal(field)
+								&& field.getConstantValue() != null) {
 
-							constantFieldMap = constantClassMap
-									.get(cdoc.name());
+							constantFieldMap = constantClassMap.get(docManager.getName(cdoc));
 
 							if (constantFieldMap == null) {
 
 								constantFieldMap = new TreeMap<String, VariableElement>();
-								constantClassMap.put(cdoc.name(),
-										constantFieldMap);
+								constantClassMap.put(docManager.getName(cdoc), constantFieldMap);
 							}
 
-							constantFieldMap.put(fields[j].name(), fields[j]);
+							constantFieldMap.put(docManager.getName(cdoc), field);
 						}
 					}
 				}
@@ -154,8 +158,7 @@ public class TagManager {
 	public void createTagMap(TreeMap<String, TreeMap<String, TypeElement>> pkgMap) {
 
 		if (pkgMap == null) {
-			throw new IllegalArgumentException(
-					"The argument pkgMap must not be null!");
+			throw new IllegalArgumentException("The argument pkgMap must not be null!");
 		}
 
 		constantFieldMap = createConstantFieldMap(pkgMap);
@@ -234,36 +237,110 @@ public class TagManager {
 
 			} else {
 
-				logger.error("Invalid tag name '" + tagName + "'! Value was '"
-						+ value + "'.");
+				logger.error("Invalid tag name '" + tagName + "'! Value was '" + value + "'.");
 			}
 		}
 	}
 
 	public DocTree findDeprecatedTag(Element modelElem) {
-		
+
 		if (isNull(modelElem)) {
 			return null;
 		}
-		
+
 		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
 		if (isNull(dctree)) {
 			return null;
 		}
-		
-		Optional<? extends DocTree> hit = dctree.getBlockTags().stream().filter(t -> Kind.DEPRECATED.equals(t.getKind())).findFirst();
+
+		Optional<? extends DocTree> hit = dctree.getBlockTags().stream()
+				.filter(t -> Kind.DEPRECATED.equals(t.getKind())).findFirst();
 		if (hit.isPresent()) {
 			return hit.get();
 		}
-		
+
 		return null;
+	}
+
+	public ReturnTree findReturnTag(Element modelElem) {
+
+		if (isNull(modelElem)) {
+			return null;
+		}
+
+		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
+		if (isNull(dctree)) {
+			return null;
+		}
+
+		Optional<? extends DocTree> hit = dctree.getBlockTags().stream().filter(t -> Kind.RETURN.equals(t.getKind()))
+				.findFirst();
+		if (hit.isPresent()) {
+			return (ReturnTree) hit.get();
+		}
+
+		return null;
+	}
+
+	public List<SeeTree> findSeeTags(Element modelElem) {
+
+		if (isNull(modelElem)) {
+			return null;
+		}
+
+		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
+		if (isNull(dctree)) {
+			return null;
+		}
+
+		List<SeeTree> list = dctree.getBlockTags().stream()
+				.filter(t -> Kind.SEE.equals(t.getKind()))
+				.map(SeeTree.class::cast)
+				.collect(Collectors.toList());
+		return list;
+	}
+
+	public List<SerialFieldTree> findSerialFieldTags(Element modelElem) {
+
+		if (isNull(modelElem)) {
+			return null;
+		}
+
+		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
+		if (isNull(dctree)) {
+			return null;
+		}
+
+		List<SerialFieldTree> list = dctree.getBlockTags().stream()
+				.filter(t -> Kind.SERIAL_FIELD.equals(t.getKind()))
+				.map(SerialFieldTree.class::cast)
+				.collect(Collectors.toList());
+		return list;
+	}
+
+	public List<ThrowsTree> findThrowsTags(Element modelElem) {
+
+		if (isNull(modelElem)) {
+			return null;
+		}
+
+		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
+		if (isNull(dctree)) {
+			return null;
+		}
+
+		List<ThrowsTree> list = dctree.getBlockTags().stream()
+				.filter(t -> DocTree.Kind.EXCEPTION.equals(t.getKind()) && DocTree.Kind.THROWS.equals(t.getKind()))
+				.map(ThrowsTree.class::cast)
+				.collect(Collectors.toList());
+		return list;
 	}
 
 	public TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> getConstantFieldMap() {
 		return constantFieldMap;
 	}
 
-	public String getSeeNameClass(ProgramElementDoc doc, String name) {
+	public String getSeeNameClass(Element doc, String name) {
 
 		if (name == null) {
 			return "";
@@ -284,11 +361,9 @@ public class TagManager {
 			if (className.length() > 0) {
 				return className;
 			} else {
-
-				TypeElement cdoc = doc.containingClass();
-
+				TypeElement cdoc = docManager.getContainingClass(doc);
 				if (cdoc != null) {
-					return cdoc.name();
+					return docManager.getName(cdoc);
 				} else {
 					return "";
 				}
@@ -320,11 +395,10 @@ public class TagManager {
 		return member;
 	}
 
-	public String getSeeNamePackage(ProgramElementDoc doc, String name) {
+	public String getSeeNamePackage(Element doc, String name) {
 
 		if (doc == null) {
-			throw new IllegalArgumentException(
-					"The argument doc must not be null!");
+			throw new IllegalArgumentException("The argument doc must not be null!");
 		}
 
 		if (name == null) {
@@ -343,10 +417,17 @@ public class TagManager {
 
 		if (index == -1) {
 
-			PackageDoc pdoc = doc.containingPackage();
+			TypeElement cdoc = null;
 
+			if (docManager.isClassOrInterface(doc)) {
+				cdoc = (TypeElement) doc;
+			} else {
+				cdoc = docManager.getContainingClass(doc);
+			}
+
+			PackageElement pdoc = docManager.containingPackage(cdoc);
 			if (pdoc != null) {
-				return pdoc.name();
+				return docManager.getName(pdoc);
 			} else {
 				return "";
 			}
@@ -356,143 +437,98 @@ public class TagManager {
 		return pkgName;
 	}
 
-	public String getTagLabel(String kind, ResourceBundle res) {
+	public String getTagLabel(DocTree.Kind kind, ResourceBundle res) {
 
-		if (kind == null) {
-
-			throw new IllegalArgumentException(
-					" The argument kind must not be null!");
+		if (isNull(kind)) {
+			throw new IllegalArgumentException(" The argument kind must not be null!");
 		}
 
-		if (kind.equals("@author")) {
+		switch (kind) {
+		case AUTHOR:
 			return ResourceServices.getString(res, "C_AUTHOR");
-		}
-
-		if (kind.equals("@version")) {
-			return ResourceServices.getString(res, "C_VERSION");
-		}
-
-		if (kind.equals("@since")) {
+		case SINCE:
 			return ResourceServices.getString(res, "C_SINCE");
-		}
-
-		if (kind.equals("@serial")) {
-			return ResourceServices.getString(res, "C_SERIAL");
-		}
-
-		if (kind.equals("@serialData")) {
-			return ResourceServices.getString(res, "C_SERIAL_DATA");
-		}
-
-		if (kind.equals("@see")) {
+		case VERSION:
+			return ResourceServices.getString(res, "C_VERSION");
+		case SEE:
 			return ResourceServices.getString(res, "C_SEE_ALSO");
+		case SERIAL:
+			return ResourceServices.getString(res, "C_SERIAL");
+		case SERIAL_DATA:
+			return ResourceServices.getString(res, "C_SERIAL_DATA");
+		case SERIAL_FIELD:
+		default:
+			break;
 		}
 
-		String label = kind;
+		String label = kind.tagName;
 
-		if ((label.length() > 1) && label.startsWith("@")) {
-
+		if ((label.length() > 1)) {
 			label = label.substring(1);
 		}
 
 		CompiledTag tag = tagMap.get(label);
 
 		if (tag != null) {
-
 			return tag.getLabel();
 		}
 
 		return StringServices.capFirstLetter(label);
 	}
 
-	public String processTag(Tag tag) throws DocletException {
+	private void initTags() {
+
+		tagMap = new LinkedHashMap<String, CompiledTag>();
+
+		CompiledTag tag;
+
+		tag = new CompiledTag("@author", "X", null);
+		tagMap.put("@author", tag);
+	}
+
+	public boolean isMetaTag(DocTree.Kind kind) {
+
+		switch (kind) {
+		case DEPRECATED:
+		case EXCEPTION:
+		case PARAM:
+		case RETURN:
+		case SERIAL:
+		case SERIAL_DATA:
+		case SERIAL_FIELD:
+		case THROWS:
+			return false;
+		default:
+			return true;
+		}
+	}
+
+	public String processTag(InlineTagTree tag) throws DocletException {
 
 		Doc doc;
-		SeeTag link;
+		SeeTree link;
 		String label;
 		String reference;
 		String value;
 		String text;
 
 		String comment = "";
-		String kind = tag.kind();
-		String name = tag.name();
+		Kind kind = tag.getKind();
+		String name = tag.getTagName();
 
-		logger.debug("name=" + name + ", kind=" + kind + ", text=" + tag.text());
+		logger.debug("name=" + name + ", kind=" + kind + ", text=" + tag.toString());
 
-		if (kind.equals("@inheritDoc")) {
-
-			return processInheritDoc(tag);
+		if (kind.equals(Kind.VALUE)) {
 		}
 
-		if (kind.equals("@value")) {
-
-			value = "Tag(@value): UnknownValueException!";
-
-			text = tag.text();
-
-			if (text == null) {
-				text = "";
-			}
-
-			doc = tag.holder();
-			logger.debug("@value holder=" + doc + ", text=" + text);
-
-			if (text.length() == 0 && doc instanceof VariableElement) {
-
-				VariableElement fdoc = (VariableElement) doc;
-				value = fdoc.constantValueExpression();
-			}
-
-			if (text.length() > 0 && doc instanceof ProgramElementDoc) {
-
-				logger.debug("constantFieldMap.size()="
-						+ getConstantFieldMap().size());
-				String pkgName = getSeeNamePackage((ProgramElementDoc) doc,
-						text);
-				logger.debug("pkgName=" + pkgName);
-
-				TreeMap<String, TreeMap<String, VariableElement>> classMap = getConstantFieldMap()
-						.get(pkgName);
-
-				if (classMap != null) {
-
-					String className = getSeeNameClass((ProgramElementDoc) doc,
-							text);
-					logger.debug("className=" + className);
-
-					TreeMap<String, VariableElement> fieldMap = classMap
-							.get(className);
-
-					if (fieldMap != null) {
-
-						String fieldName = getSeeNameMember(text);
-						logger.debug("fieldName=" + fieldName);
-
-						VariableElement fdoc = fieldMap.get(fieldName);
-
-						if (fdoc != null) {
-							value = fdoc.constantValueExpression();
-						}
-					}
-				}
-			}
-
-			comment = "<javadoc:value>" + HtmlServices.textToHtml(value)
-					+ "</javadoc:value>";
-			logger.debug(comment);
-
-			return comment;
-		}
-
-		if (kind.equals("@code")) {
-
+		if (kind.equals(Kind.CODE)) {
 			logger.debug("tag=" + tag.toString());
-			String html = HtmlServices.textToHtml(tag.text());
+			String html = HtmlServices.textToHtml(((LiteralTree) tag).getBody().toString());
 			comment = "<javadoc:code>" + html + "</javadoc:code>";
 			return comment;
 		}
 
+		/* @formatter:on
 		if (kind.equals("@literal")) {
 
 			logger.debug("tag=" + tag.toString());
@@ -542,108 +578,105 @@ public class TagManager {
 
 			comment += tag.text();
 		}
+        @formatter:on */
 
 		return comment;
 	}
 
-	private String processInheritDoc(Tag tag) throws DocletException {
+	public String processTag(InheritDocTree tag) throws DocletException {
 
-		Doc doc = tag.holder();
-		String comment = "";
+		String comment = docManager.getCommentText(tag);
+		return comment;
+	}
 
-		if (doc instanceof MethodDoc) {
+	public String processTag(ValueTree tag) throws DocletException {
 
-			MethodDoc methodDoc = (MethodDoc) doc;
-			MethodDoc overriddenMethod = methodDoc.overriddenMethod();
+		String comment = docManager.getCommentText(tag);
+		String value = "Tag(@value): UnknownValueException!";
 
-			if (overriddenMethod != null) {
+		DocTreeScanner dts = new DocTreeScanner();
+		Object visitValue = dts.visitValue(tag, null);
 
-				Tag[] tags = overriddenMethod.inlineTags();
-				comment = "<p>";
+		/* @formatter:off
+		if (text.length() == 0 && doc instanceof VariableElement) {
 
-				for (int i = 0; i < tags.length; i++) {
-					comment += processTag(tags[i]);
-				}
-
-				comment += "</p>";
+				VariableElement fdoc = (VariableElement) doc;
+				value = fdoc.constantValueExpression();
 			}
-		}
 
+			if (text.length() > 0 && doc instanceof ProgramElementDoc) {
+
+				logger.debug("constantFieldMap.size()="
+						+ getConstantFieldMap().size());
+				String pkgName = getSeeNamePackage((ProgramElementDoc) doc,
+						text);
+				logger.debug("pkgName=" + pkgName);
+
+				TreeMap<String, TreeMap<String, VariableElement>> classMap = getConstantFieldMap()
+						.get(pkgName);
+
+				if (classMap != null) {
+
+					String className = getSeeNameClass((ProgramElementDoc) doc,
+							text);
+					logger.debug("className=" + className);
+
+					TreeMap<String, VariableElement> fieldMap = classMap
+							.get(className);
+
+					if (fieldMap != null) {
+
+						String fieldName = getSeeNameMember(text);
+						logger.debug("fieldName=" + fieldName);
+
+						VariableElement fdoc = fieldMap.get(fieldName);
+
+						if (fdoc != null) {
+							value = fdoc.constantValueExpression();
+						}
+					}
+				}
+			}
+
+			comment = "<javadoc:value>" + HtmlServices.textToHtml(value)
+					+ "</javadoc:value>";
+			logger.debug(comment);
+
+			return comment;
+			@formatter:on */
 		return comment;
-	}
-
-	public boolean isMetaTag(String kind) {
-
-		if (kind.equals("@param")) {
-			return false;
-		}
-
-		if (kind.equals("@return")) {
-			return false;
-		}
-
-		if (kind.equals("@exception") || kind.equals("@throws")) {
-			return false;
-		}
-
-		if (kind.equals("@serial") || kind.equals("@serialData")
-				|| kind.equals("@serialField")) {
-			return false;
-		}
-
-		if (kind.equals("@deprecated")) {
-			return false;
-		}
-
-		return true;
-	}
-
-	public boolean showTag(String kind) {
-
-		if (kind.equals("@author")
-				&& (script.isCreateAuthorInfoEnabled() == false)) {
-			return false;
-		}
-
-		if (kind.equals("@version")
-				&& (script.isCreateVersionInfoEnabled() == false)) {
-			return false;
-		}
-
-		if (kind.equals("@since")
-				&& (script.isCreateSinceInfoEnabled() == false)) {
-			return false;
-		}
-
-		if (kind.equals("@see")
-				&& (script.isCreateSeeAlsoInfoEnabled() == false)) {
-			return false;
-		}
-
-		if (kind.equals("@param")
-				&& (script.isCreateParameterInfoEnabled() == false)) {
-			return false;
-		}
-
-		if (kind.equals("@return")
-				&& (script.isCreateParameterInfoEnabled() == false)) {
-			return false;
-		}
-
-		return true;
-	}
-
-	private void initTags() {
-
-		tagMap = new LinkedHashMap<String, CompiledTag>();
-
-		CompiledTag tag;
-
-		tag = new CompiledTag("@author", "X", null);
-		tagMap.put("@author", tag);
 	}
 
 	public void setDocManager(DocManager docManager) {
 		this.docManager = docManager;
+	}
+
+	public boolean showTag(DocTree.Kind kind) {
+
+		if (Kind.AUTHOR == kind && script.isCreateAuthorInfoEnabled() == false) {
+			return false;
+		}
+
+		if (Kind.VERSION == kind && script.isCreateVersionInfoEnabled() == false) {
+			return false;
+		}
+
+		if (Kind.SINCE == kind && script.isCreateSinceInfoEnabled() == false) {
+			return false;
+		}
+
+		if (Kind.SEE == kind && script.isCreateSeeAlsoInfoEnabled() == false) {
+			return false;
+		}
+
+		if (Kind.PARAM == kind && script.isCreateParameterInfoEnabled() == false) {
+			return false;
+		}
+
+		if (Kind.RETURN == kind && script.isCreateParameterInfoEnabled() == false) {
+			return false;
+		}
+
+		return true;
 	}
 }

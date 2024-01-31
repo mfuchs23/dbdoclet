@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.dbdoclet.doclet8.ClassDiagramManager;
 import org.dbdoclet.doclet8.ReferenceManager;

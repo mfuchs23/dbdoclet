@@ -14,27 +14,28 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeMap;
+
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.statistic.ClassesPerPackage;
 import org.dbdoclet.doclet.statistic.DirectKnownSubclasses;
 import org.dbdoclet.doclet.statistic.LabeledInteger;
 import org.dbdoclet.doclet.statistic.TotalsDiagram;
-
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.MethodDoc;
-import com.sun.javadoc.Type;
 
 public class StatisticData {
 
 	private static Log logger = LogFactory.getLog(StatisticData.class);
 
 	private TreeMap<Integer, ArrayList<String>> classesPerPackageMap;
-	private HashMap<String, ArrayList<Type>> directKnownSubclassesMap;
-	private TreeMap<String, TreeMap<String, ClassDoc>> pkgMap;
+	private HashMap<String, ArrayList<TypeElement>> directKnownSubclassesMap;
+	private TreeMap<String, TreeMap<String, TypeElement>> pkgMap;
 	private int totalClasses = 0;
 	private int totalFields = 0;
 	private int totalMethods = 0;
@@ -49,6 +50,8 @@ public class StatisticData {
 	private int totalPublicClasses = 0;
 	private int totalPublicFields = 0;
 	private int totalPublicMethods = 0;
+
+	private DocManager docManager;
 
 	public StatisticData() throws IOException {
 
@@ -110,7 +113,7 @@ public class StatisticData {
 		TreeMap<Integer, ArrayList<String>> topTen = new TreeMap<Integer, ArrayList<String>>(
 				Collections.reverseOrder());
 
-		ArrayList<Type> list;
+		ArrayList<TypeElement> list;
 		ArrayList<String> classnames;
 		Integer count;
 		int index;
@@ -135,7 +138,7 @@ public class StatisticData {
 
 			if ((list != null) && (list.size() > 0)) {
 
-				count = new Integer(list.size());
+				count = Integer.valueOf(list.size());
 				classnames = topTen.get(count);
 
 				if (classnames == null) {
@@ -186,7 +189,7 @@ public class StatisticData {
 		return directKnownSubclasses;
 	}
 
-	public ArrayList<Type> getSubclasses(String qualifiedName) {
+	public ArrayList<TypeElement> getSubclasses(String qualifiedName) {
 
 		if (qualifiedName == null) {
 
@@ -194,18 +197,14 @@ public class StatisticData {
 					"The argument qualifiedName must not be null!");
 		}
 
-		/*
-		ArrayList<Type> subclasses = directKnownSubclassesMap
+		ArrayList<TypeElement> subclasses = directKnownSubclassesMap
 				.get(qualifiedName);
 
 		if (subclasses == null) {
-			subclasses = new ArrayList<Type>();
+			subclasses = new ArrayList<TypeElement>();
 		}
 
 		return subclasses;
-		*/
-		
-		return new ArrayList<Type>();
 	}
 
 	public TotalsDiagram getTotalsDiagram() throws IOException {
@@ -229,7 +228,7 @@ public class StatisticData {
 		return totals;
 	}
 
-	private void analyseClasses(TreeMap<String, ClassDoc> classMap) {
+	private void analyseClasses(TreeMap<String, TypeElement> classMap) {
 
 		if (classMap == null) {
 			throw new IllegalArgumentException(
@@ -238,7 +237,7 @@ public class StatisticData {
 
 		totalClasses += classMap.size();
 
-		ClassDoc cdoc;
+		TypeElement cdoc;
 		String className;
 
 		for (Iterator<String> iterator = classMap.keySet().iterator(); iterator
@@ -247,26 +246,24 @@ public class StatisticData {
 			className = iterator.next();
 			cdoc = classMap.get(className);
 
-			if (cdoc.isPublic()) {
+			if (docManager.isPublic(cdoc)) {
 				totalPublicClasses++;
 			}
 
-			if (cdoc.isPackagePrivate()) {
+			if (docManager.isPackagePrivate(cdoc)) {
 				totalPackagePrivateClasses++;
 			}
 
-			Type superclass = cdoc.superclassType();
-			ArrayList<Type> subclasses;
+			TypeElement superclass = docManager.getSuperclass(cdoc);
+			ArrayList<TypeElement> subclasses;
 
 			if (superclass != null) {
 
-				subclasses = directKnownSubclassesMap.get(superclass
-						.qualifiedTypeName());
-
+				subclasses = directKnownSubclassesMap.get(docManager.getQualifiedName(superclass));
 				if (subclasses == null) {
-					subclasses = new ArrayList<Type>();
+					subclasses = new ArrayList<TypeElement>();
 					directKnownSubclassesMap.put(
-							superclass.qualifiedTypeName(), subclasses);
+							docManager.getQualifiedName(superclass), subclasses);
 				}
 
 				subclasses.add(cdoc);
@@ -279,24 +276,24 @@ public class StatisticData {
 			className = iterator.next();
 			cdoc = classMap.get(className);
 
-			MethodDoc[] methods = cdoc.methods(false);
-			totalMethods += methods.length;
+			Set<ExecutableElement> methods = docManager.getMethodElements(cdoc);
+			totalMethods += methods.size();
 
-			for (int j = 0; j < methods.length; j++) {
+			for (var method : methods) {
 
-				if (methods[j].isPublic()) {
+				if (docManager.isPublic(method)) {
 					totalPublicMethods++;
 				}
 
-				if (methods[j].isProtected()) {
+				if (docManager.isProtected(method)) {
 					totalProtectedMethods++;
 				}
 
-				if (methods[j].isPackagePrivate()) {
+				if (docManager.isPackagePrivate(method)) {
 					totalPackagePrivateMethods++;
 				}
 
-				if (methods[j].isPrivate()) {
+				if (docManager.isPrivate(method)) {
 					totalPrivateMethods++;
 				}
 			}
@@ -308,31 +305,31 @@ public class StatisticData {
 			className = iterator.next();
 			cdoc = classMap.get(className);
 
-			FieldDoc[] fields = cdoc.fields(false);
-			totalFields += fields.length;
+			Set<VariableElement> fields = docManager.getFieldElements(cdoc);
+			totalFields += fields.size();
 
-			for (int j = 0; j < fields.length; j++) {
+			for (var field : fields) {
 
-				if (fields[j].isPublic()) {
+				if (docManager.isPublic(field)) {
 					totalPublicFields++;
 				}
 
-				if (fields[j].isProtected()) {
+				if (docManager.isProtected(field)) {
 					totalProtectedFields++;
 				}
 
-				if (fields[j].isPackagePrivate()) {
+				if (docManager.isPackagePrivate(field)) {
 					totalPackagePrivateFields++;
 				}
 
-				if (fields[j].isPrivate()) {
+				if (docManager.isPrivate(field)) {
 					totalPrivateFields++;
 				}
 			}
 		}
 	}
 
-	public void init(TreeMap<String, TreeMap<String, ClassDoc>> pkgMap) {
+	public void init(TreeMap<String, TreeMap<String, TypeElement>> pkgMap) {
 
 		if (pkgMap == null) {
 			throw new IllegalArgumentException(
@@ -340,9 +337,6 @@ public class StatisticData {
 		}
 
 		this.pkgMap = pkgMap;
-
-		String pkgName;
-		TreeMap<String, ClassDoc> classMap;
 
 		totalPackages = 0;
 		totalClasses = 0;
@@ -352,22 +346,16 @@ public class StatisticData {
 		totalPublicMethods = 0;
 		totalPublicFields = 0;
 
-		classesPerPackageMap = new TreeMap<Integer, ArrayList<String>>(
-				Collections.reverseOrder());
-		directKnownSubclassesMap = new HashMap<String, ArrayList<Type>>();
-
+		classesPerPackageMap = new TreeMap<>(Collections.reverseOrder());
+		directKnownSubclassesMap = new HashMap<>();
 		totalPackages = pkgMap.size();
 
-		for (Iterator<String> iterator = pkgMap.keySet().iterator(); iterator
-				.hasNext();) {
+		for (var pkgName : pkgMap.keySet()) {
 
-			pkgName = iterator.next();
-
-			classMap = pkgMap.get(pkgName);
+			TreeMap<String, TypeElement> classMap = pkgMap.get(pkgName);
 			Integer key = 0;
 
 			if (classMap != null) {
-
 				key = classMap.size();
 				analyseClasses(classMap);
 			}
@@ -375,12 +363,15 @@ public class StatisticData {
 			ArrayList<String> list = classesPerPackageMap.get(key);
 
 			if (list == null) {
-
 				list = new ArrayList<String>();
 				classesPerPackageMap.put(key, list);
 			}
 
 			list.add(pkgName);
 		}
+	}
+
+	public void setDocManager(DocManager docManager) {
+		this.docManager = docManager;
 	}
 }

@@ -8,6 +8,8 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.nonNull;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +29,6 @@ import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ExecutableMemberInfo;
 import org.dbdoclet.service.ResourceServices;
-import org.dbdoclet.tag.docbook.Title;
 import org.dbdoclet.tag.docbook.Book;
 import org.dbdoclet.tag.docbook.BookInfo;
 import org.dbdoclet.tag.docbook.Bridgehead;
@@ -41,8 +42,11 @@ import org.dbdoclet.tag.docbook.Partinfo;
 import org.dbdoclet.tag.docbook.Sect1;
 import org.dbdoclet.tag.docbook.Sect2;
 import org.dbdoclet.tag.docbook.Section;
+import org.dbdoclet.tag.docbook.Title;
 import org.dbdoclet.xiphias.XmlServices;
 import org.dbdoclet.xiphias.dom.NodeImpl;
+
+import com.sun.source.doctree.DocCommentTree;
 
 public class BookManager extends MediaManager {
 
@@ -60,13 +64,10 @@ public class BookManager extends MediaManager {
 			logger.debug("process");
 
 			DocBookElement parent;
-
 			DocBookDocument doc = new DocBookDocument();
 
 			String rootTagName = script.getDocumentElement();
-
 			if (script.hasProlog()) {
-
 				if (isDocBook5() == false) {
 					DbdServices.appendDoctype(doc, rootTagName);
 				}
@@ -147,7 +148,7 @@ public class BookManager extends MediaManager {
 					String pkgName = pkgElem.getQualifiedName().toString();
 
 					Chapter chapter = tagFactory.createChapter();
-					chapter.setId(getReference(specified));
+					chapter.setId(getReference(pkgElem));
 
 					if (script.setCreateXrefLabelEnabled()) {
 						chapter.setXrefLabel(XmlServices.textToXml(classElement.getQualifiedName().toString()));
@@ -157,6 +158,7 @@ public class BookManager extends MediaManager {
 							+ hyphenation.hyphenateAfter(pkgName, "\\.")));
 
 					writeClass(chapter, pkgElem, (TypeElement) specified);
+					parent.appendChild(chapter);
 				}
 			}
 
@@ -314,7 +316,7 @@ public class BookManager extends MediaManager {
 			ExecutableElement overriddenElem = docManager.overriddenMethod(member);
 			memberInfo.setImplemented(overriddenElem);
 
-			if (hasVisibleContent(memberInfo)) {
+			if (hasJavadocContent(memberInfo)) {
 				commentedMembers.add(memberInfo);
 			}
 		}
@@ -374,8 +376,11 @@ public class BookManager extends MediaManager {
 				}
 			}
 
-			htmlDocBookTrafo.transform(docManager.getDocCommentTree(implementedDoc).getFullBody(), section);
-
+			DocCommentTree docCommentTree = docManager.getDocCommentTree(implementedDoc);
+			if (nonNull(docCommentTree)) {
+				htmlDocBookTrafo.transform(docCommentTree.getFullBody(), section);
+			}
+			
 			if (script.isCreateParameterInfoEnabled() == true) {
 				style.addParamInfo(commentDoc, section);
 			}

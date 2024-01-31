@@ -13,7 +13,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.inject.Inject;
+import com.google.inject.Inject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

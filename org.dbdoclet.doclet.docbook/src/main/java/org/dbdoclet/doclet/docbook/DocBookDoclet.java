@@ -16,10 +16,10 @@ import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -27,13 +27,10 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementScanner9;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.AbstractDoclet;
-import org.dbdoclet.doclet.DeprecatedDocletOptions;
+import org.dbdoclet.doclet.CDI;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.option.DocletOptions;
-import org.dbdoclet.doclet.CDI;
 import org.dbdoclet.doclet.util.PackageServices;
 import org.dbdoclet.doclet.util.ReleaseServices;
 import org.dbdoclet.service.FileServices;
@@ -44,7 +41,6 @@ import org.dbdoclet.trafo.TrafoScriptManager;
 import org.dbdoclet.trafo.script.Script;
 
 import com.google.inject.Guice;
-import com.sun.javadoc.RootDoc;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.util.DocTreeScanner;
@@ -61,7 +57,8 @@ import jdk.javadoc.doclet.Reporter;
  */
 public final class DocBookDoclet extends AbstractDoclet {
 
-	private static Log logger = LogFactory.getLog(DocBookDoclet.class.getName());
+	private static Logger logger = Logger.getLogger(DocBookDoclet.class.getSimpleName());
+	
 	private DocletOptions options;
 	private ResourceBundle res;
 
@@ -104,7 +101,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 			throw new IllegalStateException("The field dbdScript must not be null!");
 		}
 
-		logger.debug("docfilespath=" + sourcepath);
+		logger.fine("docfilespath=" + sourcepath);
 
 		String fsep = System.getProperty("file.separator");
 
@@ -118,7 +115,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 
 		for (PackageElement pkg : pkgs) {
 
-			logger.debug("pkg=" + pkg);
+			logger.fine("pkg=" + pkg);
 
 			dirs = PackageServices.findDocFilesDirectories(pkg, sourcepath);
 			iterator = dirs.iterator();
@@ -126,7 +123,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 			while (iterator.hasNext()) {
 
 				srcdir = iterator.next();
-				logger.debug("srcdir=" + srcdir);
+				logger.fine("srcdir=" + srcdir);
 
 				destdir = FileServices.appendPath(outdir, dbdScript.getImagePath());
 				destdir = FileServices.appendPath(destdir, StringServices.replace(pkg.getQualifiedName().toString(), ".", fsep));
@@ -148,7 +145,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 			while (iterator.hasNext()) {
 
 				srcdir = iterator.next();
-				logger.debug("srcdir=" + srcdir);
+				logger.fine("srcdir=" + srcdir);
 
 				destdir = FileServices.appendPath(outdir, dbdScript.getImagePath());
 				destdir = FileServices.appendPath(destdir, StringServices.replace(pkg.getQualifiedName().toString(), ".", fsep));
@@ -179,13 +176,13 @@ public final class DocBookDoclet extends AbstractDoclet {
 				destFile = new File(filename);
 			} else {
 				String destDir = options.getDestinationDirectory();
-				logger.info(String.format("destination directory=" + destDir));
+				logger.config(String.format("destination directory=" + destDir));
 				destFile = new File(destDir, "Reference.xml");
 			}
 
 			dbdScript.setOutputFile(destFile);
 			dbdScript.setEncoding(options.getEncoding());
-			dbdScript.setDocumentElement("article");
+			dbdScript.setDocumentElement("book");
 			
 			Script script = dbdScript.getScript();
 
@@ -193,15 +190,14 @@ public final class DocBookDoclet extends AbstractDoclet {
 			if (filename!= null) {
 				
 				File scriptFile = new File(filename);
-				logger.info("Using profile file " + scriptFile.getCanonicalPath());
+				logger.config("profile=" + scriptFile.getCanonicalPath());
 				if (scriptFile.exists()) {
-
 					TrafoScriptManager mgr = new TrafoScriptManager();
 					mgr.parseScript(script, scriptFile);
-
 				} else {
-					logger.error(MessageFormat.format(ResourceServices.getString(res, "C_ERROR_FILE_NOT_FOUND"),
+					logger.severe(MessageFormat.format(ResourceServices.getString(res, "C_ERROR_FILE_NOT_FOUND"),
 							scriptFile.getAbsolutePath()));
+					System.exit(255);
 				}
 			}
 
@@ -216,7 +212,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 			File destPath = dbdScript.getDestinationDirectory();
 
 			println(ResourceServices.getString(res, "C_RUNNING_DBDOCLET"));
-			println("Copyright (c) 2001-2023 Michael Fuchs");
+			println("Copyright (c) 2001-2024 Michael Fuchs");
 			ReleaseServices releaseServices = new ReleaseServices();
 			println("Version " + releaseServices.getVersion() + " Build " + releaseServices.getBuild());
 			println(String.format("destination-directory: %s", destPath));
