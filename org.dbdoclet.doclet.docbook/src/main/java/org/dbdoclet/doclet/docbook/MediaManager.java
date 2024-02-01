@@ -90,6 +90,7 @@ import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
 
 import com.sun.source.doctree.DocTree;
+import com.sun.source.util.DocTreePath;
 
 public abstract class MediaManager {
 
@@ -877,8 +878,8 @@ public abstract class MediaManager {
 	protected void writeOverview(DocBookElement parent)
 			throws DocletException {
 
-		List<? extends DocTree> overviewDocTrees = docManager.getOverviewComment();
-		if (nonNull(overviewDocTrees) && !overviewDocTrees.isEmpty()) {
+		DocTreePath overviewDocTreePath = docManager.getOverviewComment();
+		if (nonNull(overviewDocTreePath)) {
 
 			String overviewTitle = script.getOverviewTitle();
 			logger.fine("Overview title='" + overviewTitle + "'.");
@@ -891,7 +892,7 @@ public abstract class MediaManager {
 				section = tagFactory.createBook();
 			}
 
-			htmlDocBookTrafo.transform(overviewDocTrees, section);
+			htmlDocBookTrafo.transform(overviewDocTreePath, section);
 
 			for (org.w3c.dom.Element element : section.getChildElementList()) {
 
@@ -916,13 +917,13 @@ public abstract class MediaManager {
 				logger.fine("Last sect1: " + lastSect1);
 
 				if (lastSect1 == null) {
-					// TODO style.addMetaInfo(doc, lastChapter);
+					// TODO xstyle.addMetaInfo(docManager.getElement(overviewDocTreePath), lastChapter);
 				} else {
 
 					Sect1 sect1 = tagFactory.createSect1(ResourceServices
 							.getString(res, "C_ADDITIONAL_INFORMATION"));
 					lastChapter.appendChild(sect1);
-					// TODO style.addMetaInfo(doc, sect1);
+					// TODO style.addMetaInfo(docManager.getElement(overviewDocTreePath), sect1);
 				}
 
 			}

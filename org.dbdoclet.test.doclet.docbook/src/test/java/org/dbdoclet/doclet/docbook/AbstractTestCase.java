@@ -175,8 +175,8 @@ public class AbstractTestCase implements InfoListener {
 	
 	protected void javadocTestClass(String... options) {
 
-		// String[] mandatoryOptions = { "-d", destPath, "-sourcepath", sourcePath, "--profile", "list.her" };
-		String[] mandatoryOptions = { "-d", destPath, "-sourcepath", sourcePath };
+		String[] mandatoryOptions = { "-d", destPath, "-sourcepath", sourcePath, "--profile", "list.her" };
+		// String[] mandatoryOptions = { "-d", destPath, "-sourcepath", sourcePath };
 		ArrayList<String> optionList = new ArrayList<String>();
 		for (String option : options) {
 			optionList.add(option);

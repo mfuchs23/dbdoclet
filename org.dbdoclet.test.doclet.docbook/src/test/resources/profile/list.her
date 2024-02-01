@@ -2,4 +2,5 @@ transformation test-variable-list;
 
 section dbdoclet {
   document-style = "variablelist";
+  class-diagram-font-family = "Monospaced";
 }

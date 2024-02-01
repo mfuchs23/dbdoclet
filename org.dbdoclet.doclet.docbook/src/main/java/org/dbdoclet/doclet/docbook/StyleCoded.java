@@ -113,19 +113,19 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		return rc;
 	}
 
-	protected boolean addDeprecatedInfo(Element modelElem, DocBookElement parent)
+	protected boolean addDeprecatedInfo(Element elem, DocBookElement parent)
 			throws DocletException {
 
 		if (script.isCreateDeprecatedInfoEnabled() == false) {
 			return false;
 		}
 
-		DocCommentTree docCommentTree = docManager.getDocCommentTree(modelElem);
+		DocCommentTree docCommentTree = docManager.getDocCommentTree(elem);
 		if (isNull(docCommentTree)) {
 			return false;
 		}
 		
-		DocTree tag = tagManager.findDeprecatedTag(modelElem);
+		DocTree tag = tagManager.findDeprecatedTag(elem);
 
 		if (tag != null) {
 
@@ -134,7 +134,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			parent.appendChild(warning);
 
 			if (nonNull(tag)) {
-				dbdTrafo.transform(tag, warning);
+				dbdTrafo.transform(docManager.getDocTreePath(elem), tag, warning);
 			} else {
 				warning.appendChild(dbfactory.createPara(ResourceServices
 						.getString(res, "C_DEPRECATED")));

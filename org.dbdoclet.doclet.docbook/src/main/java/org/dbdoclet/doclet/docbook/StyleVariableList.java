@@ -106,7 +106,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 				Para para = dbfactory.createPara();
 				listItem.appendChild(para);
-				dbdTrafo.transform(paramTag, para);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), paramTag, para);
 			}
 
 			if (returnTag != null) {
@@ -119,7 +119,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 				Para para = dbfactory.createPara();
 				listItem.appendChild(para);
-				dbdTrafo.transform(returnTag, para);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), returnTag, para);
 			}
 		}
 
@@ -154,13 +154,13 @@ public class StyleVariableList extends StyleCoded implements Style {
 								.appendChild(dbfactory.createListitem().appendChild(commentPara)));
 
 				exceptionName.appendChild(tag.getExceptionName().toString());
-				dbdTrafo.transform(tag, commentPara);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), tag, commentPara);
 
 				if (commentPara.hasChildNodes() == false) {
 
 					List<? extends DocTree> doc = tag.getDescription();
 					if (doc != null) {
-						dbdTrafo.transform(doc, commentPara);
+						dbdTrafo.transform(docManager.getDocTreePath(memberDoc), doc, commentPara);
 					}
 				}
 
@@ -205,9 +205,9 @@ public class StyleVariableList extends StyleCoded implements Style {
 	}
 
 	@Override
-	public boolean addMetaInfo(Element doc, DocBookElement parent) throws DocletException {
+	public boolean addMetaInfo(Element elem, DocBookElement parent) throws DocletException {
 
-		if (doc == null) {
+		if (elem == null) {
 			throw new IllegalArgumentException("Parameter doc is null!");
 		}
 
@@ -224,7 +224,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 		Variablelist varlist = dbfactory.createVariablelist();
 		parent.appendChild(varlist);
 
-		LinkedHashMap<DocTree.Kind, ArrayList<BlockTagTree>> tagMap = createTagMap(doc);
+		LinkedHashMap<DocTree.Kind, ArrayList<BlockTagTree>> tagMap = createTagMap(elem);
 
 		for (DocTree.Kind kind : tagMap.keySet()) {
 
@@ -241,14 +241,14 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 				if (kind == Kind.SEE) {
 
-					if (addSeeAlsoInfo(doc, label, varlist)) {
+					if (addSeeAlsoInfo(elem, label, varlist)) {
 						foundSomething = true;
 					}
 
 					continue;
 				}
 
-				if (addMetaInfoEntry(list, label, varlist)) {
+				if (addMetaInfoEntry(elem, list, label, varlist)) {
 					foundSomething = true;
 				}
 			}
@@ -258,14 +258,14 @@ public class StyleVariableList extends StyleCoded implements Style {
 			parent.removeChild(varlist);
 		}
 
-		if (addDeprecatedInfo(doc, parent)) {
+		if (addDeprecatedInfo(elem, parent)) {
 			foundSomething = true;
 		}
 
 		return foundSomething;
 	}
 
-	private boolean addMetaInfoEntry(ArrayList<BlockTagTree> tagList, String label, Variablelist varlist)
+	private boolean addMetaInfoEntry(Element elem, ArrayList<BlockTagTree> tagList, String label, Variablelist varlist)
 			throws DocletException {
 
 		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
@@ -288,7 +288,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 			logger.debug("Adding tag " + bt.getTagName() + ".");
 			Member member = dbfactory.createMember();
 			list.appendChild(member);
-			dbdTrafo.transform(bt, member);
+			dbdTrafo.transform(docManager.getDocTreePath(elem), bt, member);
 		}
 
 		return true;

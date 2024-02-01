@@ -352,7 +352,7 @@ public class ArticleManager extends MediaManager {
 			}
 
 			DocCommentTree commentTree = docManager.getDocCommentTree(commentDoc);
-			htmlDocBookTrafo.transform(commentTree.getFullBody(), section);
+			htmlDocBookTrafo.transform(docManager.getDocTreePath(commentDoc), section);
 
 			if (script.isCreateParameterInfoEnabled() == true) {
 				style.addParamInfo(commentDoc, section);
@@ -447,7 +447,7 @@ public class ArticleManager extends MediaManager {
 			String comment = docManager.getCommentText(field);
 			if (nonNull(comment) && !comment.isBlank()) {
 				DocCommentTree commentTree = docManager.getDocCommentTree(field);
-				htmlDocBookTrafo.transform(commentTree.getFullBody(), section);
+				htmlDocBookTrafo.transform(docManager.getDocTreePath(field), commentTree.getFullBody(), section);
 			}
 
 			if (section.hasContentChildren()) {

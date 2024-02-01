@@ -378,7 +378,7 @@ public class BookManager extends MediaManager {
 
 			DocCommentTree docCommentTree = docManager.getDocCommentTree(implementedDoc);
 			if (nonNull(docCommentTree)) {
-				htmlDocBookTrafo.transform(docCommentTree.getFullBody(), section);
+				htmlDocBookTrafo.transform(docManager.getDocTreePath(implementedDoc), section);
 			}
 			
 			if (script.isCreateParameterInfoEnabled() == true) {
@@ -478,7 +478,7 @@ public class BookManager extends MediaManager {
 
 			String comment = docManager.getCommentText(fieldDoc);
 			if ((comment != null) && !comment.trim().equals("")) {
-				htmlDocBookTrafo.transform(docManager.getDocCommentTree(fieldDoc).getFullBody(), section);
+				htmlDocBookTrafo.transform(docManager.getDocTreePath(fieldDoc), section);
 			}
 
 			if (section.hasContentChildren()) {

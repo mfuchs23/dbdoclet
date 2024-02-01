@@ -69,7 +69,6 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 		
 		tagManager.setDocManager(docManager);
 		referenceManager.setDocManager(docManager);
-		classDiagramManager.setDocManager(docManager);
 		statisticData.setDocManager(docManager);
 		
 		return mediaManager;

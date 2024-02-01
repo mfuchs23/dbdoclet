@@ -47,6 +47,7 @@ import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.LinkTree;
 import com.sun.source.doctree.InlineTagTree;
+import com.sun.source.util.DocTreePath;
 
 /**
  * The class <code>DbdTransformer</code> transforms the information created by
@@ -88,13 +89,13 @@ public class DbdTransformer {
 		return null;
 	}
 
-	public NodeImpl transform(DocTree docTree, DocBookElement parent) throws DocletException {
+	public NodeImpl transform(DocTreePath path, DocTree docTree, DocBookElement parent) throws DocletException {
 		ArrayList<DocTree> docTreeList = new ArrayList<>();
 		docTreeList.add(docTree);
-		return transform(docTreeList, parent);
+		return transform(path, docTreeList, parent);
 	}
 	
-	public NodeImpl transform(List<? extends DocTree> docTreeList, DocBookElement parent) throws DocletException {
+	public NodeImpl transform(DocTreePath path, List<? extends DocTree> docTreeList, DocBookElement parent) throws DocletException {
 
 		if (parent == null) {
 			throw new IllegalArgumentException("Parameter parent is null!");
@@ -104,7 +105,7 @@ public class DbdTransformer {
 		for (var dt : docTreeList) {
 			
 			if (dt instanceof InlineTagTree) {
-				buffer.append(tagManager.processTag((InlineTagTree) dt));
+				buffer.append(tagManager.processTag(path, dt));
 			} else {
 				buffer.append(dt.toString());
 			}
@@ -300,14 +301,20 @@ public class DbdTransformer {
 		
 		DocCommentTree docCommentTree = docManager.getDocCommentTree(elem);
 		if (nonNull(docCommentTree)) {
-			transform(docCommentTree.getFullBody(), parent);
+			transform(docManager.getDocTreePath(elem), parent);
+		}
+	}
+
+	public void transform(DocTreePath docTreePath, DocBookElement parent) throws DocletException {
+		if (nonNull(docTreePath.getDocComment())) {
+			transform(docTreePath, docTreePath.getDocComment().getFullBody(), parent);
 		}
 	}
 
 	public void transform(TypeElement elem, DocBookElement parent) throws DocletException {
 		DocCommentTree docCommentTree = docManager.getDocCommentTree(elem);
 		if (nonNull(docCommentTree)) {
-			transform(docCommentTree.getFullBody(), parent);
+			transform(docManager.getDocTreePath(elem), parent);
 		}
 	}
 }

@@ -335,9 +335,9 @@ public class StrictSynopsis extends Synopsis {
 		addExceptions(synopsis, doc);
 	}
 
-	private void addParameters(DocBookElement parent, ExecutableElement doc) {
+	private void addParameters(DocBookElement parent, ExecutableElement elem) {
 
-		List<? extends VariableElement> parameters = doc.getParameters();
+		List<? extends VariableElement> parameters = elem.getParameters();
 
 		if (parameters.size() == 0) {
 
@@ -347,6 +347,7 @@ public class StrictSynopsis extends Synopsis {
 
 		Methodparam param;
 
+		int index = 0;
 		for (VariableElement ve : parameters) {
 
 			param = dbfactory.createMethodparam();
@@ -355,12 +356,18 @@ public class StrictSynopsis extends Synopsis {
 			param.appendChild(type);
 
 			String typeName = docManager.typeToString(ve.asType(), script.isCreateFullyQualifiedNamesEnabled());
+			if (elem.isVarArgs() && index == parameters.size() - 1) {
+				typeName = docManager.varArgsTypeToString(ve.asType(), script.isCreateFullyQualifiedNamesEnabled());
+			}
+			
 			type.appendChild(typeName);
 			
 			String name = ve.getSimpleName().toString();
 			param.appendChild(dbfactory.createParameter(name));
 
 			parent.appendChild(param);
+			 
+			index++;
 		}
 	}
 
@@ -436,14 +443,6 @@ public class StrictSynopsis extends Synopsis {
 
 		} catch (Exception oops) {
 			throw new DocletException(oops);
-		}
-	}
-
-	public String typeToString(TypeMirror type, boolean qualified) {
-		if (qualified) {
-			return type.toString();
-		} else {
-			return docManager.getName(type);
 		}
 	}
 }

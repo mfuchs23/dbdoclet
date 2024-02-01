@@ -20,10 +20,14 @@ public class DbdScript {
 	public static final File DEFAULT_DESTINATION_FILE = new File(
 			"./dbdoclet/Reference.xml");
 
+	private File outputFile;
+
 	@Inject
 	private Script script;
 
-	private File outputFile;
+	public void addContext(String context) {
+		script.addContext(context);
+	}
 
 	public String getAbstract() {
 		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
@@ -45,6 +49,14 @@ public class DbdScript {
 				TrafoConstants.PARAM_AUTHOR_SURNAME, "");
 	}
 
+	public String getClassDiagramFontFamily() {
+
+		String fontFamily= script.getTextParameter(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_FONT_FAMILY, "SansSerif");
+
+		return fontFamily;
+	}
+
 	/**
 	 * Bestimmt die Größe der Schriftart für die Klassendiagramme in Pixel. Der
 	 * minimale Wert ist 4. Als Standardwert ist 12 vorgegeben.
@@ -61,6 +73,11 @@ public class DbdScript {
 		return fontSize;
 	}
 
+	public int getClassDiagramHeight() {
+		return script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_HEIGHT, 0);
+	}
+
 	/**
 	 * Maximum width of a class diagram.
 	 * 
@@ -69,21 +86,6 @@ public class DbdScript {
 	public int getClassDiagramWidth() {
 		return script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
 				DbdConstants.PARAM_CLASS_DIAGRAM_WIDTH, 0);
-	}
-
-	public int getClassDiagramHeight() {
-		return script.getIntParameter(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_CLASS_DIAGRAM_HEIGHT, 0);
-	}
-
-	public boolean isClassDiagramContainsAttributes() {
-		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_CLASS_DIAGRAM_CONTAINS_ATTRIBUTES, true);
-	}
-
-	public boolean isClassDiagramContainsOperations() {
-		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_CLASS_DIAGRAM_CONTAINS_OPERATIONS, true);
 	}
 
 	public String getCopyrightHolder() {
@@ -202,11 +204,6 @@ public class DbdScript {
 				TrafoConstants.DEFAULT_IMAGE_PATH);
 	}
 
-	public boolean isClassDiagramIncludesObject() {
-		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
-				DbdConstants.PARAM_CLASS_DIAGRAM_INCLUDES_OBJECT, true);
-	}
-
 	public String getLanguage() {
 
 		return script.getTextParameter(TrafoConstants.SECTION_DOCBOOK,
@@ -274,6 +271,21 @@ public class DbdScript {
 	public boolean isChunkDocBookEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
 				DbdConstants.PARAM_CHUNK_DOCBOOK_ENABLED, false);
+	}
+
+	public boolean isClassDiagramContainsAttributes() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_CONTAINS_ATTRIBUTES, true);
+	}
+
+	public boolean isClassDiagramContainsOperations() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_CONTAINS_OPERATIONS, true);
+	}
+
+	public boolean isClassDiagramIncludesObject() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CLASS_DIAGRAM_INCLUDES_OBJECT, true);
 	}
 
 	public boolean isCreateAppendixEnabled() {
@@ -393,6 +405,14 @@ public class DbdScript {
 	public boolean isLinkSourceEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
 				DbdConstants.PARAM_LINK_SOURCE, false);
+	}
+
+	public void removeContext(String context) {
+		script.removeContext(context);
+	}
+
+	public void removeContext(TransformPosition context) {
+		script.getTransformPosition();
 	}
 
 	public void setAddIndexEnabled(boolean enabled) {
@@ -568,6 +588,12 @@ public class DbdScript {
 				documentElement));
 	}
 
+	public void setEncoding(String encoding) {
+		script.getNamespace()
+				.findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
+				.setParam(new TextParam(TrafoConstants.PARAM_ENCODING, encoding));
+	}
+
 	public void setForceAnnotationDocumentationEnabled(boolean enabled) {
 		script.getNamespace()
 				.findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
@@ -630,25 +656,7 @@ public class DbdScript {
 				.setParam(new TextParam(TrafoConstants.PARAM_TITLE, title));
 	}
 
-	public void setEncoding(String encoding) {
-		script.getNamespace()
-				.findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
-				.setParam(new TextParam(TrafoConstants.PARAM_ENCODING, encoding));
-	}
-
 	public void setTransformPosition(TransformPosition context) {
 		script.setTransformPosition(context);
-	}
-
-	public void removeContext(TransformPosition context) {
-		script.getTransformPosition();
-	}
-
-	public void addContext(String context) {
-		script.addContext(context);
-	}
-
-	public void removeContext(String context) {
-		script.removeContext(context);
 	}
 }

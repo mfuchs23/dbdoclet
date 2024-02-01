@@ -5,9 +5,9 @@ import static java.util.Objects.nonNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -30,7 +30,6 @@ import org.dbdoclet.doclet.scanner.MethodScanner;
 import org.dbdoclet.doclet.scanner.PackageScanner;
 import org.dbdoclet.doclet.scanner.TypeScanner;
 
-import com.sun.source.doctree.BlockTagTree;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.LinkTree;
@@ -41,8 +40,10 @@ import com.sun.source.doctree.SeeTree;
 import com.sun.source.doctree.SerialFieldTree;
 import com.sun.source.doctree.UsesTree;
 import com.sun.source.doctree.ValueTree;
+import com.sun.source.util.DocTreePath;
 import com.sun.source.util.DocTrees;
 import com.sun.source.util.SimpleDocTreeVisitor;
+import com.sun.source.util.TreePath;
 
 import jdk.javadoc.doclet.DocletEnvironment;
 import jdk.javadoc.doclet.Reporter;
@@ -201,6 +202,10 @@ public class DocManager {
 		return null;
 	}
 
+	public DocTrees getDocTreeUtils() {
+		return getDocletEnvironment().getDocTrees();
+	}
+		
 	public Elements getElementUtils() {
 		return getDocletEnvironment().getElementUtils();
 	}
@@ -215,7 +220,7 @@ public class DocManager {
 		return docTrees.getPath(typeElem).getCompilationUnit().getSourceFile();
 	}
 	
-	public Set<ExecutableElement> getMethodElements(TypeElement typeElem) {
+	public SortedSet<ExecutableElement> getMethodElements(TypeElement typeElem) {
 		MethodScanner scanner = new MethodScanner(typeElem.getEnclosedElements());
 		return scanner.getMethodElements();
 	}
@@ -231,10 +236,10 @@ public class DocManager {
 		return getQualifiedName(getTypeUtils().asElement(type));
 	}
 
-	public List<? extends DocTree> getOverviewComment() {
+	public DocTreePath getOverviewComment() {
 
 		if (isNull(overviewFile)) {
-			return Collections.emptyList();
+			return null;
 		}
 
 		Set<TypeElement> typeList = ElementFilter.typesIn(getDocletEnvironment().getSpecifiedElements());
@@ -245,14 +250,15 @@ public class DocManager {
 			docCommentTree = getDocletEnvironment().getDocTrees().getDocCommentTree(element, overviewFile);
 		} catch (IOException e) {
 			reporter.print(Diagnostic.Kind.WARNING, "The overview file could not be read: " + e.getMessage());
-			return Collections.emptyList();
+			return null;
 		}
 
 		if (docCommentTree != null) {
-			return docCommentTree.getFullBody();
+			TreePath path = getDocTreeUtils().getPath(element);
+			return new DocTreePath(path, docCommentTree);
 		}
 
-		return Collections.emptyList();
+		return null;
 	}
 
 	public Set<PackageElement> getPackageElements() {
@@ -617,5 +623,22 @@ public class DocManager {
 		} else {
 			return type.toString();
 		}
+	}
+
+	public String varArgsTypeToString(TypeMirror type, boolean createFullyQualifiedNamesEnabled) {
+		String typeName = typeToString(type, createFullyQualifiedNamesEnabled);
+		return typeName.replace("[]", "...");
+	}
+
+	public DocTreePath getDocTreePath(Element elem) {
+
+		TreePath path = getDocTreeUtils().getPath(elem);
+		DocCommentTree docCommentTree = getDocCommentTree(elem);
+		DocTreePath docTreePath = new DocTreePath(path, docCommentTree);
+		return docTreePath;
+	}
+
+	public Element getElement(DocTreePath docTreePath) {
+		return getDocTreeUtils().getElement(docTreePath);
 	}
 }

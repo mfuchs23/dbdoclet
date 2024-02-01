@@ -56,6 +56,7 @@ import com.sun.source.doctree.ReturnTree;
 import com.sun.source.doctree.SeeTree;
 import com.sun.source.doctree.SerialFieldTree;
 import com.sun.source.doctree.ThrowsTree;
+import com.sun.source.util.DocTreePath;
 
 /**
  * The class <code>StyleNoTables</code> provides a layout without any tables.
@@ -144,7 +145,7 @@ public class StyleTable extends StyleCoded implements Style {
 				para = dbfactory.createPara();
 				entry.appendChild(para);
 
-				dbdTrafo.transform(paramTag, para);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), paramTag, para);
 			}
 
 			if (returnTag != null) {
@@ -165,7 +166,7 @@ public class StyleTable extends StyleCoded implements Style {
 				para = dbfactory.createPara();
 				entry.appendChild(para);
 
-				dbdTrafo.transform(returnTag.getDescription(), para);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), returnTag.getDescription(), para);
 			}
 		}
 
@@ -200,13 +201,13 @@ public class StyleTable extends StyleCoded implements Style {
 							.appendChild(dbfactory.createListitem().appendChild(commentPara)));
 
 			dbdTrafo.transform(elem, tag.getExceptionName().toString(), exceptionName);
-			dbdTrafo.transform(tag, commentPara);
+			dbdTrafo.transform(docManager.getDocTreePath(elem), tag, commentPara);
 
 			if (commentPara.hasChildNodes() == false) {
 
 				ReferenceTree refTree = tag.getExceptionName();
 				if (nonNull(refTree)) {
-					dbdTrafo.transform(refTree, commentPara);
+					dbdTrafo.transform(docManager.getDocTreePath(elem), refTree, commentPara);
 				}
 			}
 
@@ -250,11 +251,11 @@ public class StyleTable extends StyleCoded implements Style {
 	}
 
 	@Override
-	public boolean addMetaInfo(Element doc, DocBookElement parent) throws DocletException {
+	public boolean addMetaInfo(Element elem, DocBookElement parent) throws DocletException {
 
 		boolean foundSomething = false;
 
-		if (doc == null) {
+		if (elem == null) {
 			throw new IllegalArgumentException("Parameter doc is null!");
 		}
 
@@ -269,7 +270,7 @@ public class StyleTable extends StyleCoded implements Style {
 		Variablelist varlist = dbfactory.createVariablelist();
 		parent.appendChild(varlist);
 
-		LinkedHashMap<DocTree.Kind, ArrayList<BlockTagTree>> tagMap = createTagMap(doc);
+		LinkedHashMap<DocTree.Kind, ArrayList<BlockTagTree>> tagMap = createTagMap(elem);
 		for (DocTree.Kind kind : tagMap.keySet()) {
 
 			String label = tagManager.getTagLabel(kind, res);
@@ -285,14 +286,14 @@ public class StyleTable extends StyleCoded implements Style {
 
 				if (kind.equals(DocTree.Kind.SEE)) {
 
-					if (addSeeAlsoInfo(doc, label, varlist)) {
+					if (addSeeAlsoInfo(elem, label, varlist)) {
 						foundSomething = true;
 					}
 
 					continue;
 				}
 
-				if (addMetaInfoEntry(list, label, varlist)) {
+				if (addMetaInfoEntry(elem, list, label, varlist)) {
 					foundSomething = true;
 				}
 			}
@@ -302,14 +303,14 @@ public class StyleTable extends StyleCoded implements Style {
 			parent.removeChild(varlist);
 		}
 
-		if (addDeprecatedInfo(doc, parent)) {
+		if (addDeprecatedInfo(elem, parent)) {
 			foundSomething = true;
 		}
 
 		return foundSomething;
 	}
 
-	private boolean addMetaInfoEntry(ArrayList<BlockTagTree> tagList, String label, Variablelist varlist)
+	private boolean addMetaInfoEntry(Element elem, ArrayList<BlockTagTree> tagList, String label, Variablelist varlist)
 			throws DocletException {
 
 		Member member;
@@ -336,7 +337,7 @@ public class StyleTable extends StyleCoded implements Style {
 			logger.debug("Adding tag " + tag + ".");
 			member = dbfactory.createMember();
 			list.appendChild(member);
-			dbdTrafo.transform(bt, member);
+			dbdTrafo.transform(docManager.getDocTreePath(elem), bt, member);
 		}
 
 		return true;

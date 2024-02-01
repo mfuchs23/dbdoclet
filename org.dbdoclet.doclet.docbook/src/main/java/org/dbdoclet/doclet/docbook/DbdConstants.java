@@ -5,6 +5,7 @@ public class DbdConstants {
 	public static final String SECTION_DBDOCLET = "dbdoclet";
 
 	public static final String PARAM_CHUNK_DOCBOOK_ENABLED = "chunk-docbook";
+	public static final String PARAM_CLASS_DIAGRAM_FONT_FAMILY = "class-diagram-font-family";
 	public static final String PARAM_CLASS_DIAGRAM_FONT_SIZE = "class-diagram-font-size";
 	public static final String PARAM_CLASS_DIAGRAM_HEIGHT= "class-diagram-height";
 	public static final String PARAM_CLASS_DIAGRAM_WIDTH = "class-diagram-width";
@@ -40,4 +41,5 @@ public class DbdConstants {
 	public static final String PARAM_OVERVIEW_TITLE = "overview-title";
 
 	public static final String DEFAULT_DOCUMENT_STYLE = "table";
+
 }

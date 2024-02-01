@@ -1,5 +1,5 @@
 /*
- * ### Copyright (C) 2001-2007 Michael Fuchs ###
+ * ### Copyright (C) 2001-20 Michael Fuchs ###
  * ### All Rights Reserved.             ###
  *
  * Author: Michael Fuchs
@@ -22,10 +22,10 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.print.Doc;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,6 +38,7 @@ import org.dbdoclet.xiphias.HtmlServices;
 import com.google.inject.Inject;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
+import com.sun.source.util.DocTreePath;
 import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.doctree.InheritDocTree;
 import com.sun.source.doctree.InlineTagTree;
@@ -47,7 +48,6 @@ import com.sun.source.doctree.SeeTree;
 import com.sun.source.doctree.SerialFieldTree;
 import com.sun.source.doctree.ThrowsTree;
 import com.sun.source.doctree.ValueTree;
-import com.sun.source.util.DocTreeScanner;
 
 class CompiledTag {
 
@@ -293,10 +293,8 @@ public class TagManager {
 			return null;
 		}
 
-		List<SeeTree> list = dctree.getBlockTags().stream()
-				.filter(t -> Kind.SEE.equals(t.getKind()))
-				.map(SeeTree.class::cast)
-				.collect(Collectors.toList());
+		List<SeeTree> list = dctree.getBlockTags().stream().filter(t -> Kind.SEE.equals(t.getKind()))
+				.map(SeeTree.class::cast).collect(Collectors.toList());
 		return list;
 	}
 
@@ -311,10 +309,8 @@ public class TagManager {
 			return null;
 		}
 
-		List<SerialFieldTree> list = dctree.getBlockTags().stream()
-				.filter(t -> Kind.SERIAL_FIELD.equals(t.getKind()))
-				.map(SerialFieldTree.class::cast)
-				.collect(Collectors.toList());
+		List<SerialFieldTree> list = dctree.getBlockTags().stream().filter(t -> Kind.SERIAL_FIELD.equals(t.getKind()))
+				.map(SerialFieldTree.class::cast).collect(Collectors.toList());
 		return list;
 	}
 
@@ -331,8 +327,7 @@ public class TagManager {
 
 		List<ThrowsTree> list = dctree.getBlockTags().stream()
 				.filter(t -> DocTree.Kind.EXCEPTION.equals(t.getKind()) && DocTree.Kind.THROWS.equals(t.getKind()))
-				.map(ThrowsTree.class::cast)
-				.collect(Collectors.toList());
+				.map(ThrowsTree.class::cast).collect(Collectors.toList());
 		return list;
 	}
 
@@ -503,23 +498,18 @@ public class TagManager {
 		}
 	}
 
-	public String processTag(InlineTagTree tag) throws DocletException {
-
-		Doc doc;
-		SeeTree link;
-		String label;
-		String reference;
-		String value;
-		String text;
+	public String processTag(DocTreePath path, DocTree docTree) throws DocletException {
 
 		String comment = "";
+		if (docTree instanceof InlineTagTree == false) {
+			return comment;
+		}
+		
+		InlineTagTree tag = (InlineTagTree) docTree;
 		Kind kind = tag.getKind();
 		String name = tag.getTagName();
 
 		logger.debug("name=" + name + ", kind=" + kind + ", text=" + tag.toString());
-
-		if (kind.equals(Kind.VALUE)) {
-		}
 
 		if (kind.equals(Kind.CODE)) {
 			logger.debug("tag=" + tag.toString());
@@ -528,122 +518,95 @@ public class TagManager {
 			return comment;
 		}
 
-		/* @formatter:on
-		if (kind.equals("@literal")) {
+		if (kind.equals(Kind.LITERAL)) {
 
 			logger.debug("tag=" + tag.toString());
-			String html = HtmlServices.textToHtml(tag.text());
+			String html = HtmlServices.textToHtml(((LiteralTree) tag).getBody().toString());
 			comment = "<javadoc:literal>" + html + "</javadoc:literal>";
 			return comment;
 		}
 
-		if (kind.equals("@see")) {
+		if (kind.equals(Kind.SEE)) {
 
-			link = (SeeTag) tag;
+			SeeTree link = (SeeTree) tag;
+			name = link.getTagName();
 
-			name = link.name();
-
-			// TODO Migration
-			label = "TODO Migration";
-			// label = referenceManager.createReferenceLabel(link);
+			String label = docManager.getCommentText(link.getReference());
+			label = referenceManager.createReferenceLabel(link);
 			label = HtmlServices.textToHtml(label);
 
-			reference = referenceManager.findReference(link);
-
+			String reference = referenceManager.findReference(link);
 			if ((reference != null) && (reference.length() > 0)) {
-
 				if (name.equalsIgnoreCase("@linkplain")) {
-
-					comment += "<javadoc:linkplain" + " ref=\"" + reference
-							+ "\"" + " name=\"" + label + "\">" + link.label()
-							+ "</javadoc:linkplain>";
-
+					comment += "<javadoc:linkplain" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
+							+ link.getTagName() + "</javadoc:linkplain>";
 				} else {
-
-					comment += "<javadoc:link" + " ref=\"" + reference + "\""
-							+ " name=\"" + label + "\">" + link.label()
-							+ "</javadoc:link>";
+					comment += "<javadoc:link" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
+							+ link.getTagName() + "</javadoc:link>";
 				}
 
 			} else if ((reference != null) && reference.startsWith("<a")) {
-
 				comment = label;
-
 			} else {
-
 				comment += label;
 			}
 
 		} else {
-
-			comment += tag.text();
+			comment += docManager.getCommentText(tag);
 		}
-        @formatter:on */
 
 		return comment;
 	}
 
-	public String processTag(InheritDocTree tag) throws DocletException {
+	public String processTag(DocTreePath path, InheritDocTree tag) throws DocletException {
 
 		String comment = docManager.getCommentText(tag);
 		return comment;
 	}
 
-	public String processTag(ValueTree tag) throws DocletException {
+	public String processTag(DocTreePath path, ValueTree tag) throws DocletException {
 
 		String comment = docManager.getCommentText(tag);
 		String value = "Tag(@value): UnknownValueException!";
 
-		DocTreeScanner dts = new DocTreeScanner();
-		Object visitValue = dts.visitValue(tag, null);
+		Element elem = docManager.getDocletEnvironment().getDocTrees().getElement(path);
+		if (comment.isBlank() && elem instanceof VariableElement) {
+			VariableElement fdoc = (VariableElement) elem;
+			value = fdoc.getConstantValue().toString();
+		}
 
-		/* @formatter:off
-		if (text.length() == 0 && doc instanceof VariableElement) {
+		if (!comment.isBlank() && elem instanceof ExecutableElement) {
 
-				VariableElement fdoc = (VariableElement) doc;
-				value = fdoc.constantValueExpression();
-			}
+			logger.debug("constantFieldMap.size()=" + getConstantFieldMap().size());
+			String pkgName = getSeeNamePackage(elem, comment);
+			logger.debug("pkgName=" + pkgName);
 
-			if (text.length() > 0 && doc instanceof ProgramElementDoc) {
+			TreeMap<String, TreeMap<String, VariableElement>> classMap = getConstantFieldMap().get(pkgName);
 
-				logger.debug("constantFieldMap.size()="
-						+ getConstantFieldMap().size());
-				String pkgName = getSeeNamePackage((ProgramElementDoc) doc,
-						text);
-				logger.debug("pkgName=" + pkgName);
+			if (classMap != null) {
 
-				TreeMap<String, TreeMap<String, VariableElement>> classMap = getConstantFieldMap()
-						.get(pkgName);
+				String className = getSeeNameClass(elem, comment);
+				logger.debug("className=" + className);
 
-				if (classMap != null) {
+				TreeMap<String, VariableElement> fieldMap = classMap.get(className);
 
-					String className = getSeeNameClass((ProgramElementDoc) doc,
-							text);
-					logger.debug("className=" + className);
+				if (fieldMap != null) {
 
-					TreeMap<String, VariableElement> fieldMap = classMap
-							.get(className);
+					String fieldName = getSeeNameMember(comment);
+					logger.debug("fieldName=" + fieldName);
 
-					if (fieldMap != null) {
+					VariableElement fdoc = fieldMap.get(fieldName);
 
-						String fieldName = getSeeNameMember(text);
-						logger.debug("fieldName=" + fieldName);
-
-						VariableElement fdoc = fieldMap.get(fieldName);
-
-						if (fdoc != null) {
-							value = fdoc.constantValueExpression();
-						}
+					if (fdoc != null) {
+						value = fdoc.getConstantValue().toString();
 					}
 				}
 			}
+		}
 
-			comment = "<javadoc:value>" + HtmlServices.textToHtml(value)
-					+ "</javadoc:value>";
-			logger.debug(comment);
+		comment = "<javadoc:value>" + HtmlServices.textToHtml(value) + "</javadoc:value>";
+		logger.debug(comment);
 
-			return comment;
-			@formatter:on */
 		return comment;
 	}
 
