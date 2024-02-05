@@ -25,6 +25,7 @@ import javax.lang.model.type.TypeMirror;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
+import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.docbook.DbdScript;
 import org.dbdoclet.service.FileServices;
@@ -51,6 +52,8 @@ public class ClassDiagramManager {
 	private DbdScript script;
 	@Inject
 	private DocManager docManager;
+	@Inject
+	private DocFormatter docFormatter;
 
 	private int imageHeight;
 	private int imageWidth;
@@ -201,7 +204,7 @@ public class ClassDiagramManager {
 			for (var field : fields) {
 				ucdc.addAttribute(classBox, String.format("%s %s: %s",
 						createVisibilityIndicator(field), docManager.getName(field),
-						docManager.typeToString(field.asType(), false)));
+						docFormatter.typeToString(field.asType(), false)));
 			}
 		}
 	}
@@ -228,7 +231,7 @@ public class ClassDiagramManager {
 				ucdc.addMethod(classBox, String.format("%s %s(%s): %s",
 						createVisibilityIndicator(method), docManager.getName(method),
 						createOperationParameterList(method),
-						docManager.typeToString(method.getReturnType(), false)));
+						docFormatter.typeToString(method.getReturnType(), false)));
 			}
 		}
 	}
@@ -268,9 +271,9 @@ public class ClassDiagramManager {
 		List<? extends VariableElement> parameters = method.getParameters();
 		for (var paramDoc : parameters) {
 			
-			String type = docManager.typeToString(paramDoc.asType(), false);
+			String type = docFormatter.typeToString(paramDoc.asType(), false);
 			if (method.isVarArgs() && index == parameters.size()-1) {
-				type = docManager.varArgsTypeToString(paramDoc.asType(), false);
+				type = docFormatter.varArgsTypeToString(paramDoc.asType(), false, false);
 			}
 			
 			buffer.append(String.format("%s: %s,\n", docManager.getName(paramDoc), type));
@@ -322,7 +325,7 @@ public class ClassDiagramManager {
 
 		for (TypeElement type : inheritanceList) {
 
-			String className = docManager.typeToString(type.asType(),
+			String className = docFormatter.typeToString(type.asType(),
 					showFullQualifiedName);
 
 			if (docManager.isAnnotationType(type)) {
@@ -342,7 +345,7 @@ public class ClassDiagramManager {
 				for (TypeParameterElement typeParameter : type.getTypeParameters()) {
 					templateParameters.add(String.format("%s: %s",
 							typeParameter.getSimpleName(),
-							docManager.typeToString(typeParameter.asType(), false)));
+							docFormatter.typeToString(typeParameter.asType(), false)));
 				}
 
 				logger.debug("className: " + className);
@@ -377,7 +380,7 @@ public class ClassDiagramManager {
 					offset *= -1;
 				}
 
-				String interfaceName = docManager.typeToString(interfaceType,
+				String interfaceName = docFormatter.typeToString(interfaceType,
 						showFullQualifiedName);
 
 				if (docManager.isAnnotationType(type)) {
@@ -455,7 +458,7 @@ public class ClassDiagramManager {
 		ClassBox fromShape = null;
 		ClassBox toShape = null;
 
-		String interfaceName = docManager.typeToString(doc.asType(), showFullQualifiedName);
+		String interfaceName = docFormatter.typeToString(doc.asType(), showFullQualifiedName);
 		fromShape = ucdc.addClassBox(row, middleCol, interfaceName, "interface");
 
 		row--;
@@ -467,7 +470,7 @@ public class ClassDiagramManager {
 
 			for (TypeMirror interfaceType : interfaceTypes) {
 
-				interfaceName = docManager.typeToString(interfaceType,
+				interfaceName = docFormatter.typeToString(interfaceType,
 						showFullQualifiedName);
 
 				if (typeIndex == 1) {

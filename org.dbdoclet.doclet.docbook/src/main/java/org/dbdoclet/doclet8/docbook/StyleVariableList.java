@@ -311,7 +311,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 			Variablelist varlist) throws DocletException {
 
 		Member member;
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 		logger.debug("Adding tags size = " + tagList.size() + ".");
 
@@ -361,7 +361,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 			return false;
 		}
 
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 		varlist.appendChild(dbfactory
 				.createVarlistentry()

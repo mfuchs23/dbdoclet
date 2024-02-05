@@ -11,6 +11,7 @@
 package org.dbdoclet.doclet.docbook;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.MessageFormat;
@@ -19,6 +20,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Supplier;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
@@ -57,7 +60,7 @@ import jdk.javadoc.doclet.Reporter;
  */
 public final class DocBookDoclet extends AbstractDoclet {
 
-	private static Logger logger = Logger.getLogger(DocBookDoclet.class.getSimpleName());
+	private static Logger logger = Logger.getAnonymousLogger();
 	
 	private DocletOptions options;
 	private ResourceBundle res;
@@ -70,7 +73,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 	
     @Override
     public void init(Locale locale, Reporter reporter) {
-        this.reporter = reporter;
+    	super.init(locale, reporter);
     }
 	/**
 	 * The method <code>copyDocFiles</code> copies all files, which are located in
@@ -164,9 +167,15 @@ public final class DocBookDoclet extends AbstractDoclet {
 
 	@Override
 	public boolean run(DocletEnvironment environment) {
-
+		
+		/*
+		 * try (FileInputStream fis = new
+		 * FileInputStream("/home/michael/tmp/logging.properties")) {
+		 * LogManager.getLogManager().readConfiguration(fis); } catch (Exception e) {
+		 * e.printStackTrace(); }
+		 */
 		try {
-
+			
 			DbdScript dbdScript = CDI.getInstance(DbdScript.class);
 
 			String filename = options.getDestinationFile();

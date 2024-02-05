@@ -32,17 +32,9 @@ import org.dbdoclet.doclet.scanner.TypeScanner;
 
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
-import com.sun.source.doctree.LinkTree;
 import com.sun.source.doctree.ParamTree;
-import com.sun.source.doctree.ProvidesTree;
-import com.sun.source.doctree.ReferenceTree;
-import com.sun.source.doctree.SeeTree;
-import com.sun.source.doctree.SerialFieldTree;
-import com.sun.source.doctree.UsesTree;
-import com.sun.source.doctree.ValueTree;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.DocTrees;
-import com.sun.source.util.SimpleDocTreeVisitor;
 import com.sun.source.util.TreePath;
 
 import jdk.javadoc.doclet.DocletEnvironment;
@@ -63,80 +55,28 @@ public class DocManager {
 		return (PackageElement) parent;
 	}
 
-	public String createMethodFlatSignature(ExecutableElement executableElement) {
-		
-		StringBuilder buffer = new StringBuilder();
-		buffer.append('(');
-		
-		for (VariableElement param : executableElement.getParameters()) {
-			buffer.append(typeToString(param.asType(), false));
-			buffer.append(", ");
-		}
-
-		if (buffer.length() > 2) {
-			buffer.delete(buffer.length()-2, buffer.length());
-		}
-		
-		buffer.append(')');
-		return buffer.toString();
-	}
-	
-	public String createMethodPrettySignature(ExecutableElement executableElement) {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append('(');
-		for (VariableElement param : executableElement.getParameters()) {
-			buffer.append(typeToString(param.asType(), false));
-			buffer.append(" ");
-			buffer.append(param.getSimpleName());
-			buffer.append(", ");
-		}
-		if (buffer.length() > 2) {
-			buffer.delete(buffer.length()-2, buffer.length());
-		}
-		buffer.append(')');
-		return buffer.toString();
-	}
-
-	public String createMethodSignature(ExecutableElement executableElement) {
-		
-		StringBuilder buffer = new StringBuilder();
-		buffer.append('(');
-		for (VariableElement param : executableElement.getParameters()) {
-			buffer.append(typeToString(param.asType(), true));
-			buffer.append(", ");
-		}
-		
-		if (buffer.length() > 2) {
-			buffer.delete(buffer.length()-2, buffer.length());
-		}
-		
-		buffer.append(')');
-		return buffer.toString();
-	}
-
-	@SuppressWarnings("unchecked")
-	public <T extends DocTree> List<T> findDocTreeList(Element memberDoc, Class<T> clazz, DocTree.Kind kind) {
-		
-		ArrayList<T> list = new ArrayList<>();
-		DocCommentTree docCommentTree = getDocCommentTree(memberDoc);
-		for (DocTree docTree : docCommentTree.getFullBody()) {
-			if (kind.equals(docTree.getKind())) {
-				list.add((T) docTree);
+	public Element findTypeElement(TreePath treePath) {
+		Element element = getElement(treePath);
+		while (nonNull(element)) {
+			ElementKind kind = element.getKind();
+			if (kind.isClass() || kind.isInterface()) {
+				return element;
 			}
+			element = element.getEnclosingElement();
 		}
-		return list;
+		return null;
 	}
 
 	public Set<ExecutableElement> getAnnotationElements(TypeElement annotationElem) {
 		MethodScanner scanner = new MethodScanner(annotationElem.getEnclosedElements());
 		return scanner.getMethodElements();
 	}
-
+	
 	public Set<TypeElement> getClassElements() {
 		ClassScanner scanner = new ClassScanner(getDocletEnvironment().getIncludedElements());
 		return scanner.getClassElements();
 	}
-	
+
 	public String getCommentText(DocTree docTree) {
 		if (isNull(docTree)) {
 			return "";
@@ -174,12 +114,12 @@ public class DocManager {
 		}
 		return buffer.toString();
 	}
-
+	
 	public Set<ExecutableElement> getConstructorElements(TypeElement typeElem) {
 		ConstructorScanner scanner = new ConstructorScanner(typeElem.getEnclosedElements());
 		return scanner.getConstructorElements();
 	}
-	
+
 	public TypeElement getContainingClass(Element element) {
 		Element parent = element.getEnclosingElement();
 		if (nonNull(parent) && ElementKind.CLASS.equals(parent.getKind())) {
@@ -195,17 +135,27 @@ public class DocManager {
 	public DocletEnvironment getDocletEnvironment() {
 		return env;
 	}
+	
+	public DocTreePath getDocTreePath(Element elem) {
 
-	// @TODO Migration
-	public Element getElement(ReferenceTree tree) {
-		tree.getSignature();
-		return null;
+		TreePath path = getDocTreeUtils().getPath(elem);
+		DocCommentTree docCommentTree = getDocCommentTree(elem);
+		DocTreePath docTreePath = new DocTreePath(path, docCommentTree);
+		return docTreePath;
 	}
-
+		
 	public DocTrees getDocTreeUtils() {
 		return getDocletEnvironment().getDocTrees();
 	}
-		
+
+	public Element getElement(TreePath treePath) {
+		return getDocTreeUtils().getElement(treePath);
+	}
+
+	public Element getElement(TypeMirror type) {
+		return getTypeUtils().asElement(type);
+	}
+	
 	public Elements getElementUtils() {
 		return getDocletEnvironment().getElementUtils();
 	}
@@ -219,7 +169,7 @@ public class DocManager {
 		DocTrees docTrees = getDocletEnvironment().getDocTrees();
 		return docTrees.getPath(typeElem).getCompilationUnit().getSourceFile();
 	}
-	
+
 	public SortedSet<ExecutableElement> getMethodElements(TypeElement typeElem) {
 		MethodScanner scanner = new MethodScanner(typeElem.getEnclosedElements());
 		return scanner.getMethodElements();
@@ -357,55 +307,6 @@ public class DocManager {
 		return qname.toString();
 	}
 
-	public Element getReferencedElement(DocTree docTree) {
-
-		return new SimpleDocTreeVisitor<Element, Void>() {
-			@Override
-			protected Element defaultAction(DocTree node, Void p) {
-				return null;
-			}
-
-			@Override
-			public Element visitLink(LinkTree node, Void p) {
-				return visit(node.getReference(), null);
-			}
-
-			@Override
-			public Element visitProvides(ProvidesTree node, Void p) {
-				return visit(node.getServiceType(), null);
-			}
-
-			@Override
-			public Element visitReference(ReferenceTree node, Void p) {
-				return getElement(node);
-			}
-
-			@Override
-			public Element visitSee(SeeTree node, Void p) {
-				for (DocTree dt : node.getReference()) {
-					return visit(dt, null);
-				}
-				return null;
-			}
-
-			@Override
-			public Element visitSerialField(SerialFieldTree node, Void p) {
-				return visit(node.getType(), null);
-			}
-
-			@Override
-			public Element visitUses(UsesTree node, Void p) {
-				return visit(node.getServiceType(), null);
-			}
-
-			@Override
-			public Element visitValue(ValueTree node, Void p) {
-				return visit(node.getReference(), null);
-			}
-		}.visit(docTree, null);
-
-	}
-
 	public Reporter getReporter() {
 		return reporter;
 	}
@@ -427,7 +328,7 @@ public class DocManager {
 		TypeScanner scanner = new TypeScanner(getDocletEnvironment().getIncludedElements());
 		return scanner.getTypeElements();
 	}
-
+	
 	public Set<TypeElement> getTypeElements(PackageElement pkgDoc) {
 		TypeScanner scanner = new TypeScanner(pkgDoc.getEnclosedElements());
 		return scanner.getTypeElements();
@@ -435,6 +336,21 @@ public class DocManager {
 
 	public Types getTypeUtils() {
 		return getDocletEnvironment().getTypeUtils();
+	}
+
+	public boolean hasContent(Element elem) {
+		
+		String comment = getCommentText(elem);
+		if (nonNull(comment) && !comment.isBlank()) {
+			return true;
+		}
+		
+		DocCommentTree dcTree = getDocCommentTree(elem);
+		if (nonNull(dcTree) && !dcTree.getBlockTags().isEmpty()) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	public ExecutableElement implementedMethod(TypeElement classElem, ExecutableElement methodElem) {
@@ -526,7 +442,7 @@ public class DocManager {
 		return !modifiers.contains(Modifier.PRIVATE) && !modifiers.contains(Modifier.PROTECTED)
 				&& !modifiers.contains(Modifier.PUBLIC);
 	}
-
+	
 	public boolean isPrimitiveType(TypeMirror type) {
 		switch (type.getKind()) {
 		case BOOLEAN:
@@ -555,7 +471,7 @@ public class DocManager {
 	public boolean isPublic(Element elem) {
 		return elem.getModifiers().contains(Modifier.PUBLIC);
 	}
-
+	
 	public boolean isStatic(Element elem) {
 		return elem.getModifiers().contains(Modifier.STATIC);
 	}
@@ -563,11 +479,11 @@ public class DocManager {
 	public boolean isSynchronized(Element elem) {
 		return elem.getModifiers().contains(Modifier.SYNCHRONIZED);
 	}
-	
+
 	public boolean isTransient(Element elem) {
 		return elem.getModifiers().contains(Modifier.TRANSIENT);
 	}
-	
+
 	public boolean isVolatile(Element elem) {
 		return elem.getModifiers().contains(Modifier.VOLATILE);
 	}
@@ -605,40 +521,5 @@ public class DocManager {
 
 	public void setReporter(Reporter reporter) {
 		this.reporter = reporter;
-	}
-
-	public String typeToString(TypeMirror type, boolean showFullQualifiedName) {
-
-		if (isPrimitiveType(type)) {
-			return type.toString();
-		}
-
-		Element elem = getTypeUtils().asElement(type);
-		if (nonNull(elem)) {
-			if (showFullQualifiedName && elem instanceof TypeElement) {
-				return ((TypeElement) elem).getQualifiedName().toString();
-			} else {
-				return elem.getSimpleName().toString();
-			}
-		} else {
-			return type.toString();
-		}
-	}
-
-	public String varArgsTypeToString(TypeMirror type, boolean createFullyQualifiedNamesEnabled) {
-		String typeName = typeToString(type, createFullyQualifiedNamesEnabled);
-		return typeName.replace("[]", "...");
-	}
-
-	public DocTreePath getDocTreePath(Element elem) {
-
-		TreePath path = getDocTreeUtils().getPath(elem);
-		DocCommentTree docCommentTree = getDocCommentTree(elem);
-		DocTreePath docTreePath = new DocTreePath(path, docCommentTree);
-		return docTreePath;
-	}
-
-	public Element getElement(DocTreePath docTreePath) {
-		return getDocTreeUtils().getElement(docTreePath);
 	}
 }

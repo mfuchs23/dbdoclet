@@ -1,12 +1,13 @@
 package org.dbdoclet.doclet;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,24 +16,30 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.service.StringServices;
 
+import com.google.inject.Inject;
+import com.sun.source.doctree.LinkTree;
+import com.sun.source.doctree.ReferenceTree;
 import com.sun.source.doctree.SeeTree;
+import com.sun.source.util.DocTreePath;
 
 public class ReferenceManager {
 
-	private static Log logger = LogFactory.getLog(ReferenceManager.class);
+	private static Logger logger = Logger.getLogger(ReferenceManager.class.getName());
 	private static Pattern nonXmlNameCharPattern = Pattern
 			.compile("[^\\w\\._-]+");
 
 	private HashMap<String, String> idMap;
 	private String documentationId;
+	
+	@Inject
 	private DocManager docManager;
+	@Inject
+	private DocFormatter docFormatter;
 
 	public void init(String documentationId,
 			TreeMap<String, TreeMap<String, TypeElement>> pkgMap, 
@@ -91,6 +98,23 @@ public class ReferenceManager {
 		idMap = map;
 	}
 
+	public String createReferenceLabel(LinkTree tag) throws DocletException {
+
+		if (tag == null) {
+			throw new IllegalArgumentException("Parameter tag is null!");
+		}
+
+		String label = docManager.getCommentText(tag.getLabel());
+		if (isNull(label) || label.isBlank()) {
+			label = docManager.getCommentText(tag.getReference());			
+		}
+		
+		logger.fine("Label for link reference " + tag.toString() + " is " + label
+				+ ".");
+
+		return label;
+	}
+
 	public String createReferenceLabel(SeeTree tag) throws DocletException {
 
 		if (tag == null) {
@@ -98,10 +122,40 @@ public class ReferenceManager {
 		}
 
 		String label = docManager.getCommentText(tag.getReference());
-		logger.debug("Label for reference " + tag.toString() + " is " + label
+		logger.fine("Label for is reference " + tag.toString() + " is " + label
 				+ ".");
 
 		return label;
+	}
+
+	public String findReference(DocTreePath path, LinkTree tag) {
+
+		if (tag == null) {
+			throw new IllegalArgumentException("Parameter tag is null!");
+		}
+
+		if (idMap == null) {
+			throw new IllegalStateException("Variable idMap is null!");
+		}
+
+		logger.fine("Find reference for tag " + tag.toString());
+
+		ReferenceTree rtree = tag.getReference();
+		String key= rtree.getSignature();
+		if (key.startsWith("#")) {
+			key = key.replaceFirst("#", ".");
+			Element element = docManager.findTypeElement(path.getTreePath());
+			key = docManager.getQualifiedName(element) + key;
+		}
+		
+		logger.fine("Reference = " + key + ".");
+
+		key = normalizeKey(key);
+		return idMap.get(key);
+	}
+
+	private String normalizeKey(String key) {
+		return key;
 	}
 
 	public String findReference(SeeTree tag) {
@@ -114,11 +168,11 @@ public class ReferenceManager {
 			throw new IllegalStateException("Variable idMap is null!");
 		}
 
-		logger.debug("Find reference for tag " + tag.toString());
+		logger.fine("Find reference for tag " + tag.toString());
 
 		String key = docManager.getCommentText(tag.getReference());
 		String reference = getId(key);
-		logger.debug("Reference = " + reference + ".");
+		logger.fine("Reference = " + reference + ".");
 
 		return reference;
 	}
@@ -185,26 +239,7 @@ public class ReferenceManager {
 	}
 
 	public String createMethodKey(ExecutableElement doc) {
-
-		String qualifiedName = docManager.getQualifiedName(doc);
-		StringBuilder id = new StringBuilder(qualifiedName);
-		id.append('(');
-
-		for (VariableElement param : doc.getParameters()) {
-
-			if (param == null) {
-				continue;
-			}
-
-			TypeMirror type = param.asType();
-
-			if (type != null) {
-				id.append(docManager.getQualifiedName(type));
-				id.append(",");
-			}
-		}
-
-		return StringServices.cutSuffix(id.toString(), ",") + ")";
+		return docManager.getQualifiedName(doc) + docFormatter.createMethodFlatSignature(doc);
 	}
 
 	public String createFieldKey(VariableElement variableElement) {
@@ -259,7 +294,6 @@ public class ReferenceManager {
 		Object obj = idMap.get(key);
 
 		if (obj == null) {
-
 			return null;
 		}
 
@@ -300,9 +334,7 @@ public class ReferenceManager {
 
 		for (ExecutableElement constructor : constructors) {
 
-			String comment = docManager.getCommentText(constructor);
-
-			if (nonNull(comment) && !comment.isBlank()) {
+			if (docManager.hasContent(constructor)) {
 
 				if (type == XmlIdType.JAVA) {
 
@@ -323,9 +355,7 @@ public class ReferenceManager {
 
 		for (ExecutableElement method : methods) {
 
-			String comment = docManager.getCommentText(method);
-
-			if (nonNull(comment) && !comment.isBlank()) {
+			if (docManager.hasContent(method)) {
 
 				if (type == XmlIdType.JAVA) {
 
@@ -346,9 +376,7 @@ public class ReferenceManager {
 
 		for (VariableElement field : fields) {
 
-			String comment = docManager.getCommentText(field);
-
-			if ((comment != null) && !comment.equals("")) {
+			if (docManager.hasContent(field)) {
 
 				if (type == XmlIdType.JAVA) {
 
@@ -372,9 +400,7 @@ public class ReferenceManager {
 
 			for (Element element : elements) {
 
-				String comment = docManager.getCommentText(element);
-
-				if (nonNull(comment) && !comment.isBlank()) {
+				if (docManager.hasContent(element)) {
 
 					if (type == XmlIdType.JAVA) {
 
@@ -391,9 +417,5 @@ public class ReferenceManager {
 				}
 			}
 		}
-	}
-
-	public void setDocManager(DocManager docManager) {
-		this.docManager = docManager;
 	}
 }

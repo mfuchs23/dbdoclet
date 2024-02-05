@@ -84,7 +84,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				para.appendChild(": ");
 
 				Simplelist list = dbfactory
-						.createSimplelist(Simplelist.FORMAT_INLINE);
+						.createSimplelist(Simplelist.Type.INLINE);
 				para.appendChild(list);
 
 				for (Type cdoc : subclasses) {
@@ -170,7 +170,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			int fieldCount = 0;
 
 			Simplelist fieldList = dbfactory
-					.createSimplelist(Simplelist.FORMAT_INLINE);
+					.createSimplelist(Simplelist.Type.INLINE);
 
 			for (int i = 0; i < fields.length; i++) {
 
@@ -320,7 +320,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			int methodCount = 0;
 
 			Simplelist methodList = dbfactory
-					.createSimplelist(Simplelist.FORMAT_INLINE);
+					.createSimplelist(Simplelist.Type.INLINE);
 
 			for (int i = 0; i < methods.length; i++) {
 

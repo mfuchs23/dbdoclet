@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.inject.Inject;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -30,6 +29,7 @@ import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
+import org.dbdoclet.tag.docbook.Member;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.TrafoResult;
@@ -43,10 +43,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import com.google.inject.Inject;
+import com.sun.source.doctree.BlockTagTree;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
-import com.sun.source.doctree.LinkTree;
 import com.sun.source.doctree.InlineTagTree;
+import com.sun.source.doctree.LinkTree;
 import com.sun.source.util.DocTreePath;
 
 /**
@@ -103,9 +105,10 @@ public class DbdTransformer {
 
 		StringBuilder buffer = new StringBuilder();
 		for (var dt : docTreeList) {
-			
 			if (dt instanceof InlineTagTree) {
-				buffer.append(tagManager.processTag(path, dt));
+				buffer.append(tagManager.processInlineTag(path, dt));
+			} else if (dt instanceof BlockTagTree) {
+				buffer.append(tagManager.processBlockTag(path, dt));
 			} else {
 				buffer.append(dt.toString());
 			}
@@ -245,14 +248,6 @@ public class DbdTransformer {
 				if (child instanceof DocBookElement) {
 
 					DocBookElement childElem = (DocBookElement) child;
-
-					if (parent instanceof Para == false && childElem.isInline()) {
-
-						Para para = tagFactory.createPara();
-						parent.appendChild(para);
-						parent = para;
-					}
-
 					Node parentElem = parent;
 
 					if ((childElem instanceof Para || childElem.isSection()) && parentElem instanceof Para) {
@@ -268,19 +263,6 @@ public class DbdTransformer {
 					} else {
 						logger.error(String.format("Invalid child %s for parent %s and possible ancestors.",
 								child.getNodeName(), parent.getNodeName()));
-						parent.appendChild(child);
-					}
-
-				} else if (child instanceof Text) {
-
-					if (parent instanceof Para == false) {
-
-						Para para = tagFactory.createPara();
-						parent.appendChild(para);
-						para.appendChild(child);
-						parent = para;
-
-					} else {
 						parent.appendChild(child);
 					}
 

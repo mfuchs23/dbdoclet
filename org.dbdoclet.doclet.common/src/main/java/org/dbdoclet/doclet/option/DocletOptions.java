@@ -1,5 +1,6 @@
 package org.dbdoclet.doclet.option;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -88,6 +89,7 @@ public class DocletOptions {
 	private String title;
 	private String encoding;
 	private String sourcepath;
+	private ArrayList<String> runtimeParams = new ArrayList<>();
     
     public DocletOptions(ResourceBundle res) {
     	
@@ -99,6 +101,8 @@ public class DocletOptions {
 		options.add(new Option("-f", 1, Kind.OTHER, args -> destinationFile = args.get(0)));
 		options.add(new Option("--profile", 1, Kind.OTHER, args -> profile = args.get(0)));
 		options.add(new Option("-t", 1, Kind.OTHER, args -> title = args.get(0)));
+		options.add(new Option("-J", 1, Kind.EXTENDED, args -> runtimeParams.add(args.get(0))));
+		options.add(new Option("-D", 1, Kind.EXTENDED, args -> runtimeParams.add(args.get(0))));
     }
 
 	public String getDestinationDirectory() {

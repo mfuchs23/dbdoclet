@@ -328,10 +328,10 @@ public class ArticleManager extends MediaManager {
 
 				if (script.setCreateXrefLabelEnabled()) {
 					section.setXrefLabel(
-							XmlServices.textToXml(memberName + docManager.createMethodSignature(memberElem)));
+							XmlServices.textToXml(memberName + docFormatter.createMethodSignature(memberElem)));
 				}
 
-				title.appendChild(memberName + docManager.createMethodFlatSignature(memberElem));
+				title.appendChild(memberName + docFormatter.createMethodFlatSignature(memberElem));
 			}
 
 			title.appendChild(tagFactory.createIndexterm()

@@ -1,72 +1,20 @@
 package org.dbdoclet.doclet;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.logging.Logger;
 
-import com.google.inject.Inject;
 import javax.lang.model.SourceVersion;
-import javax.tools.Diagnostic.Kind;
-
-import org.dbdoclet.option.OptionException;
-import org.dbdoclet.option.OptionList;
-import org.dbdoclet.service.ResourceServices;
 
 import jdk.javadoc.doclet.Doclet;
 import jdk.javadoc.doclet.Reporter;
 
 public abstract class AbstractDoclet implements Doclet {
 
-	private static final boolean OK = true;
-
-	protected DeprecatedDocletOptions deprecated_options = null;
 	protected Reporter reporter;
-
-	private Locale locale;
+	protected Locale locale;
 
 	public AbstractDoclet() {
 		super();
-	}
-
-	public DeprecatedDocletOptions getOptions() {
-		return deprecated_options;
-	}
-
-	public void setOptions(String[][] args) throws OptionException {
-		deprecated_options = new DeprecatedDocletOptions(args);
-	}
-
-	public static boolean validOptions(String[][] args,
-			Reporter reporter) {
-
-		DeprecatedDocletOptions options = new DeprecatedDocletOptions(args);
-		OptionList optionList = options.getOptionList();
-		boolean rc = optionList.validate();
-
-		org.dbdoclet.option.Option<?> destFileOption = optionList.findOption("destination-file");
-		org.dbdoclet.option.Option<?> destDirOption = optionList.findOption("destination-directory");
-		String usageText = "";
-		try {
-			usageText = ResourceServices
-					.getResourceAsString("resource/dbdoclet_usage.txt");
-		} catch (IOException oops) {
-			usageText = oops.getMessage();
-		}
-		
-		if (destFileOption.isUnset() == false && destDirOption.isUnset() == false) {
-			reporter.print(Kind.ERROR, "Options --destination-file and --destination-directory may not be used together!");
-			reporter.print(Kind.NOTE, usageText);
-		}
-		
-		if (rc == false) {
-			reporter.print(Kind.ERROR, optionList.getError());
-			reporter.print(Kind.NOTE, usageText);
-		}
-
-		return rc;
 	}
 
 	/**
@@ -98,10 +46,8 @@ public abstract class AbstractDoclet implements Doclet {
 			throw new IllegalArgumentException(
 					"The argument str must not be null!");
 		}
-
-		if ((deprecated_options == null) || (deprecated_options.isQuiet() == false)) {
-			System.out.println(str);
-		}
+		
+		Logger.getAnonymousLogger().info(str);
 	}
 
 	public void println(String str, String param1) {
@@ -115,18 +61,12 @@ public abstract class AbstractDoclet implements Doclet {
 			throw new IllegalArgumentException(
 					"The argument param1 must not be null!");
 		}
-
-		if ((deprecated_options == null) || (deprecated_options.isQuiet() == false)) {
-
-			String buffer = MessageFormat.format(str, param1);
-			System.out.println(buffer);
-		}
 	}
 
 	@Override
 	public void init(Locale locale, Reporter reporter) {
 		this.locale = locale;
-		this.reporter = reporter;		
+		this.reporter = reporter;	
 	}
 
 	@Override

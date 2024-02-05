@@ -48,6 +48,11 @@ import org.dbdoclet.xiphias.dom.NodeImpl;
 
 import com.sun.source.doctree.DocCommentTree;
 
+/**
+ * Creates a DocBook Book from the javadoc information.
+ * 
+ * 	@author Michael Fuchs
+ */
 public class BookManager extends MediaManager {
 
 	private static Log logger = LogFactory.getLog(BookManager.class);
@@ -296,6 +301,16 @@ public class BookManager extends MediaManager {
 		}
 	}
 
+	/**
+	 * Writes constructors, methods, and initializers.
+	 * 
+	 * @param classDoc
+	 * @param members
+	 * @param parent
+	 * @param prefix
+	 * @return
+	 * @throws DocletException
+	 */
 	private boolean writeExecutableMembers(TypeElement classDoc, Set<ExecutableElement> members, NodeImpl parent,
 			String prefix) throws DocletException {
 
@@ -335,8 +350,8 @@ public class BookManager extends MediaManager {
 			section.appendChild(title);
 
 			String memberName = docManager.getName(memberDoc);
-			String flatSignature = docManager.createMethodFlatSignature(memberDoc);
-			String signature = docManager.createMethodSignature(memberDoc);
+			String flatSignature = docFormatter.createMethodFlatSignature(memberDoc);
+			String signature = docFormatter.createMethodSignature(memberDoc);
 
 			if (docManager.isAnnotationType(memberDoc)) {
 
@@ -356,7 +371,7 @@ public class BookManager extends MediaManager {
 					section.setXrefLabel(XmlServices.textToXml(memberName + signature));
 				}
 
-				title.appendChild(memberName + flatSignature);
+				title.appendChild(prefix + memberName + flatSignature);
 			}
 
 			title.appendChild(tagFactory.createIndexterm()
@@ -376,9 +391,9 @@ public class BookManager extends MediaManager {
 				}
 			}
 
-			DocCommentTree docCommentTree = docManager.getDocCommentTree(implementedDoc);
+			DocCommentTree docCommentTree = docManager.getDocCommentTree(memberDoc);
 			if (nonNull(docCommentTree)) {
-				htmlDocBookTrafo.transform(docManager.getDocTreePath(implementedDoc), section);
+				htmlDocBookTrafo.transform(docManager.getDocTreePath(memberDoc), section);
 			}
 			
 			if (script.isCreateParameterInfoEnabled() == true) {

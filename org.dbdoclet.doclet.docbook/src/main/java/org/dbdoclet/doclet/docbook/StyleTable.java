@@ -86,7 +86,7 @@ public class StyleTable extends StyleCoded implements Style {
 			returnTag = tagManager.findReturnTag(memberDoc);
 		}
 
-		List<ParamTree> paramTagList = docManager.findDocTreeList(memberDoc, ParamTree.class, DocTree.Kind.PARAM);
+		List<ParamTree> paramTagList = tagManager.findParamTags(memberDoc);
 
 		if (nonNull(returnTag) || paramTagList.size() > 0) {
 
@@ -145,7 +145,7 @@ public class StyleTable extends StyleCoded implements Style {
 				para = dbfactory.createPara();
 				entry.appendChild(para);
 
-				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), paramTag, para);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), paramTag.getDescription(), para);
 			}
 
 			if (returnTag != null) {
@@ -282,7 +282,7 @@ public class StyleTable extends StyleCoded implements Style {
 
 			logger.debug("Tag kind is " + kind + ".");
 
-			if (tagManager.showTag(kind) == true) {
+			if (tagManager.showTag(elem, kind) == true) {
 
 				if (kind.equals(DocTree.Kind.SEE)) {
 
@@ -322,7 +322,7 @@ public class StyleTable extends StyleCoded implements Style {
 			return false;
 		}
 
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 		if ((label == null) || (label.length() == 0)) {
 			label = tagList.get(0).getTagName();
@@ -357,7 +357,7 @@ public class StyleTable extends StyleCoded implements Style {
 			return false;
 		}
 
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 		varlist.appendChild(dbfactory.createVarlistentry()
 				.appendChild(dbfactory.createTerm().appendChild(dbfactory.createEmphasis(name)))

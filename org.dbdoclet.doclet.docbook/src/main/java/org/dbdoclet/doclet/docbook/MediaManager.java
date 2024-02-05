@@ -41,6 +41,7 @@ import org.dbdoclet.doclet.ExecutableMemberInfo;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
+import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.statistic.ClassesPerPackage;
 import org.dbdoclet.doclet.statistic.DirectKnownSubclasses;
@@ -89,7 +90,7 @@ import org.dbdoclet.xiphias.ImageServices;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
 
-import com.sun.source.doctree.DocTree;
+import com.google.inject.Inject;
 import com.sun.source.util.DocTreePath;
 
 public abstract class MediaManager {
@@ -100,6 +101,7 @@ public abstract class MediaManager {
 	protected DbdTransformer htmlDocBookTrafo;
 	protected DocBookTagFactory tagFactory;
 	protected Hyphenation hyphenation;
+	@Inject
 	protected ReferenceManager referenceManager;
 	protected ResourceBundle res;
 	protected StatisticData statisticData;
@@ -107,6 +109,7 @@ public abstract class MediaManager {
 	protected ClassDiagramManager classDiagramManager;
 	protected TagManager tagManager;
 	protected DocManager docManager;
+	protected DocFormatter docFormatter;
 
 	protected void createAdditionalSections(DocBookElement parent)
 			throws IOException, DocletException {
@@ -607,10 +610,6 @@ public abstract class MediaManager {
 		this.hyphenation = hyphenation;
 	}
 
-	public void setReferenceManager(ReferenceManager referenceManager) {
-		this.referenceManager = referenceManager;
-	}
-
 	public void setResourceBundle(ResourceBundle res) {
 		this.res = res;
 	}
@@ -1058,14 +1057,13 @@ public abstract class MediaManager {
 				return true;
 			}
 
-			// TODO
-			/*
 			if (script.isCreateMetaInfoEnabled()
 					&& script.isCreateAuthorInfoEnabled()
-					&& DbdServices.findComment(memberDoc.tags(), "@author") != null) {
+					&& !tagManager.findAuthorTags(memberDoc).isEmpty()) {
 				return true;
 			}
 
+			/*
 			if (script.isCreateExceptionInfoEnabled()
 					&& DbdServices.findComment(memberDoc.tags(), "@exception",
 							"@throws") != null) {
@@ -1110,5 +1108,9 @@ public abstract class MediaManager {
 
 	public void setClassDiagramManager(ClassDiagramManager classDiagramManager) {
 		this.classDiagramManager = classDiagramManager;
+	}
+
+	public void setDocFormatter(DocFormatter docFormatter) {
+		this.docFormatter = docFormatter;
 	}
 }

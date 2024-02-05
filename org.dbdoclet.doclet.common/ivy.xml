@@ -9,6 +9,7 @@
     <artifact name="org.dbdoclet.doclet.common" />
   </publications>
   <dependencies>
+    <dependency org="com.google.inject" name="guice" rev="7.0.0" />
     <dependency org="org.dbdoclet" name="org.dbdoclet.commons" rev="11.0.1" />
   </dependencies>
 </ivy-module>

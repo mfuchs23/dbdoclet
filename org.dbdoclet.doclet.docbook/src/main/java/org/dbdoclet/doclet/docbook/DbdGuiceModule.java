@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
+import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.statistic.TotalsDiagram;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
@@ -23,6 +24,7 @@ public class DbdGuiceModule extends AbstractModule {
 		bind(MediaManager.class).toProvider(MediaManagerProvider.class).in(
 				Scopes.SINGLETON);
 		bind(DocManager.class).in(Scopes.SINGLETON);
+		bind(DocFormatter.class).in(Scopes.SINGLETON);
 		bind(ReferenceManager.class).in(Scopes.SINGLETON);
 		bind(StatisticData.class).in(Scopes.SINGLETON);
 		bind(ResourceBundle.class).toProvider(ResourceBundleProvider.class).in(

@@ -16,19 +16,19 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
@@ -61,7 +61,7 @@ import com.sun.source.doctree.ThrowsTree;
  */
 public class StyleVariableList extends StyleCoded implements Style {
 
-	private static Log logger = LogFactory.getLog(StyleVariableList.class);
+	private static Logger logger = Logger.getLogger(StyleVariableList.class.getName());
 
 	/**
 	 * The method <code>addParamInfo</code> adds a list containing all parameter
@@ -79,7 +79,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 			returnTag = tagManager.findReturnTag(memberDoc);
 		}
 
-		List<ParamTree> paramTagList = docManager.findDocTreeList(memberDoc, ParamTree.class, Kind.PARAM);
+		List<ParamTree> paramTagList = tagManager.findParamTags(memberDoc);
 
 		if (nonNull(returnTag) || paramTagList.size() > 0) {
 
@@ -106,7 +106,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 				Para para = dbfactory.createPara();
 				listItem.appendChild(para);
-				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), paramTag, para);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), paramTag.getDescription(), para);
 			}
 
 			if (returnTag != null) {
@@ -119,7 +119,7 @@ public class StyleVariableList extends StyleCoded implements Style {
 
 				Para para = dbfactory.createPara();
 				listItem.appendChild(para);
-				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), returnTag, para);
+				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), returnTag.getDescription(), para);
 			}
 		}
 
@@ -129,44 +129,44 @@ public class StyleVariableList extends StyleCoded implements Style {
 	@Override
 	public boolean addThrowsInfo(ExecutableElement memberDoc, DocBookElement parent) throws DocletException {
 
-		List<ThrowsTree> tagList = docManager.findDocTreeList(memberDoc, ThrowsTree.class, Kind.THROWS);
+		List<ThrowsTree> tags = tagManager.findThrowsTags(memberDoc);
+		if (tags.isEmpty()) {
+			return false;
+		}
 
-		if (!tagList.isEmpty()) {
+		Variablelist varlist = dbfactory.createVariablelist();
 
-			Variablelist varlist = dbfactory.createVariablelist();
+		if (script.getListPresentation() != null) {
+			varlist.appendChild(new ProcessingInstructionImpl("dbfo",
+					"list-presentation=\"" + script.getListPresentation() + "\""));
+		}
 
-			if (script.getListPresentation() != null) {
-				varlist.appendChild(new ProcessingInstructionImpl("dbfo",
-						"list-presentation=\"" + script.getListPresentation() + "\""));
+		varlist.appendChild(dbfactory.createTitle("Exceptions"));
+
+		parent.appendChild(varlist);
+
+		for (var tag : tags) {
+
+			Exceptionname exceptionName = dbfactory.createExceptionname();
+			Para commentPara = dbfactory.createPara();
+
+			varlist.appendChild(
+					dbfactory.createVarlistentry().appendChild(dbfactory.createTerm().appendChild(exceptionName))
+							.appendChild(dbfactory.createListitem().appendChild(commentPara)));
+
+			exceptionName.appendChild(tag.getExceptionName().toString());
+			dbdTrafo.transform(docManager.getDocTreePath(memberDoc), tag, commentPara);
+
+			if (commentPara.hasChildNodes() == false) {
+
+				List<? extends DocTree> doc = tag.getDescription();
+				if (doc != null) {
+					dbdTrafo.transform(docManager.getDocTreePath(memberDoc), doc, commentPara);
+				}
 			}
 
-			varlist.appendChild(dbfactory.createTitle("Exceptions"));
-
-			parent.appendChild(varlist);
-
-			for (var tag : tagList) {
-
-				Exceptionname exceptionName = dbfactory.createExceptionname();
-				Para commentPara = dbfactory.createPara();
-
-				varlist.appendChild(
-						dbfactory.createVarlistentry().appendChild(dbfactory.createTerm().appendChild(exceptionName))
-								.appendChild(dbfactory.createListitem().appendChild(commentPara)));
-
-				exceptionName.appendChild(tag.getExceptionName().toString());
-				dbdTrafo.transform(docManager.getDocTreePath(memberDoc), tag, commentPara);
-
-				if (commentPara.hasChildNodes() == false) {
-
-					List<? extends DocTree> doc = tag.getDescription();
-					if (doc != null) {
-						dbdTrafo.transform(docManager.getDocTreePath(memberDoc), doc, commentPara);
-					}
-				}
-
-				if (commentPara.hasChildNodes() == false) {
-					commentPara.appendChild("");
-				}
+			if (commentPara.hasChildNodes() == false) {
+				commentPara.appendChild("");
 			}
 		}
 
@@ -235,9 +235,9 @@ public class StyleVariableList extends StyleCoded implements Style {
 				continue;
 			}
 
-			logger.debug("Tag kind is " + kind + ".");
+			logger.fine("Tag kind is " + kind + ".");
 
-			if (tagManager.showTag(kind) == true) {
+			if (tagManager.showTag(elem, kind) == true) {
 
 				if (kind == Kind.SEE) {
 
@@ -268,24 +268,30 @@ public class StyleVariableList extends StyleCoded implements Style {
 	private boolean addMetaInfoEntry(Element elem, ArrayList<BlockTagTree> tagList, String label, Variablelist varlist)
 			throws DocletException {
 
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
-		logger.debug("Adding tags size = " + tagList.size() + ".");
+		logger.fine("Adding tags size = " + tagList.size() + ".");
 
-		if (tagList.size() == 0) {
+		if (tagList.isEmpty()) {
 			return false;
 		}
 
-		if ((label == null) || (label.length() == 0)) {
-			label = tagList.get(0).getTagName();
+		BlockTagTree tag = tagList.get(0);
+		if (isNull(label) || label.isBlank()) {
+			label = tag.getTagName();
 		}
 
-		varlist.appendChild(dbfactory.createVarlistentry()
-				.appendChild(dbfactory.createTerm().appendChild(dbfactory.createEmphasis(label)))
-				.appendChild(dbfactory.createListitem().appendChild(dbfactory.createPara().appendChild(list))));
+		Simplelist.Type type = Simplelist.Type.INLINE;
+		if (DocTree.Kind.UNKNOWN_BLOCK_TAG == tag.getKind()) {
+			type = Simplelist.Type.HORIZ;
+		}
+		
+		Simplelist list = dbfactory.createSimplelist(type);
+			varlist.appendChild(dbfactory.createVarlistentry()
+					.appendChild(dbfactory.createTerm().appendChild(dbfactory.createEmphasis(label)))
+						.appendChild(dbfactory.createListitem().appendChild(dbfactory.createPara().appendChild(list))));
 
 		for (BlockTagTree bt : tagList) {
 
-			logger.debug("Adding tag " + bt.getTagName() + ".");
+			logger.fine("Adding tag " + bt.getTagName() + ".");
 			Member member = dbfactory.createMember();
 			list.appendChild(member);
 			dbdTrafo.transform(docManager.getDocTreePath(elem), bt, member);
@@ -308,40 +314,42 @@ public class StyleVariableList extends StyleCoded implements Style {
 			return false;
 		}
 
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
-		  
-		varlist.appendChild(dbfactory .createVarlistentry() .appendChild(
-				dbfactory.createTerm().appendChild( dbfactory.createEmphasis(name)))
-				.appendChild(dbfactory.createListitem().appendChild(list)));
-		  
-		for (SeeTree st : tags) {
-		  
-		  ref = referenceManager.findReference(st);
-		  
-		  if ((ref != null) && (ref.length() > 0)) {
+		Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
-			  label = st.getReference().toString();
-			  if ((label == null) || (label.length() == 0)) {
-		  
-				  list.appendChild(dbfactory.createMember().appendChild(
-						  dbfactory.createLiteral().appendChild( dbfactory.createLink(ref).appendChild(
-								  dbfactory.createXref(ref))))); 
-			  } else {
-		  
-				  list.appendChild(dbfactory.createMember().appendChild(
-						  dbfactory.createLiteral().appendChild( dbfactory.createLink(label, ref)))); }
-		  
-		  	} else {
-		  
-		  		label = referenceManager.createReferenceLabel(st);
-		  
-		  		Member member = dbfactory.createMember(); list.appendChild(member);
-		  		dbdTrafo.transform(elem, label, member);
-		  
-		  		logger.debug("label = " + label); logger.debug("member = " + member); 
-		  	}
+		varlist.appendChild(dbfactory.createVarlistentry()
+				.appendChild(dbfactory.createTerm().appendChild(dbfactory.createEmphasis(name)))
+				.appendChild(dbfactory.createListitem().appendChild(list)));
+
+		for (SeeTree st : tags) {
+
+			ref = referenceManager.findReference(st);
+
+			if ((ref != null) && (ref.length() > 0)) {
+
+				label = st.getReference().toString();
+				if ((label == null) || (label.length() == 0)) {
+
+					list.appendChild(dbfactory.createMember().appendChild(dbfactory.createLiteral()
+							.appendChild(dbfactory.createLink(ref).appendChild(dbfactory.createXref(ref)))));
+				} else {
+
+					list.appendChild(dbfactory.createMember()
+							.appendChild(dbfactory.createLiteral().appendChild(dbfactory.createLink(label, ref))));
+				}
+
+			} else {
+
+				label = referenceManager.createReferenceLabel(st);
+
+				Member member = dbfactory.createMember();
+				list.appendChild(member);
+				dbdTrafo.transform(elem, label, member);
+
+				logger.fine("label = " + label);
+				logger.fine("member = " + member);
+			}
 		}
-		 
+
 		return true;
 	}
 }

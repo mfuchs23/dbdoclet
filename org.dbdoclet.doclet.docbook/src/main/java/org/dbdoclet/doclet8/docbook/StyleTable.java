@@ -347,7 +347,7 @@ public class StyleTable extends StyleCoded implements Style {
 			return false;
 		}
 
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 		if ((label == null) || (label.length() == 0)) {
 			label = tagList.get(0).name();
@@ -391,7 +391,7 @@ public class StyleTable extends StyleCoded implements Style {
 			return false;
 		}
 
-		Simplelist list = dbfactory.createSimplelist(Simplelist.FORMAT_INLINE);
+		Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 		varlist.appendChild(dbfactory
 				.createVarlistentry()

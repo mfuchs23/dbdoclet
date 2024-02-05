@@ -2,15 +2,18 @@ package org.dbdoclet.doclet.docbook;
 
 import java.util.ResourceBundle;
 
+import org.dbdoclet.doclet.CDI;
 import org.dbdoclet.doclet.ClassDiagramManager;
 import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
 import org.dbdoclet.doclet.TagManager;
+import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.Hyphenation;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Provider;
 
 public class MediaManagerProvider implements Provider<MediaManager> {
@@ -19,8 +22,6 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 	private DocManager docManager;
 	@Inject
 	private Hyphenation hyphenation;
-	@Inject
-	private ReferenceManager referenceManager;
 	@Inject
 	private ResourceBundle res;
 	@Inject
@@ -35,6 +36,8 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 	private ClassDiagramManager classDiagramManager;
 	@Inject
 	private TagManager tagManager;
+	@Inject
+	private DocFormatter docFormatter;
 	@Inject
 	private DbdTransformer transformer;
 	
@@ -55,7 +58,10 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 			mediaManager = new BookManager();
 		}
 		
+		CDI.getInjector().injectMembers(mediaManager);
+		
 		mediaManager.setDocManager(docManager);
+		mediaManager.setDocFormatter(docFormatter);
 		mediaManager.setHyphenation(hyphenation);
 		mediaManager.setResourceBundle(res);
 		mediaManager.setScript(script);
@@ -63,12 +69,10 @@ public class MediaManagerProvider implements Provider<MediaManager> {
 		mediaManager.setStyle(style);
 		mediaManager.setTagFactory(tagFactory);
 		mediaManager.setClassDiagramManager(classDiagramManager);
-		mediaManager.setReferenceManager(referenceManager);
 		mediaManager.setTagManager(tagManager);
 		mediaManager.setHtmlDocBookTrafo(transformer);
 		
 		tagManager.setDocManager(docManager);
-		referenceManager.setDocManager(docManager);
 		statisticData.setDocManager(docManager);
 		
 		return mediaManager;

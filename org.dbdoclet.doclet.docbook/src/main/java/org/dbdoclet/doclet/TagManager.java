@@ -9,8 +9,11 @@
 package org.dbdoclet.doclet;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,7 +22,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -27,8 +31,6 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.doclet.docbook.DbdScript;
 import org.dbdoclet.service.ResourceServices;
@@ -36,18 +38,24 @@ import org.dbdoclet.service.StringServices;
 import org.dbdoclet.xiphias.HtmlServices;
 
 import com.google.inject.Inject;
+import com.sun.source.doctree.AuthorTree;
+import com.sun.source.doctree.BlockTagTree;
+import com.sun.source.doctree.DeprecatedTree;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
-import com.sun.source.util.DocTreePath;
 import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.doctree.InheritDocTree;
 import com.sun.source.doctree.InlineTagTree;
 import com.sun.source.doctree.LiteralTree;
+import com.sun.source.doctree.LinkTree;
+import com.sun.source.doctree.ParamTree;
 import com.sun.source.doctree.ReturnTree;
 import com.sun.source.doctree.SeeTree;
+import com.sun.source.doctree.SinceTree;
 import com.sun.source.doctree.SerialFieldTree;
 import com.sun.source.doctree.ThrowsTree;
 import com.sun.source.doctree.ValueTree;
+import com.sun.source.util.DocTreePath;
 
 class CompiledTag {
 
@@ -83,7 +91,7 @@ class CompiledTag {
  */
 public class TagManager {
 
-	private static Log logger = LogFactory.getLog(TagManager.class);
+	private static Logger logger = Logger.getLogger(TagManager.class.getName());
 
 	private TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> constantFieldMap;
 	private DocManager docManager;
@@ -237,98 +245,93 @@ public class TagManager {
 
 			} else {
 
-				logger.error("Invalid tag name '" + tagName + "'! Value was '" + value + "'.");
+				logger.warning("Invalid tag name '" + tagName + "'! Value was '" + value + "'.");
 			}
 		}
 	}
 
-	public DocTree findDeprecatedTag(Element modelElem) {
+	public List<AuthorTree> findAuthorTags(Element elem) {
+		return findBlockTags(elem, () -> new ArrayList<AuthorTree>(), Kind.AUTHOR);
+	}
 
-		if (isNull(modelElem)) {
-			return null;
+	public <T extends BlockTagTree> List<T> findBlockTags(Element elem, Supplier<List<T>> supplier,
+			DocTree.Kind... kind) {
+
+		if (isNull(elem)) {
+			throw new IllegalArgumentException("The argument elem must not be null!");
 		}
 
-		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
+		if (isNull(kind)) {
+			throw new IllegalArgumentException("The argument kind must not be null!");
+		}
+
+		DocCommentTree dctree = docManager.getDocCommentTree(elem);
 		if (isNull(dctree)) {
+			return Collections.emptyList();
+		}
+
+		@SuppressWarnings("unchecked")
+		List<T> list = dctree.getBlockTags().stream().filter(t -> Arrays.asList(kind).contains(t.getKind()))
+				.collect(supplier, (l, e) -> l.add((T) e), (r1, r2) -> r1.addAll(r2));
+		
+		if (isNull(list)) {
+			return Collections.emptyList();
+		}
+		
+		return list;
+	}
+
+	public DocTree findDeprecatedTag(Element elem) {
+
+		List<DeprecatedTree> deprecatedTags = findBlockTags(elem, () -> new ArrayList<DeprecatedTree>(), Kind.DEPRECATED);
+		if (isNull(deprecatedTags)) {
 			return null;
 		}
 
-		Optional<? extends DocTree> hit = dctree.getBlockTags().stream()
-				.filter(t -> Kind.DEPRECATED.equals(t.getKind())).findFirst();
-		if (hit.isPresent()) {
-			return hit.get();
+		if (deprecatedTags.size() > 1) {
+			logger.warning(String.format("More than one deprecated tag in elem %s.", docManager.getQualifiedName(elem)));
+		}
+
+		if (nonNull(deprecatedTags) && !deprecatedTags.isEmpty()) {
+			return deprecatedTags.get(0);
 		}
 
 		return null;
 	}
 
-	public ReturnTree findReturnTag(Element modelElem) {
+	public List<ParamTree> findParamTags(Element elem) {
+		return findBlockTags(elem, () -> new ArrayList<ParamTree>(), Kind.PARAM);
+	}
 
-		if (isNull(modelElem)) {
+	public ReturnTree findReturnTag(Element elem) {
+
+		List<ReturnTree> returnTags = findBlockTags(elem, () -> new ArrayList<ReturnTree>(), Kind.RETURN);
+
+		if (isNull(returnTags)) {
 			return null;
 		}
 
-		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
-		if (isNull(dctree)) {
-			return null;
+		if (returnTags.size() > 1) {
+			logger.warning(String.format("More than one return tag in elem %s.", docManager.getQualifiedName(elem)));
 		}
 
-		Optional<? extends DocTree> hit = dctree.getBlockTags().stream().filter(t -> Kind.RETURN.equals(t.getKind()))
-				.findFirst();
-		if (hit.isPresent()) {
-			return (ReturnTree) hit.get();
+		if (nonNull(returnTags) && !returnTags.isEmpty()) {
+			return returnTags.get(0);
 		}
 
 		return null;
 	}
 
-	public List<SeeTree> findSeeTags(Element modelElem) {
-
-		if (isNull(modelElem)) {
-			return null;
-		}
-
-		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
-		if (isNull(dctree)) {
-			return null;
-		}
-
-		List<SeeTree> list = dctree.getBlockTags().stream().filter(t -> Kind.SEE.equals(t.getKind()))
-				.map(SeeTree.class::cast).collect(Collectors.toList());
-		return list;
+	public List<SeeTree> findSeeTags(Element elem) {
+		return findBlockTags(elem, () -> new ArrayList<SeeTree>(), Kind.SEE);
 	}
 
-	public List<SerialFieldTree> findSerialFieldTags(Element modelElem) {
-
-		if (isNull(modelElem)) {
-			return null;
-		}
-
-		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
-		if (isNull(dctree)) {
-			return null;
-		}
-
-		List<SerialFieldTree> list = dctree.getBlockTags().stream().filter(t -> Kind.SERIAL_FIELD.equals(t.getKind()))
-				.map(SerialFieldTree.class::cast).collect(Collectors.toList());
-		return list;
+	public List<SerialFieldTree> findSerialFieldTags(Element elem) {
+		return findBlockTags(elem, () -> new ArrayList<SerialFieldTree>(), Kind.SERIAL_FIELD);
 	}
 
-	public List<ThrowsTree> findThrowsTags(Element modelElem) {
-
-		if (isNull(modelElem)) {
-			return null;
-		}
-
-		DocCommentTree dctree = docManager.getDocCommentTree(modelElem);
-		if (isNull(dctree)) {
-			return null;
-		}
-
-		List<ThrowsTree> list = dctree.getBlockTags().stream()
-				.filter(t -> DocTree.Kind.EXCEPTION.equals(t.getKind()) && DocTree.Kind.THROWS.equals(t.getKind()))
-				.map(ThrowsTree.class::cast).collect(Collectors.toList());
-		return list;
+	public List<ThrowsTree> findThrowsTags(Element elem) {
+		return findBlockTags(elem, () -> new ArrayList<ThrowsTree>(), Kind.EXCEPTION, Kind.THROWS);
 	}
 
 	public TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> getConstantFieldMap() {
@@ -457,14 +460,14 @@ public class TagManager {
 		}
 
 		String label = kind.tagName;
-
-		if ((label.length() > 1)) {
+		if (nonNull(label) && !label.isBlank()) {
 			label = label.substring(1);
+		} else {
+			label = ResourceServices.getString(res, "C_UNKNOWN");
 		}
 
 		CompiledTag tag = tagMap.get(label);
-
-		if (tag != null) {
+		if (nonNull(tag)) {
 			return tag.getLabel();
 		}
 
@@ -476,7 +479,6 @@ public class TagManager {
 		tagMap = new LinkedHashMap<String, CompiledTag>();
 
 		CompiledTag tag;
-
 		tag = new CompiledTag("@author", "X", null);
 		tagMap.put("@author", tag);
 	}
@@ -498,21 +500,47 @@ public class TagManager {
 		}
 	}
 
-	public String processTag(DocTreePath path, DocTree docTree) throws DocletException {
+	public String processBlockTag(DocTreePath path, DocTree docTree) {
+		
+		String comment = "";
+		if (docTree instanceof BlockTagTree == false) {
+			return comment;
+		}
+
+		BlockTagTree tag = (BlockTagTree) docTree;
+		Kind kind = tag.getKind();
+		String name = tag.getTagName();
+		logger.fine("name=" + name + ", kind=" + kind + ", text=" + tag.toString());
+
+		switch (kind) {
+		case AUTHOR:
+			comment = ((AuthorTree) tag).getName().toString();
+			break;
+		case SINCE:
+			comment = ((SinceTree) tag).getBody().toString();
+			break;
+		default:
+			comment = docTree.toString();
+		}
+
+		return comment;
+	}
+
+	public String processInlineTag(DocTreePath path, DocTree docTree) throws DocletException {
 
 		String comment = "";
 		if (docTree instanceof InlineTagTree == false) {
 			return comment;
 		}
-		
+
 		InlineTagTree tag = (InlineTagTree) docTree;
 		Kind kind = tag.getKind();
 		String name = tag.getTagName();
 
-		logger.debug("name=" + name + ", kind=" + kind + ", text=" + tag.toString());
+		logger.fine("name=" + name + ", kind=" + kind + ", text=" + tag.toString());
 
 		if (kind.equals(Kind.CODE)) {
-			logger.debug("tag=" + tag.toString());
+			logger.fine("tag=" + tag.toString());
 			String html = HtmlServices.textToHtml(((LiteralTree) tag).getBody().toString());
 			comment = "<javadoc:code>" + html + "</javadoc:code>";
 			return comment;
@@ -520,51 +548,57 @@ public class TagManager {
 
 		if (kind.equals(Kind.LITERAL)) {
 
-			logger.debug("tag=" + tag.toString());
+			logger.fine("tag=" + tag.toString());
 			String html = HtmlServices.textToHtml(((LiteralTree) tag).getBody().toString());
 			comment = "<javadoc:literal>" + html + "</javadoc:literal>";
 			return comment;
 		}
 
-		if (kind.equals(Kind.SEE)) {
-
-			SeeTree link = (SeeTree) tag;
-			name = link.getTagName();
-
-			String label = docManager.getCommentText(link.getReference());
-			label = referenceManager.createReferenceLabel(link);
-			label = HtmlServices.textToHtml(label);
-
-			String reference = referenceManager.findReference(link);
-			if ((reference != null) && (reference.length() > 0)) {
-				if (name.equalsIgnoreCase("@linkplain")) {
-					comment += "<javadoc:linkplain" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
-							+ link.getTagName() + "</javadoc:linkplain>";
-				} else {
-					comment += "<javadoc:link" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
-							+ link.getTagName() + "</javadoc:link>";
-				}
-
-			} else if ((reference != null) && reference.startsWith("<a")) {
-				comment = label;
-			} else {
-				comment += label;
-			}
-
-		} else {
-			comment += docManager.getCommentText(tag);
+		if (kind.equals(Kind.LINK) || kind.equals(Kind.LINK_PLAIN)) {
+			comment = processInlineTag(path, (LinkTree) docTree);
+			return comment;
 		}
+
+		comment += docManager.getCommentText(tag);
 
 		return comment;
 	}
 
-	public String processTag(DocTreePath path, InheritDocTree tag) throws DocletException {
+	public String processInlineTag(DocTreePath path, InheritDocTree tag) throws DocletException {
 
 		String comment = docManager.getCommentText(tag);
 		return comment;
 	}
 
-	public String processTag(DocTreePath path, ValueTree tag) throws DocletException {
+	public String processInlineTag(DocTreePath path, LinkTree tag) throws DocletException {
+
+		String comment = "";
+
+		LinkTree link = (LinkTree) tag;
+		String tagName = link.getTagName();
+
+		String label = referenceManager.createReferenceLabel(link);
+		label = HtmlServices.textToHtml(label);
+
+		String reference = referenceManager.findReference(path, link);
+		if ((reference != null) && (reference.length() > 0)) {
+			if (tagName.equalsIgnoreCase("linkplain")) {
+				comment += "<javadoc:linkplain" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
+						+ label + "</javadoc:linkplain>";
+			} else {
+				comment += "<javadoc:link" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
+						+ label + "</javadoc:link>";
+			}
+
+		} else if ((reference != null) && reference.startsWith("<a")) {
+			comment = label;
+		} else {
+			comment += label;
+		}
+		return comment;
+	}
+
+	public String processInlineTag(DocTreePath path, ValueTree tag) throws DocletException {
 
 		String comment = docManager.getCommentText(tag);
 		String value = "Tag(@value): UnknownValueException!";
@@ -577,23 +611,23 @@ public class TagManager {
 
 		if (!comment.isBlank() && elem instanceof ExecutableElement) {
 
-			logger.debug("constantFieldMap.size()=" + getConstantFieldMap().size());
+			logger.fine("constantFieldMap.size()=" + getConstantFieldMap().size());
 			String pkgName = getSeeNamePackage(elem, comment);
-			logger.debug("pkgName=" + pkgName);
+			logger.fine("pkgName=" + pkgName);
 
 			TreeMap<String, TreeMap<String, VariableElement>> classMap = getConstantFieldMap().get(pkgName);
 
 			if (classMap != null) {
 
 				String className = getSeeNameClass(elem, comment);
-				logger.debug("className=" + className);
+				logger.fine("className=" + className);
 
 				TreeMap<String, VariableElement> fieldMap = classMap.get(className);
 
 				if (fieldMap != null) {
 
 					String fieldName = getSeeNameMember(comment);
-					logger.debug("fieldName=" + fieldName);
+					logger.fine("fieldName=" + fieldName);
 
 					VariableElement fdoc = fieldMap.get(fieldName);
 
@@ -605,7 +639,7 @@ public class TagManager {
 		}
 
 		comment = "<javadoc:value>" + HtmlServices.textToHtml(value) + "</javadoc:value>";
-		logger.debug(comment);
+		logger.fine(comment);
 
 		return comment;
 	}
@@ -614,9 +648,9 @@ public class TagManager {
 		this.docManager = docManager;
 	}
 
-	public boolean showTag(DocTree.Kind kind) {
+	public boolean showTag(Element elem, DocTree.Kind kind) {
 
-		if (Kind.AUTHOR == kind && script.isCreateAuthorInfoEnabled() == false) {
+		if (Kind.AUTHOR == kind && (!script.isCreateAuthorInfoEnabled() || !docManager.isClassOrInterface(elem))) {
 			return false;
 		}
 

@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
@@ -32,11 +34,11 @@ import org.dbdoclet.tag.docbook.Exceptionname;
 import org.dbdoclet.tag.docbook.Fieldsynopsis;
 import org.dbdoclet.tag.docbook.Methodparam;
 import org.dbdoclet.tag.docbook.Methodsynopsis;
+import org.dbdoclet.tag.docbook.Modifier;
 import org.dbdoclet.tag.docbook.Olink;
 import org.dbdoclet.tag.docbook.Ooclass;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Type;
-
 
 public class StrictSynopsis extends Synopsis {
 
@@ -65,7 +67,7 @@ public class StrictSynopsis extends Synopsis {
 		addParameters(synopsis, elem);
 		addExceptions(synopsis, elem);
 	}
-	
+
 	private void addExceptions(DocBookElement parent, ExecutableElement doc) {
 
 		List<? extends TypeMirror> exceptions = doc.getThrownTypes();
@@ -108,30 +110,22 @@ public class StrictSynopsis extends Synopsis {
 				if (docManager.isAnnotationType(member)) {
 					qualifiedName = member.getSimpleName().toString();
 				} else {
-					qualifiedName = member.getSimpleName().toString() + docManager.createMethodPrettySignature(member);
+					qualifiedName = member.getSimpleName().toString() + docFormatter.createMethodPrettySignature(member);
 				}
 
 				if (docManager.isPublic(member)) {
 
 					if (docManager.isStatic(member)) {
-
 						publicStaticMembers.put(qualifiedName, member);
-
 					} else {
-
 						publicMembers.put(qualifiedName, member);
 					}
 
 				} else if (docManager.isProtected(member)) {
-
 					protectedMembers.put(qualifiedName, member);
-
 				} else if (docManager.isPackagePrivate(member)) {
-
 					packagePrivateMembers.put(qualifiedName, member);
-
 				} else if (docManager.isPrivate(member)) {
-
 					privateMembers.put(qualifiedName, member);
 				}
 			}
@@ -141,29 +135,25 @@ public class StrictSynopsis extends Synopsis {
 			}
 
 			if (publicMembers.size() > 0) {
-
 				addExecutableMemberSection(parent, publicMembers, "Public " + title);
 			}
 
 			if (protectedMembers.size() > 0) {
-
 				addExecutableMemberSection(parent, protectedMembers, "Protected " + title);
 			}
 
 			if (packagePrivateMembers.size() > 0) {
-
 				addExecutableMemberSection(parent, packagePrivateMembers, "Package Private " + title);
 			}
 
 			if (privateMembers.size() > 0) {
-
 				addExecutableMemberSection(parent, privateMembers, "Private " + title);
 			}
 		}
 	}
 
-	private void addExecutableMemberSection(DocBookElement parent, TreeMap<String, ExecutableElement> publicStaticMembers,
-			String title) {
+	private void addExecutableMemberSection(DocBookElement parent,
+			TreeMap<String, ExecutableElement> publicStaticMembers, String title) {
 
 		if (publicStaticMembers.size() == 0) {
 			return;
@@ -257,7 +247,7 @@ public class StrictSynopsis extends Synopsis {
 		Type type = dbfactory.createType();
 		synopsis.appendChild(type);
 
-		String typeName = docManager.typeToString(varElem.asType(), script.isCreateFullyQualifiedNamesEnabled());
+		String typeName = docFormatter.typeToString(varElem.asType(), script.isCreateFullyQualifiedNamesEnabled());
 		type.appendChild(typeName);
 
 		synopsis.appendChild(dbfactory.createVarname(varElem.getSimpleName().toString()));
@@ -289,13 +279,13 @@ public class StrictSynopsis extends Synopsis {
 
 				ooelem = dbfactory.createOoclass();
 				ooelem.appendChild(
-						dbfactory.createClassName(createTypeName(te, script.isCreateFullyQualifiedNamesEnabled())));
+						dbfactory.createClassName(createTypeName(te)));
 
 			} else {
 
 				ooelem = dbfactory.createOointerface();
 				ooelem.appendChild(
-						dbfactory.createInterfacename(createTypeName(te, script.isCreateFullyQualifiedNamesEnabled())));
+						dbfactory.createInterfacename(createTypeName(te)));
 			}
 
 			parent.appendChild(ooelem);
@@ -326,7 +316,12 @@ public class StrictSynopsis extends Synopsis {
 		Type type = dbfactory.createType();
 		synopsis.appendChild(type);
 
-		createType(doc.getReturnType(), type, script.isCreateFullyQualifiedNamesEnabled());
+		for (TypeParameterElement tpe : doc.getTypeParameters()) {
+			createTypeParameter(tpe.asType(), type);
+			type.appendChild(" ");
+		}
+
+		createReturnType(doc.getReturnType(), type);
 
 		String name = doc.getSimpleName().toString();
 		synopsis.appendChild(dbfactory.createMethodname(name));
@@ -352,22 +347,34 @@ public class StrictSynopsis extends Synopsis {
 
 			param = dbfactory.createMethodparam();
 
+			addAnnotations(param, ve.getAnnotationMirrors());
+
 			Type type = dbfactory.createType();
 			param.appendChild(type);
 
-			String typeName = docManager.typeToString(ve.asType(), script.isCreateFullyQualifiedNamesEnabled());
+			String typeName = docFormatter.typeToString(ve.asType(), script.isCreateFullyQualifiedNamesEnabled(), false);
 			if (elem.isVarArgs() && index == parameters.size() - 1) {
-				typeName = docManager.varArgsTypeToString(ve.asType(), script.isCreateFullyQualifiedNamesEnabled());
+				typeName = docFormatter.varArgsTypeToString(ve.asType(), script.isCreateFullyQualifiedNamesEnabled(), false);
 			}
-			
+
 			type.appendChild(typeName);
-			
+
 			String name = ve.getSimpleName().toString();
 			param.appendChild(dbfactory.createParameter(name));
 
 			parent.appendChild(param);
-			 
+
 			index++;
+		}
+	}
+
+	private void addAnnotations(DocBookElement parent, List<? extends AnnotationMirror> annotationMirrors) {
+
+		for (AnnotationMirror am : annotationMirrors) {
+			Modifier modifier = dbfactory.createModifier();
+			modifier.setTextContent("@" + docManager.getName(am.getAnnotationType()));
+			// modifier.setRole("annotation");
+			parent.appendChild(modifier);
 		}
 	}
 
@@ -406,14 +413,16 @@ public class StrictSynopsis extends Synopsis {
 					synopsis.appendChild(extend);
 
 					Classname className = dbfactory.createClassname();
-					String classNameText = createSuperClassName(superElem, script.isCreateFullyQualifiedNamesEnabled());
+					String classNameText = createSuperClassName(superElem);
 
-					/*
-					 * TODO Migration String ref = referenceManager.findReference(superElem);
-					 * 
-					 * if (ref != null) { className.appendChild(dbfactory.createLink( classNameText,
-					 * ref)); } else { className.appendChild(classNameText); }
-					 */
+					String ref = referenceManager.findReference(superElem);
+
+					if (ref != null) {
+						className.appendChild(dbfactory.createLink(classNameText, ref));
+					} else {
+						className.appendChild(classNameText);
+					}
+
 					className.appendChild(classNameText);
 					extend.appendChild(className);
 				}
@@ -423,10 +432,7 @@ public class StrictSynopsis extends Synopsis {
 			addFields(synopsis, typeElem);
 			addConstructors(synopsis, typeElem);
 			addMethods(synopsis, typeElem);
-
-			if (docManager.isAnnotationType(typeElem)) {
-				// TODO addElements(synopsis, (AnnotationTypeDoc) typeElem);
-			}
+			addAnnotations(synopsis, typeElem.getAnnotationMirrors());
 
 			parent.appendChild(synopsis);
 
