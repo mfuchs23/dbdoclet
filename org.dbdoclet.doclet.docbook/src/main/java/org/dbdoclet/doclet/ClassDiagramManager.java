@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
 import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.doclet.docbook.DbdScript;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;

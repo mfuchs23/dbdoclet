@@ -26,8 +26,8 @@ import javax.tools.Diagnostic;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ExecutableMemberInfo;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Book;
 import org.dbdoclet.tag.docbook.BookInfo;

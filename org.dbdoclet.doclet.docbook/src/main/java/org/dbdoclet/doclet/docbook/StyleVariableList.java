@@ -29,7 +29,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.Exceptionname;

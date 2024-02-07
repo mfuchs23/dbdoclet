@@ -2,11 +2,11 @@ package org.dbdoclet.doclet.docbook;
 
 import java.util.ResourceBundle;
 
-import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
-import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
+import org.dbdoclet.doclet.doc.ReferenceManager;
+import org.dbdoclet.doclet.doc.TagManager;
 import org.dbdoclet.doclet.statistic.TotalsDiagram;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.trafo.script.Script;

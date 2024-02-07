@@ -10,8 +10,8 @@ public class AuthorTests extends AbstractTestCase {
 	@Test
 	public void testAuthorTests() throws DocletException, IOException {
 
-		javadocTestClass("-cp", sourcePath, "src/main/java/org/dbdoclet/doclet/AuthorTag.java");
-		javadocStandardTestClass("-cp", sourcePath, "src/main/java/org/dbdoclet/doclet/AuthorTag.java");
+		javadocTestClass("-cp", sourcePath, "src/main/java/org/dbdoclet/doclet/AuthorTags.java");
+		javadocStandardTestClass("-cp", sourcePath, "src/main/java/org/dbdoclet/doclet/AuthorTags.java");
 		printDocBookFile();
 		viewPdf();
 		viewHtml();

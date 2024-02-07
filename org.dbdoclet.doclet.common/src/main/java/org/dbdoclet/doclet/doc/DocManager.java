@@ -216,6 +216,16 @@ public class DocManager {
 		return scanner.getPackageElements();
 	}
 
+	public String getPackageName(Element element) {
+		if (element instanceof TypeElement) {
+			PackageElement pkg = containingPackage((TypeElement) element);
+			if (nonNull(pkg)) {
+				return pkg.getQualifiedName().toString();
+			}
+		}
+		return null;
+	}
+
 	public List<ParamTree> getParamTags(ExecutableElement elem) {
 
 		var paramList = new ArrayList<ParamTree>();
@@ -240,6 +250,8 @@ public class DocManager {
 		switch (element.getKind()) {
 		case PACKAGE:
 			return ((PackageElement) element).getQualifiedName().toString();
+		case ANNOTATION_TYPE:
+		case ENUM:
 		case CLASS:
 		case INTERFACE:
 			return getQualifiedName((TypeElement) element);
@@ -255,8 +267,6 @@ public class DocManager {
 		case INSTANCE_INIT:
 		case EXCEPTION_PARAMETER:
 		case ENUM_CONSTANT:
-		case ENUM:
-		case ANNOTATION_TYPE:
 		case TYPE_PARAMETER:
 		case STATIC_INIT:
 		case RESOURCE_VARIABLE:
@@ -323,12 +333,12 @@ public class DocManager {
 		}
 		return (TypeElement) getTypeUtils().asElement(superType);
 	}
-
+	
 	public Set<TypeElement> getTypeElements() {
 		TypeScanner scanner = new TypeScanner(getDocletEnvironment().getIncludedElements());
 		return scanner.getTypeElements();
 	}
-	
+
 	public Set<TypeElement> getTypeElements(PackageElement pkgDoc) {
 		TypeScanner scanner = new TypeScanner(pkgDoc.getEnclosedElements());
 		return scanner.getTypeElements();
@@ -385,6 +395,20 @@ public class DocManager {
 		return elem.getKind() == ElementKind.ANNOTATION_TYPE;
 	}
 
+	public boolean isAnnotationTypeElement(Element elem) {
+		
+		if (isNull(elem)) {
+			throw new IllegalArgumentException("Argument elem must not be null!");
+		}
+		
+		Element enclosingElement = elem.getEnclosingElement();
+		if (nonNull(enclosingElement) && ElementKind.ANNOTATION_TYPE == enclosingElement.getKind()) {
+			return true;
+		}
+		
+		return false;
+	}
+
 	public boolean isClass(Element elem) {
 		return elem.getKind() == ElementKind.CLASS;
 	}
@@ -393,8 +417,8 @@ public class DocManager {
 		return elem.getKind() == ElementKind.CLASS || elem.getKind() == ElementKind.INTERFACE;
 	}
 
-	public boolean isConstructor(ExecutableElement elem) {
-		return elem.getKind() == ElementKind.CONSTRUCTOR || elem.getKind() == ElementKind.INTERFACE;
+	public boolean isConstructor(Element elem) {
+		return elem.getKind() == ElementKind.CONSTRUCTOR;
 	}
 
 	public boolean isEnum(Element elem) {
@@ -421,28 +445,32 @@ public class DocManager {
 		return false;
 	}
 
+	public boolean isField(Element elem) {
+		return elem.getKind() == ElementKind.FIELD;
+	}
+
 	public boolean isFinal(Element typeElem) {
 		return typeElem.getModifiers().contains(Modifier.FINAL);
 	}
 
-	public boolean isInterface(TypeElement typeElem) {
+	public boolean isInterface(Element typeElem) {
 		return typeElem.getKind().isInterface();
 	}
 
-	public boolean isMethod(ExecutableElement elem) {
+	public boolean isMethod(Element elem) {
 		return elem.getKind() == ElementKind.METHOD;
 	}
 
 	public boolean isNative(Element typeElem) {
 		return typeElem.getModifiers().contains(Modifier.NATIVE);
 	}
-
+	
 	public boolean isPackagePrivate(Element typeElem) {
 		Set<Modifier> modifiers = typeElem.getModifiers();
 		return !modifiers.contains(Modifier.PRIVATE) && !modifiers.contains(Modifier.PROTECTED)
 				&& !modifiers.contains(Modifier.PUBLIC);
 	}
-	
+
 	public boolean isPrimitiveType(TypeMirror type) {
 		switch (type.getKind()) {
 		case BOOLEAN:
@@ -463,7 +491,7 @@ public class DocManager {
 	public boolean isPrivate(Element typeElem) {
 		return typeElem.getModifiers().contains(Modifier.PRIVATE);
 	}
-
+	
 	public boolean isProtected(Element typeElem) {
 		return typeElem.getModifiers().contains(Modifier.PROTECTED);
 	}
@@ -471,7 +499,7 @@ public class DocManager {
 	public boolean isPublic(Element elem) {
 		return elem.getModifiers().contains(Modifier.PUBLIC);
 	}
-	
+
 	public boolean isStatic(Element elem) {
 		return elem.getModifiers().contains(Modifier.STATIC);
 	}

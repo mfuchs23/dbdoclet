@@ -10,8 +10,9 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.nonNull;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.MessageFormat;
@@ -20,8 +21,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.function.Supplier;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
@@ -231,16 +230,16 @@ public final class DocBookDoclet extends AbstractDoclet {
 			docManager.setReporter(reporter);
 			docManager.setOverviewFile(options.getOverviewFile());
 
-			for (String sourcepath : options.getSourcepath().split(File.pathSeparator)) {
-				copyDocFiles(docManager, sourcepath, destPath, dbdScript);
+			if (nonNull(options.getSourcepath())) {
+				for (String sourcepath : options.getSourcepath().split(File.pathSeparator)) {
+					copyDocFiles(docManager, sourcepath, destPath, dbdScript);
+				}
 			}
-
-			/*
+			
 			if (dbdScript.isLinkSourceEnabled()) {
-			 	LinkSourceManager lsm = InstanceFactory.getInstance(LinkSourceManager.class);
+			 	LinkSourceManager lsm = CDI.getInstance(LinkSourceManager.class);
 			 	lsm.createDocBook(docManager);
 			}
-			*/
 			
 			MediaManager mediaManager = CDI.getInstance(MediaManager.class);
 			mediaManager.writeContents();

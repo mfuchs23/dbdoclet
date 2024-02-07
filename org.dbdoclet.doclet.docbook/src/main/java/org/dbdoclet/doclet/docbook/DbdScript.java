@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.dbdoclet.doclet.XmlIdType;
+import org.dbdoclet.doclet.doc.XmlIdType;
 import org.dbdoclet.tag.docbook.DocBookVersion;
 import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.param.BooleanParam;

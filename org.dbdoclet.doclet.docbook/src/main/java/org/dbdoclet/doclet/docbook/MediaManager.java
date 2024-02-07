@@ -10,6 +10,7 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -35,14 +37,16 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+import org.dbdoclet.doclet.CDI;
 import org.dbdoclet.doclet.ClassDiagramManager;
-import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ExecutableMemberInfo;
-import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
-import org.dbdoclet.doclet.TagManager;
+import org.dbdoclet.doclet.doc.DeprecatedManager;
 import org.dbdoclet.doclet.doc.DocFormatter;
 import org.dbdoclet.doclet.doc.DocManager;
+import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.doc.ReferenceManager;
+import org.dbdoclet.doclet.doc.TagManager;
 import org.dbdoclet.doclet.statistic.ClassesPerPackage;
 import org.dbdoclet.doclet.statistic.DirectKnownSubclasses;
 import org.dbdoclet.doclet.statistic.TotalsDiagram;
@@ -71,6 +75,8 @@ import org.dbdoclet.tag.docbook.Imageobject;
 import org.dbdoclet.tag.docbook.Informalfigure;
 import org.dbdoclet.tag.docbook.Informaltable;
 import org.dbdoclet.tag.docbook.Legalnotice;
+import org.dbdoclet.tag.docbook.Link;
+import org.dbdoclet.tag.docbook.Listitem;
 import org.dbdoclet.tag.docbook.Mediaobject;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Personname;
@@ -81,14 +87,18 @@ import org.dbdoclet.tag.docbook.Simpara;
 import org.dbdoclet.tag.docbook.Surname;
 import org.dbdoclet.tag.docbook.Table;
 import org.dbdoclet.tag.docbook.Tbody;
+import org.dbdoclet.tag.docbook.Term;
 import org.dbdoclet.tag.docbook.Tgroup;
 import org.dbdoclet.tag.docbook.Title;
+import org.dbdoclet.tag.docbook.Variablelist;
+import org.dbdoclet.tag.docbook.Varlistentry;
 import org.dbdoclet.tag.docbook.Year;
 import org.dbdoclet.tag.html.Img;
 import org.dbdoclet.xiphias.Hyphenation;
 import org.dbdoclet.xiphias.ImageServices;
 import org.dbdoclet.xiphias.NodeSerializer;
 import org.dbdoclet.xiphias.XmlServices;
+import org.dbdoclet.xiphias.dom.ProcessingInstructionImpl;
 
 import com.google.inject.Inject;
 import com.sun.source.util.DocTreePath;
@@ -107,7 +117,8 @@ public abstract class MediaManager {
 	protected StatisticData statisticData;
 	protected Style style;
 	protected ClassDiagramManager classDiagramManager;
-	protected TagManager tagManager;
+	@Inject
+	protected DocBookTagManager tagManager;
 	protected DocManager docManager;
 	protected DocFormatter docFormatter;
 
@@ -119,8 +130,7 @@ public abstract class MediaManager {
 		}
 
 		if (script.isCreateDeprecatedListEnabled()) {
-			// TODO Migration
-			// writeDeprecatedList(docManager.getSpecifiedElements(), parent);
+			writeDeprecatedList(docManager.getSpecifiedElements(), parent);
 		}
 
 		if (script.isCreateStatisticsEnabled()) {
@@ -630,10 +640,6 @@ public abstract class MediaManager {
 		this.tagFactory = tagFactory;
 	}
 
-	public void setTagManager(TagManager tagManager) {
-		this.tagManager = tagManager;
-	}
-
 	protected void writeConstantFieldValues(
 			Set<? extends Element> specifiedElements,
 			DocBookElement parent) throws IOException {
@@ -748,7 +754,7 @@ public abstract class MediaManager {
 			statisticData.init(pkgMap);
 
 			logger.info(ResourceServices.getString(res,	"C_CONSTRUCTING_TAG_MAP") + "...");
-			tagManager.createTagMap(pkgMap);
+			tagManager.createTagMap(pkgMap, script.getTagList());
 			
 			process();
 
@@ -762,23 +768,16 @@ public abstract class MediaManager {
 		}
 	}
 
-	// TODO
-	/* @formatter:off
 	protected void writeDeprecatedList(
 			Set<? extends Element> set,
 			DocBookElement parent) throws IOException, DocletException {
 
-		boolean hasChild = true;
-
 		DocBookElement component;
-		ArrayList<DocTree> docList = docManager.createDeprecatedList();
+		Set<TypeElement> docList = docManager.getSpecifiedElements();
 
-		DeprecatedManager deprecatedManager = new DeprecatedManager();
-
-		for (Doc doc : docList) {
-			deprecatedManager.addDoc(doc);
-		}
-
+		DeprecatedManager deprecatedManager = CDI.getInstance(DeprecatedManager.class);
+		deprecatedManager.setSpecifiedElements(docList);
+		
 		if (parent instanceof Article) {
 
 			component = tagFactory.createSection();
@@ -795,7 +794,7 @@ public abstract class MediaManager {
 		component.appendChild(tagFactory.createTitle(ResourceServices
 				.getString(res, "C_DEPRECATED_API")));
 
-		TreeMap<String, ArrayList<Doc>> deprecatedMap = deprecatedManager
+		TreeMap<String, ArrayList<Element>> deprecatedMap = deprecatedManager
 				.getDeprecatedMap();
 
 		if (deprecatedMap.size() == 0) {
@@ -808,14 +807,14 @@ public abstract class MediaManager {
 					.getString(res, title));
 			component.appendChild(section);
 
-			docList = deprecatedMap.get(title);
+			ArrayList<Element> elements = deprecatedMap.get(title);
 
 			Variablelist list = tagFactory.createVariablelist();
 			list.appendChild(new ProcessingInstructionImpl("dbfo",
 					"list-presentation=\"block\""));
 			section.appendChild(list);
 
-			for (Doc doc : docList) {
+			for (Element elem : elements) {
 
 				Varlistentry varListEntry = tagFactory.createVarlistentry();
 				list.appendChild(varListEntry);
@@ -829,33 +828,20 @@ public abstract class MediaManager {
 				Para para = tagFactory.createPara();
 				listItem.appendChild(para);
 
-				if (doc instanceof ExecutableElement) {
-
-					Link link = tagFactory.createLink(doc.toString(),
-							referenceManager
-									.findReference(doc));
-					term.appendChild(link);
-
+				String reference = referenceManager.findReference(elem);
+				if (isNull(reference)) {
+					term.appendChild(docManager.getName(elem));
 				} else {
-
-					term.appendChild(doc.name());
+					Link link = tagFactory.createLink(docManager.getName(elem), reference);
+					term.appendChild(link);
 				}
-
-				Tag comment = DbdServices
-						.findComment(doc.tags(), "@deprecated");
-
-				if (comment != null) {
-					htmlDocBookTrafo.transform(comment, para);
-				}
+					
+				htmlDocBookTrafo.transform(docManager.getDocTreePath(elem), para);
 			}
 		}
 
-		if (hasChild == true) {
-			parent.appendChild(component);
-		}
+		parent.appendChild(component);
 	}
-	@formatter:on
-	*/
 	
 	protected void writeFile(DocBookDocument doc, File fileName)
 			throws IOException {
@@ -916,7 +902,7 @@ public abstract class MediaManager {
 				logger.fine("Last sect1: " + lastSect1);
 
 				if (lastSect1 == null) {
-					// TODO xstyle.addMetaInfo(docManager.getElement(overviewDocTreePath), lastChapter);
+					// TODO style.addMetaInfo(docManager.getElement(overviewDocTreePath), lastChapter);
 				} else {
 
 					Sect1 sect1 = tagFactory.createSect1(ResourceServices

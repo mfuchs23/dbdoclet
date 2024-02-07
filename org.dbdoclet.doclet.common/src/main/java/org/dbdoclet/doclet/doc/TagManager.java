@@ -6,7 +6,7 @@
  * E-Mail: michael.fuchs@unico-group.com
  * URL:    http://www.michael-a-fuchs.de
  */
-package org.dbdoclet.doclet;
+package org.dbdoclet.doclet.doc;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -26,16 +25,12 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.doc.DocManager;
-import org.dbdoclet.doclet.docbook.DbdScript;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.service.StringServices;
-import org.dbdoclet.xiphias.HtmlServices;
 
 import com.google.inject.Inject;
 import com.sun.source.doctree.AuthorTree;
@@ -44,18 +39,11 @@ import com.sun.source.doctree.DeprecatedTree;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.DocTree.Kind;
-import com.sun.source.doctree.InheritDocTree;
-import com.sun.source.doctree.InlineTagTree;
-import com.sun.source.doctree.LiteralTree;
-import com.sun.source.doctree.LinkTree;
 import com.sun.source.doctree.ParamTree;
 import com.sun.source.doctree.ReturnTree;
 import com.sun.source.doctree.SeeTree;
-import com.sun.source.doctree.SinceTree;
 import com.sun.source.doctree.SerialFieldTree;
 import com.sun.source.doctree.ThrowsTree;
-import com.sun.source.doctree.ValueTree;
-import com.sun.source.util.DocTreePath;
 
 class CompiledTag {
 
@@ -94,12 +82,9 @@ public class TagManager {
 	private static Logger logger = Logger.getLogger(TagManager.class.getName());
 
 	private TreeMap<String, TreeMap<String, TreeMap<String, VariableElement>>> constantFieldMap;
-	private DocManager docManager;
 
 	@Inject
-	private ReferenceManager referenceManager;
-	@Inject
-	private DbdScript script;
+	protected DocManager docManager;
 
 	private LinkedHashMap<String, CompiledTag> tagMap = new LinkedHashMap<String, CompiledTag>();
 
@@ -163,7 +148,7 @@ public class TagManager {
 		return constantMap;
 	}
 
-	public void createTagMap(TreeMap<String, TreeMap<String, TypeElement>> pkgMap) {
+	public void createTagMap(TreeMap<String, TreeMap<String, TypeElement>> pkgMap, ArrayList<String> list) {
 
 		if (pkgMap == null) {
 			throw new IllegalArgumentException("The argument pkgMap must not be null!");
@@ -172,8 +157,6 @@ public class TagManager {
 		constantFieldMap = createConstantFieldMap(pkgMap);
 
 		initTags();
-
-		ArrayList<String> list = script.getTagList();
 
 		if (list == null) {
 			return;
@@ -281,7 +264,7 @@ public class TagManager {
 		return list;
 	}
 
-	public DocTree findDeprecatedTag(Element elem) {
+	public DeprecatedTree findDeprecatedTag(Element elem) {
 
 		List<DeprecatedTree> deprecatedTags = findBlockTags(elem, () -> new ArrayList<DeprecatedTree>(), Kind.DEPRECATED);
 		if (isNull(deprecatedTags)) {
@@ -498,182 +481,5 @@ public class TagManager {
 		default:
 			return true;
 		}
-	}
-
-	public String processBlockTag(DocTreePath path, DocTree docTree) {
-		
-		String comment = "";
-		if (docTree instanceof BlockTagTree == false) {
-			return comment;
-		}
-
-		BlockTagTree tag = (BlockTagTree) docTree;
-		Kind kind = tag.getKind();
-		String name = tag.getTagName();
-		logger.fine("name=" + name + ", kind=" + kind + ", text=" + tag.toString());
-
-		switch (kind) {
-		case AUTHOR:
-			comment = ((AuthorTree) tag).getName().toString();
-			break;
-		case SINCE:
-			comment = ((SinceTree) tag).getBody().toString();
-			break;
-		default:
-			comment = docTree.toString();
-		}
-
-		return comment;
-	}
-
-	public String processInlineTag(DocTreePath path, DocTree docTree) throws DocletException {
-
-		String comment = "";
-		if (docTree instanceof InlineTagTree == false) {
-			return comment;
-		}
-
-		InlineTagTree tag = (InlineTagTree) docTree;
-		Kind kind = tag.getKind();
-		String name = tag.getTagName();
-
-		logger.fine("name=" + name + ", kind=" + kind + ", text=" + tag.toString());
-
-		if (kind.equals(Kind.CODE)) {
-			logger.fine("tag=" + tag.toString());
-			String html = HtmlServices.textToHtml(((LiteralTree) tag).getBody().toString());
-			comment = "<javadoc:code>" + html + "</javadoc:code>";
-			return comment;
-		}
-
-		if (kind.equals(Kind.LITERAL)) {
-
-			logger.fine("tag=" + tag.toString());
-			String html = HtmlServices.textToHtml(((LiteralTree) tag).getBody().toString());
-			comment = "<javadoc:literal>" + html + "</javadoc:literal>";
-			return comment;
-		}
-
-		if (kind.equals(Kind.LINK) || kind.equals(Kind.LINK_PLAIN)) {
-			comment = processInlineTag(path, (LinkTree) docTree);
-			return comment;
-		}
-
-		comment += docManager.getCommentText(tag);
-
-		return comment;
-	}
-
-	public String processInlineTag(DocTreePath path, InheritDocTree tag) throws DocletException {
-
-		String comment = docManager.getCommentText(tag);
-		return comment;
-	}
-
-	public String processInlineTag(DocTreePath path, LinkTree tag) throws DocletException {
-
-		String comment = "";
-
-		LinkTree link = (LinkTree) tag;
-		String tagName = link.getTagName();
-
-		String label = referenceManager.createReferenceLabel(link);
-		label = HtmlServices.textToHtml(label);
-
-		String reference = referenceManager.findReference(path, link);
-		if ((reference != null) && (reference.length() > 0)) {
-			if (tagName.equalsIgnoreCase("linkplain")) {
-				comment += "<javadoc:linkplain" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
-						+ label + "</javadoc:linkplain>";
-			} else {
-				comment += "<javadoc:link" + " ref=\"" + reference + "\"" + " name=\"" + label + "\">"
-						+ label + "</javadoc:link>";
-			}
-
-		} else if ((reference != null) && reference.startsWith("<a")) {
-			comment = label;
-		} else {
-			comment += label;
-		}
-		return comment;
-	}
-
-	public String processInlineTag(DocTreePath path, ValueTree tag) throws DocletException {
-
-		String comment = docManager.getCommentText(tag);
-		String value = "Tag(@value): UnknownValueException!";
-
-		Element elem = docManager.getDocletEnvironment().getDocTrees().getElement(path);
-		if (comment.isBlank() && elem instanceof VariableElement) {
-			VariableElement fdoc = (VariableElement) elem;
-			value = fdoc.getConstantValue().toString();
-		}
-
-		if (!comment.isBlank() && elem instanceof ExecutableElement) {
-
-			logger.fine("constantFieldMap.size()=" + getConstantFieldMap().size());
-			String pkgName = getSeeNamePackage(elem, comment);
-			logger.fine("pkgName=" + pkgName);
-
-			TreeMap<String, TreeMap<String, VariableElement>> classMap = getConstantFieldMap().get(pkgName);
-
-			if (classMap != null) {
-
-				String className = getSeeNameClass(elem, comment);
-				logger.fine("className=" + className);
-
-				TreeMap<String, VariableElement> fieldMap = classMap.get(className);
-
-				if (fieldMap != null) {
-
-					String fieldName = getSeeNameMember(comment);
-					logger.fine("fieldName=" + fieldName);
-
-					VariableElement fdoc = fieldMap.get(fieldName);
-
-					if (fdoc != null) {
-						value = fdoc.getConstantValue().toString();
-					}
-				}
-			}
-		}
-
-		comment = "<javadoc:value>" + HtmlServices.textToHtml(value) + "</javadoc:value>";
-		logger.fine(comment);
-
-		return comment;
-	}
-
-	public void setDocManager(DocManager docManager) {
-		this.docManager = docManager;
-	}
-
-	public boolean showTag(Element elem, DocTree.Kind kind) {
-
-		if (Kind.AUTHOR == kind && (!script.isCreateAuthorInfoEnabled() || !docManager.isClassOrInterface(elem))) {
-			return false;
-		}
-
-		if (Kind.VERSION == kind && script.isCreateVersionInfoEnabled() == false) {
-			return false;
-		}
-
-		if (Kind.SINCE == kind && script.isCreateSinceInfoEnabled() == false) {
-			return false;
-		}
-
-		if (Kind.SEE == kind && script.isCreateSeeAlsoInfoEnabled() == false) {
-			return false;
-		}
-
-		if (Kind.PARAM == kind && script.isCreateParameterInfoEnabled() == false) {
-			return false;
-		}
-
-		if (Kind.RETURN == kind && script.isCreateParameterInfoEnabled() == false) {
-			return false;
-		}
-
-		return true;
 	}
 }

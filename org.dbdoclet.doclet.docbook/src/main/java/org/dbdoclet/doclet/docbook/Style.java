@@ -34,7 +34,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.tag.docbook.DocBookElement;
 
 public interface Style {

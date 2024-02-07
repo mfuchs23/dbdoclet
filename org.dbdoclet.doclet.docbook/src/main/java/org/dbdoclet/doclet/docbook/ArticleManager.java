@@ -30,8 +30,8 @@ import javax.tools.Diagnostic;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dbdoclet.doclet.DocletException;
 import org.dbdoclet.doclet.ExecutableMemberInfo;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Article;
 import org.dbdoclet.tag.docbook.ArticleInfo;

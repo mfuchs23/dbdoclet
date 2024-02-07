@@ -14,7 +14,7 @@
  * Revision........: $Revision$
  * State...........: $State$
  */
-package org.dbdoclet.doclet;
+package org.dbdoclet.doclet.doc;
 
 import java.util.Stack;
 

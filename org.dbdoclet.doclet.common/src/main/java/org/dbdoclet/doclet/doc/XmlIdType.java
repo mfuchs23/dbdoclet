@@ -1,4 +1,4 @@
-package org.dbdoclet.doclet;
+package org.dbdoclet.doclet.doc;
 
 public enum XmlIdType {
     NUMBERED, JAVA

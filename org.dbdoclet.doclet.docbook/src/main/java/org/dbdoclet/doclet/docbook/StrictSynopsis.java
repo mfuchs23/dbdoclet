@@ -24,7 +24,7 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.tag.docbook.Classname;
 import org.dbdoclet.tag.docbook.Classsynopsis;
 import org.dbdoclet.tag.docbook.Classsynopsisinfo;

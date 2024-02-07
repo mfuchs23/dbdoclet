@@ -23,13 +23,11 @@ import javax.lang.model.element.TypeElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
-import org.dbdoclet.doclet.DocletException;
-import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.doclet.doc.DocManager;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
-import org.dbdoclet.tag.docbook.Member;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.TrafoResult;
@@ -41,7 +39,6 @@ import org.dbdoclet.xiphias.dom.NodeImpl;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
 
 import com.google.inject.Inject;
 import com.sun.source.doctree.BlockTagTree;
@@ -63,7 +60,7 @@ public class DbdTransformer {
 	private static Log logger = LogFactory.getLog(DbdTransformer.class);
 
 	@Inject
-	private TagManager tagManager;
+	private DocBookTagManager tagManager;
 	@Inject
 	private DocBookTagFactory tagFactory;
 	@Inject
@@ -97,6 +94,21 @@ public class DbdTransformer {
 		return transform(path, docTreeList, parent);
 	}
 	
+	public NodeImpl transform(DocTreePath path, BlockTagTree blockTag, DocBookElement parent) throws DocletException {
+		ArrayList<DocTree> docTreeList = new ArrayList<>();
+		docTreeList.add(blockTag);
+		return transform(path, docTreeList, parent);
+	}
+	
+	/**
+	 * Transform a comment tree with HTML text and inline tags to DocBook.
+	 * 
+	 * @param path
+	 * @param docTreeList
+	 * @param parent
+	 * @return NodeImpl - The new parent tag.
+	 * @throws DocletException
+	 */
 	public NodeImpl transform(DocTreePath path, List<? extends DocTree> docTreeList, DocBookElement parent) throws DocletException {
 
 		if (parent == null) {
@@ -107,8 +119,6 @@ public class DbdTransformer {
 		for (var dt : docTreeList) {
 			if (dt instanceof InlineTagTree) {
 				buffer.append(tagManager.processInlineTag(path, dt));
-			} else if (dt instanceof BlockTagTree) {
-				buffer.append(tagManager.processBlockTag(path, dt));
 			} else {
 				buffer.append(dt.toString());
 			}

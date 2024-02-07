@@ -26,10 +26,10 @@ import com.google.inject.Inject;
 import javax.lang.model.element.Element;
 
 import org.dbdoclet.doclet.ClassDiagramManager;
-import org.dbdoclet.doclet.ReferenceManager;
 import org.dbdoclet.doclet.StatisticData;
-import org.dbdoclet.doclet.TagManager;
 import org.dbdoclet.doclet.doc.DocManager;
+import org.dbdoclet.doclet.doc.ReferenceManager;
+import org.dbdoclet.doclet.doc.TagManager;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.Hyphenation;
 
@@ -66,7 +66,7 @@ public class StyleBase {
 	@Inject
 	protected StrictSynopsis synopsis;
 	@Inject
-	protected TagManager tagManager;
+	protected DocBookTagManager tagManager;
 
 	protected final LinkedHashMap<DocTree.Kind, ArrayList<BlockTagTree>> createTagMap(Element doc) {
 

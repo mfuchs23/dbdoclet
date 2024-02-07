@@ -20,7 +20,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -29,7 +28,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.Formalpara;
@@ -38,8 +37,8 @@ import org.dbdoclet.tag.docbook.Simplelist;
 import org.dbdoclet.tag.docbook.Warning;
 import org.dbdoclet.xiphias.XmlServices;
 
-import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.DocCommentTree;
+import com.sun.source.doctree.DeprecatedTree;
 
 /**
  * The class <code>StyleCoded</code> is the super class for the coded styles.
@@ -50,17 +49,14 @@ import com.sun.source.doctree.DocCommentTree;
 public abstract class StyleCoded extends StyleBase implements Style {
 
 	@Override
-	public boolean addClassSynopsis(TypeElement typeElem, DocBookElement parent)
-			throws DocletException {
+	public boolean addClassSynopsis(TypeElement typeElem, DocBookElement parent) throws DocletException {
 
 		if (isNull(typeElem)) {
-			throw new IllegalArgumentException(
-					"The argument typeElem must not be null!");
+			throw new IllegalArgumentException("The argument typeElem must not be null!");
 		}
 
 		if (isNull(parent)) {
-			throw new IllegalArgumentException(
-					"The argument parent must not be null!");
+			throw new IllegalArgumentException("The argument parent must not be null!");
 		}
 
 		String ref;
@@ -79,13 +75,11 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				para.setRole("direct-known-subclasses");
 				parent.appendChild(para);
 
-				para.appendChild(dbfactory.createEmphasis(ResourceServices
-						.getString(res, "C_DIRECT_KNOWN_SUBCLASSES"),
+				para.appendChild(dbfactory.createEmphasis(ResourceServices.getString(res, "C_DIRECT_KNOWN_SUBCLASSES"),
 						getEmphasisBoldRole()));
 				para.appendChild(": ");
 
-				Simplelist list = dbfactory
-						.createSimplelist(Simplelist.Type.INLINE);
+				Simplelist list = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 				para.appendChild(list);
 
 				for (TypeElement cdoc : subclasses) {
@@ -96,12 +90,10 @@ public abstract class StyleCoded extends StyleBase implements Style {
 					name = hyphenation.hyphenateAfter(name, "\\.");
 
 					if ((ref != null) && (ref.length() > 0)) {
-						list.appendChild(dbfactory.createMember().appendChild(
-								dbfactory.createLink(
-										dbfactory.createVarname(name), ref)));
+						list.appendChild(dbfactory.createMember()
+								.appendChild(dbfactory.createLink(dbfactory.createVarname(name), ref)));
 					} else {
-						list.appendChild(dbfactory.createMember().appendChild(
-								dbfactory.createVarname(name)));
+						list.appendChild(dbfactory.createMember().appendChild(dbfactory.createVarname(name)));
 					}
 				}
 			}
@@ -113,8 +105,20 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		return rc;
 	}
 
-	protected boolean addDeprecatedInfo(Element elem, DocBookElement parent)
-			throws DocletException {
+	/**
+	 * Adds a warning to the DocBook output if a deprecated tag is found.
+	 * 
+	 * This behaviour can be configured via the configuration parameter
+	 * <code>create-deprecated-info</code> in the section <code>dbdoclet</code> of
+	 * the gonfiguration file.
+	 * 
+	 * @param elem The element to scan for a deprecated tahg
+	 * @param parent The actual DocBook parent element.
+	 * @return true if a warning box was added, otherwise false.
+	 * 
+	 * @throws DocletException
+	 */
+	protected boolean addDeprecatedInfo(Element elem, DocBookElement parent) throws DocletException {
 
 		if (script.isCreateDeprecatedInfoEnabled() == false) {
 			return false;
@@ -124,22 +128,14 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		if (isNull(docCommentTree)) {
 			return false;
 		}
-		
-		DocTree tag = tagManager.findDeprecatedTag(elem);
 
-		if (tag != null) {
+		DeprecatedTree tag = tagManager.findDeprecatedTag(elem);
 
-			Warning warning = dbfactory.createWarning(ResourceServices
-					.getString(res, "C_DEPRECATED"));
+		if (nonNull(tag)) {
+
+			Warning warning = dbfactory.createWarning(ResourceServices.getString(res, "C_DEPRECATED"));
 			parent.appendChild(warning);
-
-			if (nonNull(tag)) {
-				dbdTrafo.transform(docManager.getDocTreePath(elem), tag, warning);
-			} else {
-				warning.appendChild(dbfactory.createPara(ResourceServices
-						.getString(res, "C_DEPRECATED")));
-			}
-
+			dbdTrafo.transform(docManager.getDocTreePath(elem), tag.getBody(), warning);
 			return true;
 		}
 
@@ -149,8 +145,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	protected void addFieldsInheritedFrom(DocBookElement parent, TypeElement superDoc) {
 
 		if (parent == null) {
-			throw new IllegalArgumentException(
-					"The argument parent must not be null!");
+			throw new IllegalArgumentException("The argument parent must not be null!");
 		}
 
 		if (superDoc == null) {
@@ -168,8 +163,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			Set<VariableElement> fields = docManager.getFieldElements(superDoc);
 			int fieldCount = 0;
 
-			Simplelist fieldList = dbfactory
-					.createSimplelist(Simplelist.Type.INLINE);
+			Simplelist fieldList = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 			for (var field : fields) {
 
@@ -184,15 +178,12 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				ref = referenceManager.findReference(field);
 				name = XmlServices.textToXml(name);
 
-				if ((ref != null) && (ref.length() > 0)
-						&& script.isCreateFieldInfoEnabled()) {
-					fieldList.appendChild(dbfactory.createMember().appendChild(
-							dbfactory.createLink(dbfactory.createLiteral(name),
-									ref)));
+				if ((ref != null) && (ref.length() > 0) && script.isCreateFieldInfoEnabled()) {
+					fieldList.appendChild(dbfactory.createMember()
+							.appendChild(dbfactory.createLink(dbfactory.createLiteral(name), ref)));
 
 				} else {
-					fieldList.appendChild(dbfactory.createMember().appendChild(
-							dbfactory.createVarname(name)));
+					fieldList.appendChild(dbfactory.createMember().appendChild(dbfactory.createVarname(name)));
 				}
 
 				fieldCount++;
@@ -204,12 +195,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				para.setRole("fields-inherited-from");
 				parent.appendChild(para);
 
-				para.appendChild(dbfactory.createEmphasis(
-						ResourceServices.getString(res,
-								"C_FIELDS_INHERITED_FROM")
-								+ " "
-								+ docManager.getQualifiedName(superDoc),
-						getEmphasisBoldRole()));
+				para.appendChild(dbfactory.createEmphasis(ResourceServices.getString(res, "C_FIELDS_INHERITED_FROM")
+						+ " " + docManager.getQualifiedName(superDoc), getEmphasisBoldRole()));
 
 				para.appendChild(": ");
 				para.appendChild(fieldList);
@@ -220,25 +207,21 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	}
 
 	@Override
-	public boolean addFieldSynopsis(VariableElement doc, DocBookElement parent)
-			throws DocletException {
+	public boolean addFieldSynopsis(VariableElement doc, DocBookElement parent) throws DocletException {
 
 		synopsis.addFieldSynopsis(doc, parent);
 		return true;
 	}
 
 	@Override
-	public boolean addInheritancePath(TypeElement classDoc, DocBookElement parent)
-			throws DocletException {
+	public boolean addInheritancePath(TypeElement classDoc, DocBookElement parent) throws DocletException {
 
 		if (classDoc == null) {
-			throw new IllegalArgumentException(
-					"The argument classDoc must not be null!");
+			throw new IllegalArgumentException("The argument classDoc must not be null!");
 		}
 
 		if (parent == null) {
-			throw new IllegalArgumentException(
-					"The argument parent must not be null!");
+			throw new IllegalArgumentException("The argument parent must not be null!");
 		}
 
 		if (script.isCreateInheritanceInfoEnabled() == false) {
@@ -246,8 +229,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		}
 
 		Formalpara fpara = dbfactory.createFormalpara();
-		fpara.appendChild(dbfactory.createTitle(ResourceServices.getString(res,
-				"C_INHERITANCE_PATH")));
+		fpara.appendChild(dbfactory.createTitle(ResourceServices.getString(res, "C_INHERITANCE_PATH")));
 
 		ArrayList<TypeElement> list = classDiagramManager.getInheritancePath(classDoc);
 
@@ -280,8 +262,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	}
 
 	@Override
-	public boolean addMemberSynopsis(ExecutableElement doc,
-			DocBookElement parent) throws DocletException {
+	public boolean addMemberSynopsis(ExecutableElement doc, DocBookElement parent) throws DocletException {
 
 		if (docManager.isMethod(doc)) {
 			synopsis.addMethodSynopsis(doc, parent);
@@ -297,8 +278,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	protected void addMethodsInheritedFrom(DocBookElement parent, TypeElement superDoc) {
 
 		if (parent == null) {
-			throw new IllegalArgumentException(
-					"The argument parent must not be null!");
+			throw new IllegalArgumentException("The argument parent must not be null!");
 		}
 
 		if (superDoc == null) {
@@ -317,8 +297,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 			int methodCount = 0;
 
-			Simplelist methodList = dbfactory
-					.createSimplelist(Simplelist.Type.INLINE);
+			Simplelist methodList = dbfactory.createSimplelist(Simplelist.Type.INLINE);
 
 			for (var method : methods) {
 
@@ -341,17 +320,12 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				ref = referenceManager.findReference(method);
 				name = XmlServices.textToXml(name);
 
-				if ((ref != null) && (ref.length() > 0)
-						&& script.isCreateMethodInfoEnabled()) {
-					methodList
-							.appendChild(dbfactory.createMember()
-									.appendChild(
-											dbfactory.createLink(dbfactory
-													.createLiteral(name), ref)));
+				if ((ref != null) && (ref.length() > 0) && script.isCreateMethodInfoEnabled()) {
+					methodList.appendChild(dbfactory.createMember()
+							.appendChild(dbfactory.createLink(dbfactory.createLiteral(name), ref)));
 
 				} else {
-					methodList.appendChild(dbfactory.createMember()
-							.appendChild(dbfactory.createVarname(name)));
+					methodList.appendChild(dbfactory.createMember().appendChild(dbfactory.createVarname(name)));
 				}
 
 				methodCount++;
@@ -363,12 +337,8 @@ public abstract class StyleCoded extends StyleBase implements Style {
 				para.setRole("methods-inherited-from");
 				parent.appendChild(para);
 
-				para.appendChild(dbfactory.createEmphasis(
-						ResourceServices.getString(res,
-								"C_METHODS_INHERITED_FROM")
-								+ " "
-								+ docManager.getQualifiedName(superDoc),
-						getEmphasisBoldRole()));
+				para.appendChild(dbfactory.createEmphasis(ResourceServices.getString(res, "C_METHODS_INHERITED_FROM")
+						+ " " + docManager.getQualifiedName(superDoc), getEmphasisBoldRole()));
 
 				para.appendChild(": ");
 				para.appendChild(methodList);
@@ -379,15 +349,13 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	}
 
 	@Override
-	public boolean addMethodSpecifiedBy(ExecutableElement doc, DocBookElement parent)
-			throws DocletException {
+	public boolean addMethodSpecifiedBy(ExecutableElement doc, DocBookElement parent) throws DocletException {
 
 		Para para = dbfactory.createPara();
 		para.setRole("method-specified-by");
 		parent.appendChild(para);
 
-		para.appendChild(dbfactory.createEmphasis(
-				ResourceServices.getString(res, "C_SPECIFIED_BY") + ": ",
+		para.appendChild(dbfactory.createEmphasis(ResourceServices.getString(res, "C_SPECIFIED_BY") + ": ",
 				getEmphasisBoldRole()));
 
 		String methodRef = referenceManager.findReference(doc);
@@ -397,8 +365,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 
 		para.appendChild(ResourceServices.getString(res, "C_METHOD") + " ");
 
-		if ((methodRef != null) && (methodRef.length() > 0)
-				&& (script.isCreateMethodInfoEnabled() == true)) {
+		if ((methodRef != null) && (methodRef.length() > 0) && (script.isCreateMethodInfoEnabled() == true)) {
 
 			para.appendChild(dbfactory.createLink(docManager.getName(doc), methodRef));
 		} else {
@@ -406,8 +373,7 @@ public abstract class StyleCoded extends StyleBase implements Style {
 			para.appendChild(dbfactory.createLiteral(docManager.getName(doc)));
 		}
 
-		para.appendChild(" "
-				+ ResourceServices.getString(res, "C_IN_INTERFACE") + " ");
+		para.appendChild(" " + ResourceServices.getString(res, "C_IN_INTERFACE") + " ");
 
 		if ((classRef != null) && (classRef.length() > 0)) {
 
@@ -420,14 +386,11 @@ public abstract class StyleCoded extends StyleBase implements Style {
 		return true;
 	}
 
-	public abstract boolean addParamInfo(ExecutableElement memberDoc,
-			DocBookElement parent) throws DocletException;
+	public abstract boolean addParamInfo(ExecutableElement memberDoc, DocBookElement parent) throws DocletException;
 
-	public abstract boolean addSerialFieldsInfo(VariableElement fieldDoc,
-			DocBookElement parent) throws DocletException;
+	public abstract boolean addSerialFieldsInfo(VariableElement fieldDoc, DocBookElement parent) throws DocletException;
 
-	public abstract boolean addThrowsInfo(ExecutableElement memberDoc,
-			DocBookElement parent) throws DocletException;
+	public abstract boolean addThrowsInfo(ExecutableElement memberDoc, DocBookElement parent) throws DocletException;
 
 	private String getEmphasisBoldRole() {
 		return "bold";

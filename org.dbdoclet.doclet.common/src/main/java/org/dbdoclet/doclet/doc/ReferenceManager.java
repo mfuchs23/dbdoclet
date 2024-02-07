@@ -1,4 +1,4 @@
-package org.dbdoclet.doclet;
+package org.dbdoclet.doclet.doc;
 
 import static java.util.Objects.isNull;
 
@@ -17,8 +17,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.doc.DocFormatter;
-import org.dbdoclet.doclet.doc.DocManager;
 import org.dbdoclet.service.StringServices;
 
 import com.google.inject.Inject;
@@ -140,14 +138,22 @@ public class ReferenceManager {
 
 		logger.fine("Find reference for tag " + tag.toString());
 
+		String packageName = null;
+		String className = null;
+		String memberName = null;
+		
 		ReferenceTree rtree = tag.getReference();
 		String key= rtree.getSignature();
 		if (key.startsWith("#")) {
-			key = key.replaceFirst("#", ".");
+			memberName = key.replaceFirst("#", "");
 			Element element = docManager.findTypeElement(path.getTreePath());
-			key = docManager.getQualifiedName(element) + key;
+			className = docManager.getName(element);
+			packageName = docManager.getPackageName(element);
+		} else if (key.contains("#")) {
+			String[] tokens = key.split("#");
 		}
 		
+		key = packageName + "." + className + "." + memberName;
 		logger.fine("Reference = " + key + ".");
 
 		key = normalizeKey(key);
