@@ -23,17 +23,23 @@
 
 		<jar destfile="distrib/dbdoclet.jar">
 			<manifest>
-				<attribute name="Class-Path" value="../conf/" />
+			  <attribute name="Class-Path" value="../conf/" />
+			  <attribute name="Main-Class" value="org.dbdoclet.doclet.docbook.DocBookDoclet" />
 			</manifest>
 			<fileset dir="${build.main.classes.dir}" />
 			<zipgroupfileset dir="lib">
 				<include name="aopalliance_*.jar" />
+				<include name="antlr4-runtime_*.jar" />
+				<include name="batik-*.jar" />
+				<include name="failureaccess_*.jar" />
+				<include name="guava_*.jar" />
 				<include name="guice_*.jar" />
+				<include name="jakarta.*.jar" />
 				<include name="javax.inject_*.jar" />
 				<include name="jcommon_*.jar" />
 				<include name="jfreechart_*.jar" />
 				<include name="org.antlr.runtime_*.jar" />
-				<include name="org.apache.commons.logging_*.jar" />
+				<include name="commons-logging_*.jar" />
 				<include name="org.apache.commons.jxpath_*.jar" />
 				<include name="org.apache.batik_*.jar" />
 				<include name="org.apache.log4j_*.jar" />
@@ -41,6 +47,9 @@
 				<include name="org.dbdoclet.*.jar" />
 				<include name="xml-apis_*.jar" />
 				<include name="xml-apis-ext_*.jar" />
+				<include name="xmlgraphics-*.jar" />
+				<exclude name="*-javadoc.jar" />
+				<exclude name="*-sources.jar" />
 			</zipgroupfileset>
 		</jar>
 		<antcall target="default.build" />

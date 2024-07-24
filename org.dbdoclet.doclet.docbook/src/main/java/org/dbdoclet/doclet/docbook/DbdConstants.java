@@ -27,10 +27,13 @@ public class DbdConstants {
 	public static final String PARAM_CREATE_PARAMETER_INFO = "create-parameter-info";
 	public static final String PARAM_CREATE_SECTION_CONSTANT_VALUES = "create-section-constant-values";
 	public static final String PARAM_CREATE_SEE_ALSO_INFO = "create-see-also-info";
+	public static final String PARAM_CREATE_SERIAL_INFO = "create-serial-info";
+	public static final String PARAM_CREATE_SERIAL_DATA_INFO = "create-serial-data-info";
 	public static final String PARAM_CREATE_SERIAL_FIELD_INFO = "create-serial-field-info";
 	public static final String PARAM_CREATE_SINCE_INFO = "create-since-info";
 	public static final String PARAM_CREATE_STATISTICS = "create-statistics";
 	public static final String PARAM_CREATE_SYNOPSIS = "create-synopsis";
+	public static final String PARAM_CREATE_USES_INFO = "create-uses-info";
 	public static final String PARAM_CREATE_VERSION_INFO = "create-version-info";
 	public static final String PARAM_DOCUMENT_STYLE = "document-style";
 	public static final String PARAM_FORCE_ANNOTATION_DOCUMENTATION = "force-annotation-documentation";

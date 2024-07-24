@@ -1,9 +1,9 @@
 Main-Class: org.dbdoclet.doclet.common
-version=11.0.2-SNAPSHOT
+version=11-SNAPSHOT
 Bundle-Name=org.dbdoclet.doclet.common
 Bundle-SymbolicName=org.dbdoclet.doclet.common
 Bundle-Version=${version}
 
-Export-Package: org.dbdoclet.doclet.doc.*, org.dbdoclet.doclet.option.*, org.dbdoclet.doclet.scanner.*
+Export-Package: org.dbdoclet.doclet.common.*, org.dbdoclet.doclet.common.doc.*, org.dbdoclet.doclet.common.option.*, org.dbdoclet.doclet.common.scanner.*
 Import-Package: org.dbdoclet.*, *;resolution:=optional
 

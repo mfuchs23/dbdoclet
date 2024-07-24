@@ -29,7 +29,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.Exceptionname;
@@ -154,17 +154,9 @@ public class StyleVariableList extends StyleCoded implements Style {
 					dbfactory.createVarlistentry().appendChild(dbfactory.createTerm().appendChild(exceptionName))
 							.appendChild(dbfactory.createListitem().appendChild(commentPara)));
 
-			exceptionName.appendChild(tag.getExceptionName().toString());
-			dbdTrafo.transform(docManager.getDocTreePath(memberDoc), tag, commentPara);
-
-			if (commentPara.hasChildNodes() == false) {
-
-				List<? extends DocTree> doc = tag.getDescription();
-				if (doc != null) {
-					dbdTrafo.transform(docManager.getDocTreePath(memberDoc), doc, commentPara);
-				}
-			}
-
+			dbdTrafo.transform(docManager.getDocTreePath(memberDoc), tag.getExceptionName(), exceptionName);
+			dbdTrafo.transform(docManager.getDocTreePath(memberDoc), tag.getDescription(), commentPara);
+			
 			if (commentPara.hasChildNodes() == false) {
 				commentPara.appendChild("");
 			}

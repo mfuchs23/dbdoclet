@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import org.dbdoclet.doclet.doc.XmlIdType;
+import org.dbdoclet.doclet.common.doc.XmlIdType;
 import org.dbdoclet.tag.docbook.DocBookVersion;
 import org.dbdoclet.trafo.TrafoConstants;
 import org.dbdoclet.trafo.param.BooleanParam;
@@ -372,6 +372,16 @@ public class DbdScript {
 				DbdConstants.PARAM_CREATE_SEE_ALSO_INFO, true);
 	}
 
+	public boolean isCreateSerialInfoEnabled() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CREATE_SERIAL_INFO, true);
+	}
+
+	public boolean isCreateSerialDataInfoEnabled() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CREATE_SERIAL_DATA_INFO, true);
+	}
+
 	public boolean isCreateSerialFieldInfoEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
 				DbdConstants.PARAM_CREATE_SERIAL_FIELD_INFO, true);
@@ -390,6 +400,11 @@ public class DbdScript {
 	public boolean isCreateSynopsisEnabled() {
 		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
 				DbdConstants.PARAM_CREATE_SYNOPSIS, true);
+	}
+
+	public boolean isCreateUsesInfoEnabled() {
+		return script.isParameterOn(DbdConstants.SECTION_DBDOCLET,
+				DbdConstants.PARAM_CREATE_USES_INFO, true);
 	}
 
 	public boolean isCreateVersionInfoEnabled() {

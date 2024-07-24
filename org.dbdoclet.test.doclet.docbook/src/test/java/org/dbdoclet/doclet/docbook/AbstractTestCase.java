@@ -27,8 +27,6 @@ import org.junit.Before;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.sun.tools.javadoc.Main;
-
 public class AbstractTestCase implements InfoListener {
 
 	private static final String DEFAULT_DOCBOOK_SCHEMA_PATH = "src/main/resources/xsd/docbook.xsd";
@@ -266,27 +264,5 @@ public class AbstractTestCase implements InfoListener {
 		ol.addAll(Arrays.asList(options));
 		javadoc.run(System.out, System.err, ol.toArray(new String[ol.size()]));
 	}	
-
-	protected void javadocDeprecated(String... options) {
-
-		ArrayList<String> optionList = new ArrayList<String>();
-
-		boolean foundDestDir = false;
-		
-		for (String option : options) {
-			optionList.add(option);
-			if (option.equals("-d")) {
-				foundDestDir = true;
-			}
-		}
-
-		if (foundDestDir == false) {
-			optionList.add("-d");
-			optionList.add(destPath);
-		}
-		
-		String[] cmd = optionList.toArray(new String[optionList.size()]);
-		Main.execute("Test", "org.dbdoclet.doclet.docbook.DocBookDoclet", cmd);
-	}
 
 }

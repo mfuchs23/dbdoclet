@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
@@ -24,10 +25,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dbdoclet.doclet.ExecutableMemberInfo;
-import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.common.ExecutableMemberInfo;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Book;
 import org.dbdoclet.tag.docbook.BookInfo;
@@ -51,11 +50,11 @@ import com.sun.source.doctree.DocCommentTree;
 /**
  * Creates a DocBook Book from the javadoc information.
  * 
- * 	@author Michael Fuchs
+ * @author Michael Fuchs
  */
 public class BookManager extends MediaManager {
 
-	private static Log logger = LogFactory.getLog(BookManager.class);
+	private static Logger logger = Logger.getLogger(BookManager.class.getName());
 
 	public BookManager() {
 		super();
@@ -66,7 +65,7 @@ public class BookManager extends MediaManager {
 
 		try {
 
-			logger.debug("process");
+			logger.fine("process");
 
 			DocBookElement parent;
 			DocBookDocument doc = new DocBookDocument();
@@ -148,22 +147,25 @@ public class BookManager extends MediaManager {
 
 				if (specified.getKind().isClass() || specified.getKind().isInterface()) {
 
-					TypeElement classElement = (TypeElement) specified;
-					PackageElement pkgElem = docManager.containingPackage((TypeElement) specified);
-					String pkgName = pkgElem.getQualifiedName().toString();
+					if (!tagManager.isHidden(specified)) {
 
-					Chapter chapter = tagFactory.createChapter();
-					chapter.setId(getReference(pkgElem));
+						TypeElement classElement = (TypeElement) specified;
+						PackageElement pkgElem = docManager.containingPackage((TypeElement) specified);
+						String pkgName = pkgElem.getQualifiedName().toString();
 
-					if (script.setCreateXrefLabelEnabled()) {
-						chapter.setXrefLabel(XmlServices.textToXml(classElement.getQualifiedName().toString()));
+						Chapter chapter = tagFactory.createChapter();
+						chapter.setId(getReference(pkgElem));
+
+						if (script.setCreateXrefLabelEnabled()) {
+							chapter.setXrefLabel(XmlServices.textToXml(classElement.getQualifiedName().toString()));
+						}
+
+						chapter.appendChild(tagFactory.createTitle(ResourceServices.getString(res, "C_PACKAGE") + " "
+								+ hyphenation.hyphenateAfter(pkgName, "\\.")));
+
+						writeClass(chapter, pkgElem, (TypeElement) specified);
+						parent.appendChild(chapter);
 					}
-
-					chapter.appendChild(tagFactory.createTitle(ResourceServices.getString(res, "C_PACKAGE") + " "
-							+ hyphenation.hyphenateAfter(pkgName, "\\.")));
-
-					writeClass(chapter, pkgElem, (TypeElement) specified);
-					parent.appendChild(chapter);
 				}
 			}
 
@@ -182,6 +184,10 @@ public class BookManager extends MediaManager {
 
 	private void writePackage(DocBookElement parent, PackageElement pkgElem) throws DocletException {
 
+		if (tagManager.isHidden(pkgElem)) {
+			return;
+		}
+
 		String pkgName = pkgElem.getQualifiedName().toString();
 
 		logger.info(MessageFormat.format(ResourceServices.getString(res, "C_PROCESSING_PACKAGE"), pkgName));
@@ -197,7 +203,6 @@ public class BookManager extends MediaManager {
 				ResourceServices.getString(res, "C_PACKAGE") + " " + hyphenation.hyphenateAfter(pkgName, "\\.")));
 
 		htmlDocBookTrafo.transform(pkgElem, chapter);
-
 		Section section = tagFactory.createSection(ResourceServices.getString(res, "C_ADDITIONAL_INFORMATION"));
 
 		if (style.addMetaInfo(pkgElem, section)) {
@@ -323,6 +328,10 @@ public class BookManager extends MediaManager {
 
 		for (ExecutableElement member : members) {
 
+			if (tagManager.isHidden(member)) {
+				continue;
+			}
+
 			ExecutableMemberInfo memberInfo = new ExecutableMemberInfo(member);
 
 			ExecutableElement implementedElem = docManager.implementedMethod(classDoc, member);
@@ -395,7 +404,7 @@ public class BookManager extends MediaManager {
 			if (nonNull(docCommentTree)) {
 				htmlDocBookTrafo.transform(docManager.getDocTreePath(memberDoc), section);
 			}
-			
+
 			if (script.isCreateParameterInfoEnabled() == true) {
 				style.addParamInfo(commentDoc, section);
 			}
@@ -418,7 +427,7 @@ public class BookManager extends MediaManager {
 				String ref = referenceManager.findReference(implementedDoc);
 				String headerTitle = ResourceServices.getString(res, "C_DESCRIPTION_COPIED_FROM_INTERFACE");
 				String name = docManager.getName(implementedDoc);
-				
+
 				if (ref == null) {
 
 					head.appendChild(headerTitle + ": " + name);
@@ -434,6 +443,7 @@ public class BookManager extends MediaManager {
 				parent.appendChild(section);
 			}
 		}
+
 		return hasCommentedMembers;
 	}
 
@@ -452,6 +462,10 @@ public class BookManager extends MediaManager {
 		var commentedFields = new ArrayList<VariableElement>();
 
 		for (var field : fields) {
+
+			if (tagManager.isHidden(field)) {
+				continue;
+			}
 
 			str = docManager.getCommentText(field);
 

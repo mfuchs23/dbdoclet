@@ -24,7 +24,7 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
-import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.dbdoclet.tag.docbook.Classname;
 import org.dbdoclet.tag.docbook.Classsynopsis;
 import org.dbdoclet.tag.docbook.Classsynopsisinfo;
@@ -40,8 +40,13 @@ import org.dbdoclet.tag.docbook.Ooclass;
 import org.dbdoclet.tag.docbook.Para;
 import org.dbdoclet.tag.docbook.Type;
 
+import com.google.inject.Inject;
+
 public class StrictSynopsis extends Synopsis {
 
+	@Inject
+	private DocBookTagManager tagManager;
+	
 	private void addConstructors(DocBookElement parent, TypeElement typeElem) {
 
 		if (parent == null) {
@@ -107,6 +112,10 @@ public class StrictSynopsis extends Synopsis {
 
 			for (ExecutableElement member : members) {
 
+				if (tagManager.isHidden(member)) {
+					continue;
+				}
+				
 				if (docManager.isAnnotationType(member)) {
 					qualifiedName = member.getSimpleName().toString();
 				} else {
@@ -432,7 +441,6 @@ public class StrictSynopsis extends Synopsis {
 			addFields(synopsis, typeElem);
 			addConstructors(synopsis, typeElem);
 			addMethods(synopsis, typeElem);
-			addAnnotations(synopsis, typeElem.getAnnotationMirrors());
 
 			parent.appendChild(synopsis);
 

@@ -2,13 +2,12 @@ package org.dbdoclet.doclet.docbook;
 
 import java.util.ResourceBundle;
 
-import org.dbdoclet.doclet.CDI;
-import org.dbdoclet.doclet.ClassDiagramManager;
-import org.dbdoclet.doclet.StatisticData;
-import org.dbdoclet.doclet.doc.DocFormatter;
-import org.dbdoclet.doclet.doc.DocManager;
-import org.dbdoclet.doclet.doc.ReferenceManager;
-import org.dbdoclet.doclet.doc.TagManager;
+import org.dbdoclet.doclet.common.CDI;
+import org.dbdoclet.doclet.common.doc.DocFormatter;
+import org.dbdoclet.doclet.common.doc.DocManager;
+import org.dbdoclet.doclet.common.doc.ReferenceManager;
+import org.dbdoclet.doclet.common.doc.TagManager;
+import org.dbdoclet.doclet.statistic.StatisticData;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.Hyphenation;
 

@@ -17,8 +17,6 @@ import javax.lang.model.element.PackageElement;
 import org.dbdoclet.service.FileServices;
 import org.dbdoclet.service.StringServices;
 
-import com.sun.javadoc.PackageDoc;
-
 
 /**
  * The class <code>PackageServices</code> provides some static methods
@@ -41,7 +39,7 @@ public class PackageServices {
      * @param sourcepath a <code>String</code> value
      * @return a <code>String</code> value
      */
-    public static String findPackageDirectory(PackageDoc pkg, String sourcepath) {
+    public static String findPackageDirectory(PackageElement pkg, String sourcepath) {
 
         if (pkg == null) {
 
@@ -59,7 +57,7 @@ public class PackageServices {
         File pkgdir;
         String path;
 
-        String pkgname = pkg.name();
+        String pkgname = pkg.getQualifiedName().toString();
         pkgname = StringServices.replace(pkgname, ".", fsep);
 
         StringTokenizer stz = new StringTokenizer(sourcepath, psep);

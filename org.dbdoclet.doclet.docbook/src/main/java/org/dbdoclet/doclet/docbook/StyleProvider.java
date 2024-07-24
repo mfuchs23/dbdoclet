@@ -1,6 +1,6 @@
 package org.dbdoclet.doclet.docbook;
 
-import org.dbdoclet.doclet.CDI;
+import org.dbdoclet.doclet.common.CDI;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

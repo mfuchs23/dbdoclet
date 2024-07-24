@@ -23,8 +23,8 @@ import javax.lang.model.element.TypeElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbdoclet.Sfv;
-import org.dbdoclet.doclet.doc.DocManager;
-import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.common.doc.DocManager;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.dbdoclet.service.StringServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
@@ -35,10 +35,12 @@ import org.dbdoclet.trafo.html.docbook.HtmlDocBookTrafo;
 import org.dbdoclet.trafo.param.TextParam;
 import org.dbdoclet.trafo.script.Script;
 import org.dbdoclet.xiphias.HtmlServices;
+import org.dbdoclet.xiphias.dom.ElementImpl;
 import org.dbdoclet.xiphias.dom.NodeImpl;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 import com.google.inject.Inject;
 import com.sun.source.doctree.BlockTagTree;
@@ -116,6 +118,9 @@ public class DbdTransformer {
 		}
 
 		StringBuilder buffer = new StringBuilder();
+		if (parent.getFormatType() == ElementImpl.FORMAT_BLOCK) {
+			buffer.append("<p>");
+		}
 		for (var dt : docTreeList) {
 			if (dt instanceof InlineTagTree) {
 				buffer.append(tagManager.processInlineTag(path, dt));
@@ -124,6 +129,9 @@ public class DbdTransformer {
 			}
 		}
 
+		script.getNamespace().findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
+				.setParam(new TextParam(TrafoConstants.PARAM_DOCUMENT_ELEMENT, parent.getTagName()));
+		
 		HtmlDocBookTrafo transformer = new HtmlDocBookTrafo();
 		transformer.setTagFactory(tagFactory);
 		
@@ -212,7 +220,7 @@ public class DbdTransformer {
 			}
 
 			script.getNamespace().findOrCreateSection(TrafoConstants.SECTION_DOCBOOK)
-					.setParam(new TextParam(TrafoConstants.PARAM_DOCUMENT_ELEMENT, parent.getTagName()));
+				.setParam(new TextParam(TrafoConstants.PARAM_DOCUMENT_ELEMENT, parent.getTagName()));
 
 			transformer.setInputStream(new ByteArrayInputStream(
 					comment.getBytes(script.getTextParameter("javadoc", TrafoConstants.PARAM_ENCODING, "UTF-8"))));
@@ -250,35 +258,13 @@ public class DbdTransformer {
 		if (node instanceof DocumentFragment) {
 
 			NodeList childList = node.getChildNodes();
-
+			if (childList.getLength() == 0) {
+				return;
+			}
+			
 			for (int i = 0; i < childList.getLength(); i++) {
-
 				NodeImpl child = (NodeImpl) childList.item(i);
-
-				if (child instanceof DocBookElement) {
-
-					DocBookElement childElem = (DocBookElement) child;
-					Node parentElem = parent;
-
-					if ((childElem instanceof Para || childElem.isSection()) && parentElem instanceof Para) {
-						parentElem = parentElem.getParentNode();
-					}
-
-					while (parentElem != null && childElem.isValidParent(null, parentElem) == false) {
-						parentElem = parentElem.getParentNode();
-					}
-
-					if (parentElem != null) {
-						parentElem.appendChild(child);
-					} else {
-						logger.error(String.format("Invalid child %s for parent %s and possible ancestors.",
-								child.getNodeName(), parent.getNodeName()));
-						parent.appendChild(child);
-					}
-
-				} else {
-					parent.appendChild(child);
-				}
+				parent.appendChild(child);
 			}
 
 		} else {
@@ -286,7 +272,6 @@ public class DbdTransformer {
 		}
 
 		node.traverse(new HyphenationVisitor());
-
 	}
 
 	public void transform(PackageElement elem, DocBookElement parent) throws DocletException {
@@ -298,7 +283,7 @@ public class DbdTransformer {
 	}
 
 	public void transform(DocTreePath docTreePath, DocBookElement parent) throws DocletException {
-		if (nonNull(docTreePath.getDocComment())) {
+		if (nonNull(docTreePath) && nonNull(docTreePath.getDocComment())) {
 			transform(docTreePath, docTreePath.getDocComment().getFullBody(), parent);
 		}
 	}

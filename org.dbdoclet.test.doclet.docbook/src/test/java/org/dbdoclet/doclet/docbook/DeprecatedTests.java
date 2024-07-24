@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.junit.Test;
 
 public class DeprecatedTests extends AbstractTestCase {

@@ -7,10 +7,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.doc.DocManager;
-import org.dbdoclet.doclet.doc.DocletException;
-import org.dbdoclet.doclet.doc.ReferenceManager;
-import org.dbdoclet.doclet.doc.TagManager;
+import org.dbdoclet.doclet.common.doc.DocletException;
+import org.dbdoclet.doclet.common.doc.ReferenceManager;
+import org.dbdoclet.doclet.common.doc.TagManager;
 import org.dbdoclet.xiphias.HtmlServices;
 
 import com.google.inject.Inject;
@@ -156,10 +155,6 @@ public class DocBookTagManager extends TagManager {
 			return false;
 		}
 
-		if (Kind.VERSION == kind && script.isCreateVersionInfoEnabled() == false) {
-			return false;
-		}
-
 		if (Kind.SINCE == kind && script.isCreateSinceInfoEnabled() == false) {
 			return false;
 		}
@@ -173,6 +168,10 @@ public class DocBookTagManager extends TagManager {
 		}
 
 		if (Kind.RETURN == kind && script.isCreateParameterInfoEnabled() == false) {
+			return false;
+		}
+
+		if (Kind.VERSION == kind && !script.isCreateVersionInfoEnabled()) {
 			return false;
 		}
 

@@ -2,7 +2,7 @@ package org.dbdoclet.doclet.docbook;
 
 import java.io.IOException;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.junit.Test;
 
 public class BlockTagTests extends AbstractTestCase {

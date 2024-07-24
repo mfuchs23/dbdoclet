@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.spi.ToolProvider;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.junit.Test;
 
 public class MigrationTests {

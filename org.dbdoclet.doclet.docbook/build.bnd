@@ -1,21 +1,24 @@
 -classpath: build/main/classes/
-Main-Class: org.dbdoclet.doclet.docbook
-version=11.0.2-SNAPSHOT
+Main-Class: org.dbdoclet.doclet.docbook.DocBookDoclet
+version=11-SNAPSHOT
 Bundle-Name=org.dbdoclet.doclet.docbook
 Bundle-SymbolicName=org.dbdoclet.doclet.docbook
 Bundle-Version=${version}
-Bundle-ClassPath: ., lib/jcommon.jar, \
+Bundle-ClassPath: ., \
+  lib/antlr4.jar, \
+  lib/jcommon.jar, \
   lib/jfreechart.jar, \
   lib/aopalliance.jar, \
   lib/javax.inject.jar, \
-  lib/guice.jar
-
+  lib/guice.jar, \
+ 
 Include-Resource: \
+  lib/antlr4.jar=lib/antlr4-runtime_4.13.1.jar, \
   lib/jcommon.jar=lib/jcommon_1.0.17.jar, \
   lib/jfreechart.jar=lib/jfreechart_1.0.14.jar, \
   lib/aopalliance.jar=lib/aopalliance_1.0.jar, \
   lib/javax.inject.jar=lib/javax.inject_1.jar, \
-  lib/guice.jar=lib/guice_3.0.jar
+  lib/guice.jar=lib/guice_7.0.0.jar
 
 Export-Package: org.dbdoclet.doclet.*
 Import-Package: org.dbdoclet.*, *;resolution:=optional

@@ -28,7 +28,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 
-import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.DocBookElement;
 import org.dbdoclet.tag.docbook.Formalpara;
@@ -262,14 +262,18 @@ public abstract class StyleCoded extends StyleBase implements Style {
 	}
 
 	@Override
-	public boolean addMemberSynopsis(ExecutableElement doc, DocBookElement parent) throws DocletException {
+	public boolean addMemberSynopsis(ExecutableElement elem, DocBookElement parent) throws DocletException {
 
-		if (docManager.isMethod(doc)) {
-			synopsis.addMethodSynopsis(doc, parent);
+		if (!tagManager.isHidden(elem)) {
+			return false;
 		}
 
-		if (docManager.isConstructor(doc)) {
-			synopsis.addConstructorSynopsis(doc, parent);
+		if (docManager.isMethod(elem)) {
+			synopsis.addMethodSynopsis(elem, parent);
+		}
+
+		if (docManager.isConstructor(elem)) {
+			synopsis.addConstructorSynopsis(elem, parent);
 		}
 
 		return true;

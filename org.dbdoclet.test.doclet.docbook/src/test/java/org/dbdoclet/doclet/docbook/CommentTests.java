@@ -1,6 +1,6 @@
 package org.dbdoclet.doclet.docbook;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.junit.Test;
 
 public class CommentTests extends AbstractTestCase {

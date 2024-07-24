@@ -16,6 +16,7 @@
  */
 package org.dbdoclet.doclet.docbook;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import javax.lang.model.element.VariableElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Colspec;
 import org.dbdoclet.tag.docbook.DocBookElement;
@@ -51,12 +52,10 @@ import org.dbdoclet.xiphias.dom.ProcessingInstructionImpl;
 import com.sun.source.doctree.BlockTagTree;
 import com.sun.source.doctree.DocTree;
 import com.sun.source.doctree.ParamTree;
-import com.sun.source.doctree.ReferenceTree;
 import com.sun.source.doctree.ReturnTree;
 import com.sun.source.doctree.SeeTree;
 import com.sun.source.doctree.SerialFieldTree;
 import com.sun.source.doctree.ThrowsTree;
-import com.sun.source.util.DocTreePath;
 
 /**
  * The class <code>StyleNoTables</code> provides a layout without any tables.
@@ -87,11 +86,20 @@ public class StyleTable extends StyleCoded implements Style {
 		}
 
 		List<ParamTree> paramTagList = tagManager.findParamTags(memberDoc);
-
+		DocBookElement tableParent = parent;
+		
 		if (nonNull(returnTag) || paramTagList.size() > 0) {
 
+			DocBookElement lastChild = (DocBookElement) parent.getLastChild();
+			if (nonNull(lastChild) && lastChild.isSection()) {
+				DocBookElement section = dbfactory.createElementByName(lastChild.getTagName());
+				section.appendChild(dbfactory.createTitle(ResourceServices.getString(res, "C_PARAMETERS")));
+				parent.appendChild(section);
+				tableParent = section;
+			}
+			
 			Informaltable table = dbfactory.createInformaltable();
-			parent.appendChild(table);
+			tableParent.appendChild(table);
 			table.setRole("parameter");
 			table.setFrame("all");
 			table.appendChild(new ProcessingInstructionImpl("dbfo", "table-width=\"98%\""));
@@ -118,16 +126,18 @@ public class StyleTable extends StyleCoded implements Style {
 			Entry entry;
 			Para para;
 
-			row = dbfactory.createRow();
-			tbody.appendChild(row);
-
-			entry = dbfactory.createEntry(ResourceServices.getString(res, "C_PARAMETERS"));
-			row.appendChild(entry);
-			entry.setAlign("left");
-			entry.setNameSt("c1");
-			entry.setNameEnd("c2");
-			entry.appendChild(new ProcessingInstructionImpl("dbfo", "bgcolor=\"#eeeeee\""));
-
+			if (isNull(lastChild) || !lastChild.isSection()) {				
+				
+				row = dbfactory.createRow();
+				tbody.appendChild(row);
+				entry = dbfactory.createEntry(ResourceServices.getString(res, "C_PARAMETERS"));
+				row.appendChild(entry);
+				entry.setAlign("left");
+				entry.setNameSt("c1");
+				entry.setNameEnd("c2");
+				entry.appendChild(new ProcessingInstructionImpl("dbfo", "bgcolor=\"#eeeeee\""));
+			}
+			
 			for (var paramTag : paramTagList) {
 
 				row = dbfactory.createRow();
@@ -200,16 +210,8 @@ public class StyleTable extends StyleCoded implements Style {
 					dbfactory.createVarlistentry().appendChild(dbfactory.createTerm().appendChild(exceptionName))
 							.appendChild(dbfactory.createListitem().appendChild(commentPara)));
 
-			dbdTrafo.transform(elem, tag.getExceptionName().toString(), exceptionName);
-			dbdTrafo.transform(docManager.getDocTreePath(elem), tag, commentPara);
-
-			if (commentPara.hasChildNodes() == false) {
-
-				ReferenceTree refTree = tag.getExceptionName();
-				if (nonNull(refTree)) {
-					dbdTrafo.transform(docManager.getDocTreePath(elem), refTree, commentPara);
-				}
-			}
+			dbdTrafo.transform(docManager.getDocTreePath(elem), tag.getExceptionName(), exceptionName);
+			dbdTrafo.transform(docManager.getDocTreePath(elem), tag.getDescription(), commentPara);
 
 			if (commentPara.hasChildNodes() == false) {
 				commentPara.appendChild("");

@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.lang.model.element.Element;
@@ -29,10 +30,10 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementScanner9;
 
-import org.dbdoclet.doclet.AbstractDoclet;
-import org.dbdoclet.doclet.CDI;
-import org.dbdoclet.doclet.doc.DocManager;
-import org.dbdoclet.doclet.option.DocletOptions;
+import org.dbdoclet.doclet.common.AbstractDoclet;
+import org.dbdoclet.doclet.common.CDI;
+import org.dbdoclet.doclet.common.doc.DocManager;
+import org.dbdoclet.doclet.common.option.DocletOptions;
 import org.dbdoclet.doclet.util.PackageServices;
 import org.dbdoclet.doclet.util.ReleaseServices;
 import org.dbdoclet.service.FileServices;
@@ -68,6 +69,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 		CDI.setInjector(Guice.createInjector(new DbdGuiceModule()));
 		res = CDI.getInstance(ResourceBundle.class);
 		options = new DocletOptions(res);
+		logger.setLevel(Level.FINEST);
 	}
 	
     @Override
@@ -218,6 +220,7 @@ public final class DocBookDoclet extends AbstractDoclet {
 			}
 
 			File destPath = dbdScript.getDestinationDirectory();
+			// File destPath = destFile.getParentFile();
 
 			println(ResourceServices.getString(res, "C_RUNNING_DBDOCLET"));
 			println("Copyright (c) 2001-2024 Michael Fuchs");
@@ -301,5 +304,11 @@ public final class DocBookDoclet extends AbstractDoclet {
 			out.println(indent + "# " + t.getKind() + " " + t.toString().replace("\n", "\n" + indent + "#    "));
 			return super.scan(t, depth + 1);
 		}
+	}
+
+	public static void main(String[] args ) {
+		System.out.println("DocbookDoclet instanziieren...");
+		DocBookDoclet doclet = new DocBookDoclet();
+		System.out.println("Test beenden...");
 	}
 }

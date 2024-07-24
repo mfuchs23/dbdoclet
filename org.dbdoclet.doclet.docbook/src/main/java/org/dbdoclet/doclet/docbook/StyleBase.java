@@ -22,17 +22,15 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
-import com.google.inject.Inject;
 import javax.lang.model.element.Element;
 
-import org.dbdoclet.doclet.ClassDiagramManager;
-import org.dbdoclet.doclet.StatisticData;
-import org.dbdoclet.doclet.doc.DocManager;
-import org.dbdoclet.doclet.doc.ReferenceManager;
-import org.dbdoclet.doclet.doc.TagManager;
+import org.dbdoclet.doclet.common.doc.DocManager;
+import org.dbdoclet.doclet.common.doc.ReferenceManager;
+import org.dbdoclet.doclet.statistic.StatisticData;
 import org.dbdoclet.tag.docbook.DocBookTagFactory;
 import org.dbdoclet.xiphias.Hyphenation;
 
+import com.google.inject.Inject;
 import com.sun.source.doctree.BlockTagTree;
 import com.sun.source.doctree.DocCommentTree;
 import com.sun.source.doctree.DocTree;

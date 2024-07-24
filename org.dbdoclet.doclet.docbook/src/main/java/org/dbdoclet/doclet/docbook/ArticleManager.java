@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
@@ -25,13 +26,10 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.dbdoclet.doclet.ExecutableMemberInfo;
-import org.dbdoclet.doclet.doc.DocletException;
+import org.dbdoclet.doclet.common.ExecutableMemberInfo;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.dbdoclet.service.ResourceServices;
 import org.dbdoclet.tag.docbook.Article;
 import org.dbdoclet.tag.docbook.ArticleInfo;
@@ -49,7 +47,7 @@ import com.sun.source.doctree.DocCommentTree;
 
 public class ArticleManager extends MediaManager {
 
-	static Log logger = LogFactory.getLog(ArticleManager.class);
+	private static Logger logger = Logger.getLogger(ArticleManager.class.getName());
 
 	public ArticleManager() {
 		super();
@@ -140,6 +138,10 @@ public class ArticleManager extends MediaManager {
 
 	private void writePackage(DocBookElement parent, PackageElement pkgElem) throws DocletException {
 
+		if (tagManager.isHidden(pkgElem)) {
+			return;
+		}
+
 		String pkgName = pkgElem.getQualifiedName().toString();
 
 		logger.info(MessageFormat.format(ResourceServices.getString(res, "C_PROCESSING_PACKAGE"), pkgName));
@@ -179,6 +181,10 @@ public class ArticleManager extends MediaManager {
 	}
 
 	private void writeClass(Section sect1, PackageElement pkgElem, TypeElement classElem) throws DocletException {
+
+		if (!tagManager.isHidden(classElem)) {
+			return;
+		}
 
 		try {
 
@@ -285,6 +291,10 @@ public class ArticleManager extends MediaManager {
 
 		for (ExecutableElement member : members) {
 
+			if (tagManager.isHidden(member)) {
+				continue;
+			}
+			
 			ExecutableMemberInfo memberInfo = new ExecutableMemberInfo(member);
 
 			ExecutableElement implementedElem = docManager.implementedMethod(classDoc, member);
@@ -351,7 +361,6 @@ public class ArticleManager extends MediaManager {
 				}
 			}
 
-			DocCommentTree commentTree = docManager.getDocCommentTree(commentDoc);
 			htmlDocBookTrafo.transform(docManager.getDocTreePath(commentDoc), section);
 
 			if (script.isCreateParameterInfoEnabled() == true) {
@@ -407,6 +416,11 @@ public class ArticleManager extends MediaManager {
 		ArrayList<VariableElement> commentedFields = new ArrayList<VariableElement>();
 
 		for (VariableElement field : fields) {
+
+			if (tagManager.isHidden(field)) {
+				continue;
+			}
+			
 			String comment = docManager.getCommentText(field);
 			if (nonNull(comment) && !comment.isBlank()) {
 				commentedFields.add(field);

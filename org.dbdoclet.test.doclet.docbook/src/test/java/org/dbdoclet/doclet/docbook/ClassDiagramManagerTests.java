@@ -2,7 +2,7 @@ package org.dbdoclet.doclet.docbook;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dbdoclet.doclet.DocletException;
+import org.dbdoclet.doclet.common.doc.DocletException;
 import org.junit.Test;
 
 public class ClassDiagramManagerTests extends AbstractTestCase {

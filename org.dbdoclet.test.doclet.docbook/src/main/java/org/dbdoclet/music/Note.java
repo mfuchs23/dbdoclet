@@ -1,6 +1,7 @@
 package org.dbdoclet.music;
 
 import org.dbdoclet.music.annotation.Transpose;
+import org.dbdoclet.music.annotation.Volume;
 
 /**
  * Eine Musiknote.
@@ -12,6 +13,7 @@ import org.dbdoclet.music.annotation.Transpose;
  * 
  * @author Michael Fuchs
  */
+@Volume
 public class Note extends AbstractElement<String, Integer> {
 
 	private static final long serialVersionUID = 1L;
@@ -32,6 +34,7 @@ public class Note extends AbstractElement<String, Integer> {
 		this.pitch = pitch;
 	}
 
+	/** Liefert die <code>Tonhöhe</code> zurück. */
 	@Transpose
 	public int getPitch() {
 		return pitch;
